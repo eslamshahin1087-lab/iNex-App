@@ -10561,38 +10561,6 @@ function hrT(key, vars) {
             return name;
         }
 
-        // ============================================================ //
-        // EMAIL VERIFICATION GATE                                       //
-        // ============================================================ //
-        // Backward compatibility:
-        // - Explicit server-side test accounts may use securepathTest.
-        // - Legacy SecurePath placeholder accounts using the historical
-        //   securepath.com domain must continue to work so existing client
-        //   records are not locked out by the migration.
-        // New production accounts should use real verified email addresses.
-        var VERIFICATION_EXEMPT_DOMAINS = ['securepath.com', 'securepath'];
-
-        function isVerificationExemptUser(user) {
-            if (!user) return Promise.resolve(false);
-
-            // Refresh the Firebase user first so emailVerified is current.
-            // Then force-refresh the ID token so newly assigned
-            // securepathTest claims are visible immediately.
-            return user.reload().catch(function() {}).then(function() {
-                var email = String(user.email || '').trim().toLowerCase();
-                var at = email.lastIndexOf('@');
-                var legacyDomainExempt = at > 0 && VERIFICATION_EXEMPT_DOMAINS.indexOf(email.slice(at + 1)) !== -1;
-
-                if (legacyDomainExempt) return true;
-
-                return user.getIdTokenResult(true).then(function(result) {
-                    return result && result.claims && result.claims.securepathTest === true;
-                }).catch(function() {
-                    return false;
-                });
-            });
-        }
-
         // SECURITY: shared by both the manual-login flow (finishClientLogin)
         // and the auto-login/session-resume flow (resumeClientSession) so the
         // profile-provisioning logic never drifts between the two paths.
@@ -10636,18 +10604,9 @@ function hrT(key, vars) {
             requestNotificationPermission().catch(function() {});
         }
 
-        // SECURITY: resumes an already-authenticated Firebase session (LOCAL
-        // persistence keeps the user signed in across app restarts). This
-        // path MUST re-check emailVerified exactly like finishClientLogin -
-        // a persisted session is not itself proof the account was ever
-        // allowed through the manual-login verification gate.
+        // Resume an authenticated Firebase session without requiring email verification.
         function resumeClientSession(user) {
-            return isVerificationExemptUser(user).then(function(exempt) {
-                if (!user.emailVerified && !exempt) {
-                    return Promise.reject({ code: 'auth/email-not-verified', message: 'Please verify your email address before logging in.' });
-                }
-                return resolveClientProfileForUser(user);
-            }).then(function(profile) {
+            return resolveClientProfileForUser(user).then(function(profile) {
                 STATE.userData = Object.assign({}, profile.data || {});
                 STATE.currentUser = { uid: user.uid, name: displayClientName(STATE.userData, (user.email || '').split('@')[0]), email: user.email || STATE.userData.email || STATE.userData.loginEmail || '' };
                 if (STATE.userData.language === 'ar' || STATE.userData.language === 'en') STATE.language = STATE.userData.language;
@@ -10659,12 +10618,7 @@ function hrT(key, vars) {
         function finishClientLogin(credential, identifier) {
             var user = credential && credential.user;
             if (!user) return Promise.reject({ code: 'auth/no-user', message: 'Firebase did not return a user.' });
-            return isVerificationExemptUser(user).then(function(exempt) {
-                if (!user.emailVerified && !exempt) {
-                    return Promise.reject({ code: 'auth/email-not-verified', message: 'Please verify your email address before logging in.' });
-                }
-                return resolveClientProfileForUser(user);
-            }).then(function(profile) {
+            return resolveClientProfileForUser(user).then(function(profile) {
                 var name = verifyClientIdentity(profile, user, identifier);
                 STATE.userData = Object.assign({}, profile.data || {});
                 STATE.currentUser = { uid: user.uid, name: name, email: user.email || STATE.userData.email || STATE.userData.loginEmail || '' };
@@ -10710,7 +10664,6 @@ function hrT(key, vars) {
                     else if (code === 'client/identity-mismatch') message = STATE.language === 'ar' ? 'تم تسجيل الدخول بحساب Firebase مختلف عن اسم المستخدم المطلوب.' : 'The authenticated Firebase account does not match the requested username.';
                     else if (code === 'client/name-missing') message = STATE.language === 'ar' ? 'ملف العميل لا يحتوي اسمًا صالحًا للعرض.' : 'The client profile has no valid display name.';
                     else if (code === 'client/invalid-role') message = STATE.language === 'ar' ? 'هذا الحساب ليس حساب عميل.' : 'This account is not a client account.';
-                    else if (code === 'auth/email-not-verified') message = STATE.language === 'ar' ? 'يجب توثيق بريدك الإلكتروني قبل تسجيل الدخول. يرجى مراجعة صندوق الوارد لديك (وملف الرسائل غير المرغوبة) وتفعيل رابط التوثيق ثم إعادة المحاولة.' : 'Please verify your email address before logging in. Check your inbox (and spam folder) for the verification link, then try again.';
                     else if (code === 'permission-denied' || code === 'firestore/permission-denied') message = STATE.language === 'ar' ? 'تم تسجيل الدخول لكن Firebase يمنع قراءة ملف العميل.' : 'Authentication succeeded, but Firestore rules deny access to the client profile.';
                     else message = (STATE.language === 'ar' ? 'فشل تسجيل الدخول: ' : 'Login failed: ') + friendlyFirebaseError(e);
                     if (err) { err.textContent = message;
@@ -10812,15 +10765,13 @@ function hrT(key, vars) {
                     STATE.offerReferralName = null;
                     STATE.offerReferralCompany = null;
                 }
-                return cred.user.sendEmailVerification().catch(function() {}).then(function() {
-                    return auth.signOut().catch(function() {});
-                }).then(function() {
+                return auth.signOut().catch(function() {}).then(function() {
                     hideLoading('signupBtn');
                     resetState();
                     showScreen('login');
                     var loginErr = document.getElementById('loginError');
                     if (loginErr) {
-                        loginErr.textContent = STATE.language === 'ar' ? 'تم إنشاء حسابك بنجاح! أرسلنا رابط توثيق إلى بريدك الإلكتروني — يرجى تفعيله ثم تسجيل الدخول.' : 'Your account was created! We sent a verification link to your email — please verify it, then log in.';
+                        loginErr.textContent = STATE.language === 'ar' ? 'تم إنشاء حسابك بنجاح! يمكنك تسجيل الدخول الآن.' : 'Your account was created successfully! You can log in now.';
                         loginErr.style.display = 'block';
                     }
                 });
@@ -15970,11 +15921,7 @@ auth.onAuthStateChanged(function(user) {
         auth.signOut().catch(function() {});
         var code = e && e.code || '';
         var message;
-        if (code === 'auth/email-not-verified') {
-            message = STATE.language === 'ar' ? 'يجب توثيق بريدك الإلكتروني قبل تسجيل الدخول. يرجى مراجعة صندوق الوارد لديك (وملف الرسائل غير المرغوبة) وتفعيل رابط التوثيق ثم إعادة المحاولة.' : 'Please verify your email address before logging in. Check your inbox (and spam folder) for the verification link, then try again.';
-        } else {
-            message = STATE.language === 'ar' ? 'تعذّر استعادة جلستك تلقائيًا. يرجى تسجيل الدخول مرة أخرى.' : 'We could not restore your session automatically. Please log in again.';
-        }
+        var message = STATE.language === 'ar' ? 'تعذّر استعادة جلستك تلقائيًا. يرجى تسجيل الدخول مرة أخرى.' : 'We could not restore your session automatically. Please log in again.';
         showLoginAfterAuthChange(message);
     });
 });            if ('IntersectionObserver' in window) {
