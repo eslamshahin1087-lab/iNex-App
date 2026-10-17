@@ -8614,7 +8614,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'العودة',
                 referralCodeLabel: 'كود الدعوة الخاص بك',
                 referralShareBtn: '📤 مشاركة رابط الدعوة',
-                signupDisclosure: '(SecurePath - منصة تعريفية و توعوية هدفها خدمة حاملي وثائق التأمين و لا تمثل شركة تأمين بعينها. و يتم عرض منتجات شركات التامين المرخصة من الــFRA و حال الرغبة في الحصول عرض تأمين يتم التعامل بنظام احالة الطلب الي وسيط التأمين المرخص من الهيئة تحت رقم نرخيص - FRA 38062)',
+                signupDisclosure: '(SecurePath منصة توعوية وليست شركة تأمين. عند التسجيل، يتم إرسال الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM لإدارة العملاء المحتملين ومتابعة الطلبات. لا تُرسل كلمة المرور أو بيانات المصادقة. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
                 brokerDisclosure: 'منصة تعريفية وتوعوية هدفها خدمة حاملي وثائق التأمين،\nولا تمثل شركة تأمين بعينها.\n\nيتم عرض الشركات والمنتجات المرخّصة من الهيئة العامة للرقابة المالية (FRA).\nحال الرغبة في الحصول على مزيد من المعلومات،\nيُرجى التواصل مع الوسيط المرخّص الحر بكود FRA 38062.',
                 noOffers: 'لا توجد عروض حالياً',
                 noOffersText: 'سيتم إضافة عروض وخصومات جديدة قريباً',
@@ -8966,7 +8966,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'Back',
                 referralCodeLabel: 'Your referral code',
                 referralShareBtn: '📤 Share referral link',
-                signupDisclosure: '(SecurePath is an informational and awareness platform serving insurance policyholders and does not represent any single insurance company. Products shown belong to FRA-licensed insurance companies, and any insurance request is handled by referral to the independent broker licensed by the Authority under license number FRA 38062)',
+                signupDisclosure: '(SecurePath is an insurance awareness platform, not an insurer. When you register, your name, email, phone, client type and company name when applicable are sent to InsurNex CRM to manage leads and follow up on requests. Your password and authentication credentials are never sent. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
                 brokerDisclosure: 'An informational and awareness platform serving insurance policyholders,\nnot representing any single insurance company.\n\nLicensed companies and products approved by the Financial Regulatory Authority (FRA) are displayed.\nFor more information,\nplease contact the licensed independent broker under FRA code 38062.',
                 accountOffers: 'Offers & Discounts',
                 accountOffersSub: 'Latest exclusive offers',
@@ -10591,10 +10591,20 @@ function hrT(key, vars) {
         // SECURITY: shared post-profile-load rendering, used by both
         // finishClientLogin and resumeClientSession so a resumed session
         // ends up in exactly the same state as a fresh manual login.
+        function syncSecurePathLeadToInsurNex() {
+            if (!window.securePathApiCall || !auth || !auth.currentUser) return;
+            window.securePathApiCall('/v1/client/registration-lead', {}).then(function(result) {
+                console.info('[InsurNex] SecurePath lead sync completed.', { leadId: result && result.leadId, alreadyExists: !!(result && result.alreadyExists) });
+            }).catch(function(error) {
+                console.warn('[InsurNex] Lead sync deferred; it will retry on a later session.', error && error.message || error);
+            });
+        }
+
         function enterClientHome() {
             updateAllTexts();
             renderAll();
             showScreen('home');
+            syncSecurePathLeadToInsurNex();
             requestAnimationFrame(function() { renderCompaniesSlider(); });
             setTimeout(function() { renderCompaniesSlider(); }, 120);
             if (!STATE.userData.onboardingSeen) {
@@ -10715,6 +10725,7 @@ function hrT(key, vars) {
                 clientType: clientType,
                 existingPolicies: getSelectedPolicies(),
                 termsAccepted: true,
+                crmLeadSyncConsent: true,
                 termsAcceptedDate: firebase.firestore.FieldValue.serverTimestamp(),
                 role: 'client',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
