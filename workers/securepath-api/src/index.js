@@ -1207,7 +1207,7 @@ async function handleCloudinarySign(env, uid) {
     e.status = 503;
     throw e;
   }
-  if (!/^\\d{5,30}$/.test(apiKey)) {
+  if (!/^\d{5,30}$/.test(apiKey)) {
     const e = new Error('CLOUDINARY_API_KEY is missing or invalid');
     e.status = 503;
     throw e;
