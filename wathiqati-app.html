@@ -8393,19 +8393,18 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         };
         if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
 
-        // ═══════════════════════════════════════════════════
-// 🔐 تفعيل الدخول التلقائي (حفظ الجلسة بشكل دائم)
-// ═══════════════════════════════════════════════════
-firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .then(() => {
-    console.log('✅ Auth persistence: LOCAL (الدخول التلقائي مفعّل)');
-  })
-  .catch((error) => {
-    console.error('❌ خطأ في setPersistence:', error);
-  });
-
         var auth = firebase.auth();
         var db = firebase.firestore();
+
+        // Set persistence once and expose one readiness promise to every auth flow.
+        var AUTH_READY = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+            .then(function() {
+                console.log('✅ Auth persistence: LOCAL (الدخول التلقائي مفعّل)');
+            })
+            .catch(function(error) {
+                console.error('❌ خطأ في setPersistence:', error);
+                // Wait for the attempt to settle; continue with Firebase's available persistence.
+            });
 
         // ============================================================ //
         // STATE                                                         //
@@ -8421,8 +8420,8 @@ firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             hrMedicalReports: [], hrConsumption: null
         };
 
-        var AUTH_READY = null;
         var LOGIN_IN_PROGRESS = false;
+        var SIGNUP_IN_PROGRESS = false;
         var activeObjectUrls = [];
         var assessmentCache = {};
         var RENEWAL_WINDOW_DAYS = 45;
@@ -10677,6 +10676,7 @@ function hrT(key, vars) {
         }
 
         function handleSignup() {
+            if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS) return;
             var fullName = (document.getElementById('regFullName').value || '').trim(),
                 email = (document.getElementById('regEmail').value || '').trim(),
                 pass = document.getElementById('regPass').value || '';
@@ -10732,8 +10732,13 @@ function hrT(key, vars) {
                 data.offerReferralCompany = STATE.offerReferralCompany || '';
                 data.offerReferralDate = firebase.firestore.FieldValue.serverTimestamp();
             }
+            SIGNUP_IN_PROGRESS = true;
+            var accountCreated = false;
             showLoading('signupBtn', STATE.language === 'ar' ? 'جاري التسجيل...' : 'Signing up...');
-            auth.createUserWithEmailAndPassword(email, pass).then(function(cred) {
+            Promise.resolve(AUTH_READY).then(function() {
+                return auth.createUserWithEmailAndPassword(email, pass);
+            }).then(function(cred) {
+                accountCreated = true;
                 return db.collection('clients').doc(cred.user.uid).set(data, { merge: true }).then(function() { return cred; });
             }).then(function(cred) {
                 if (refCode) {
@@ -10765,21 +10770,31 @@ function hrT(key, vars) {
                     STATE.offerReferralName = null;
                     STATE.offerReferralCompany = null;
                 }
-                return auth.signOut().catch(function() {}).then(function() {
-                    hideLoading('signupBtn');
-                    resetState();
-                    showScreen('login');
-                    var loginErr = document.getElementById('loginError');
-                    if (loginErr) {
-                        loginErr.textContent = STATE.language === 'ar' ? 'تم إنشاء حسابك بنجاح! يمكنك تسجيل الدخول الآن.' : 'Your account was created successfully! You can log in now.';
-                        loginErr.style.display = 'block';
-                    }
-                });
+                // Keep the newly-created Firebase user signed in and reuse the normal login flow.
+                return finishClientLogin(cred, email);
+            }).then(function() {
+                err.style.display = 'none';
             }).catch(function(e) {
-                hideLoading('signupBtn');
-                auth.signOut().catch(function() {});
+                if (accountCreated) {
+                    // The Auth account exists, but profile/session setup failed. Do not leave a partial session.
+                    SIGNUP_IN_PROGRESS = false;
+                    return auth.signOut().catch(function() {}).then(function() {
+                        resetState();
+                        showScreen('login');
+                        var loginErr = document.getElementById('loginError');
+                        if (loginErr) {
+                            loginErr.textContent = STATE.language === 'ar'
+                                ? 'تم إنشاء الحساب، لكن تعذّر تجهيز ملفك للدخول تلقائيًا. يرجى تسجيل الدخول مرة أخرى أو التواصل مع الدعم. (' + friendlyFirebaseError(e) + ')'
+                                : 'Your account was created, but automatic sign-in could not be completed. Please try logging in or contact support. (' + friendlyFirebaseError(e) + ')';
+                            loginErr.style.display = 'block';
+                        }
+                    });
+                }
                 err.textContent = (STATE.language === 'ar' ? 'فشل إنشاء الحساب: ' : 'Account creation failed: ') + friendlyFirebaseError(e);
                 err.style.display = 'block';
+            }).finally(function() {
+                SIGNUP_IN_PROGRESS = false;
+                hideLoading('signupBtn');
             });
         }
 
@@ -15879,10 +15894,7 @@ function updateHRTexts() {
 // ═══════════════════════════════════════════════════════════════
 // 🔐 [تعديل] الدخول التلقائي - LOCAL persistence
 // ═══════════════════════════════════════════════════════════════
-AUTH_READY = auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .catch(function(e) {
-        console.warn('Auth persistence warning:', e);
-    });
+// AUTH_READY is initialized once above; all auth operations wait for this promise.
 
 // ═══════════════════════════════════════════════════════════════
 // 🔐 مراقبة حالة المستخدم - استئناف الجلسة تلقائيًا (مع التحقق من
@@ -15906,25 +15918,44 @@ function showLoginAfterAuthChange(message) {
 }
 
 auth.onAuthStateChanged(function(user) {
+    // Signup/login own their auth transition; the listener must not race their profile writes.
+    if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS) return;
+
     if (!user) {
         console.log('ℹ️ عرض شاشة الدخول');
         showLoginAfterAuthChange();
         return;
     }
-    resetState();
-    resumeClientSession(user).then(function() {
-        console.log('✅ تم استئناف الجلسة تلقائيًا:', user.email);
-        captureOfferReferral();
-        showOfferReferralBanner('home');
+
+    // Wait for persistence initialization before restoring a stored session.
+    Promise.resolve(AUTH_READY).then(function() {
+        if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS) return;
+        if (!auth.currentUser || auth.currentUser.uid !== user.uid) return;
+        // The explicit login/signup path has already finished loading this user.
+        if (STATE.currentUser && STATE.currentUser.uid === user.uid) return;
+
+        resetState();
+        return resumeClientSession(user).then(function() {
+            console.log('✅ تم استئناف الجلسة تلقائيًا:', user.email);
+            captureOfferReferral();
+            showOfferReferralBanner('home');
+        }).catch(function(e) {
+            console.warn('Session resume failed:', e);
+            var message = STATE.language === 'ar'
+                ? 'تعذّر استعادة جلستك تلقائيًا. يرجى تسجيل الدخول مرة أخرى.'
+                : 'We could not restore your session automatically. Please log in again.';
+            auth.signOut().catch(function() {});
+            showLoginAfterAuthChange(message);
+        });
     }).catch(function(e) {
-        console.warn('Session resume failed:', e);
-        auth.signOut().catch(function() {});
-        var code = e && e.code || '';
-        var message;
-        var message = STATE.language === 'ar' ? 'تعذّر استعادة جلستك تلقائيًا. يرجى تسجيل الدخول مرة أخرى.' : 'We could not restore your session automatically. Please log in again.';
+        console.warn('Auth persistence initialization failed:', e);
+        var message = STATE.language === 'ar'
+            ? 'تعذّر تهيئة جلسة الدخول. يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى.'
+            : 'Could not initialize the sign-in session. Please reload the page and try again.';
         showLoginAfterAuthChange(message);
     });
-});            if ('IntersectionObserver' in window) {
+});
+            if ('IntersectionObserver' in window) {
                 var imgObserver = new IntersectionObserver(function(entries) {
                     entries.forEach(function(entry) {
                         if (entry.isIntersecting) {
