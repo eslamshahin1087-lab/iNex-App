@@ -192,7 +192,7 @@ async function verifyFirebaseIdToken(token) {
 
 function getBearer(request) {
   const value = request.headers.get('Authorization') || '';
-  const match = value.match(/^Bearer\\s+(.+)$/i);
+  const match = value.match(/^Bearer\s+(.+)$/i);
   return match ? match[1].trim() : '';
 }
 
