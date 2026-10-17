@@ -10591,10 +10591,20 @@ function hrT(key, vars) {
         // SECURITY: shared post-profile-load rendering, used by both
         // finishClientLogin and resumeClientSession so a resumed session
         // ends up in exactly the same state as a fresh manual login.
+        function syncSecurePathLeadToInsurNex() {
+            if (!window.securePathApiCall || !auth || !auth.currentUser) return;
+            window.securePathApiCall('/v1/client/registration-lead', {}).then(function(result) {
+                console.info('[InsurNex] SecurePath lead sync completed.', { leadId: result && result.leadId, alreadyExists: !!(result && result.alreadyExists) });
+            }).catch(function(error) {
+                console.warn('[InsurNex] Lead sync deferred; it will retry on a later session.', error && error.message || error);
+            });
+        }
+
         function enterClientHome() {
             updateAllTexts();
             renderAll();
             showScreen('home');
+            syncSecurePathLeadToInsurNex();
             requestAnimationFrame(function() { renderCompaniesSlider(); });
             setTimeout(function() { renderCompaniesSlider(); }, 120);
             if (!STATE.userData.onboardingSeen) {
