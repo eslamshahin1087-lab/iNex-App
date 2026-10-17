@@ -11,10 +11,8 @@ const DATASTORE_SCOPE = 'https://www.googleapis.com/auth/datastore';
 const INSURNEX_PROJECT_ID = 'insurnex-8a9df';
 const INSURNEX_DB_ROOT = `https://firestore.googleapis.com/v1/projects/${INSURNEX_PROJECT_ID}/databases/(default)/documents`;
 
-const CLOUDINARY_CLOUD_NAME = 'zs4wny34';
-const CLOUDINARY_API_KEY = '147401369695394';
-const CLOUDINARY_ALLOWED_PREFIX = `https://res.cloudinary.com/${CLOUDINARY_CLOUD_NAME}/`;
-
+// Cloudinary account/key pair is configured in Cloudflare Worker Production variables/secrets.
+// Keep API secrets out of source control.
 const POINTS = {
   assessment: 30,
   documentUpload: 10,
@@ -1196,7 +1194,24 @@ async function handleAssessmentAdminNotification(env, uid, data) {
 
 async function handleCloudinarySign(env, uid) {
   const secret = String(env.CLOUDINARY_API_SECRET || '');
-  if (!secret) throw new Error('CLOUDINARY_API_SECRET is not configured');
+  const cloudName = String(env.CLOUDINARY_CLOUD_NAME || '').trim();
+  const apiKey = String(env.CLOUDINARY_API_KEY || '').trim();
+
+  if (!secret) {
+    const e = new Error('CLOUDINARY_API_SECRET is not configured');
+    e.status = 503;
+    throw e;
+  }
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(cloudName)) {
+    const e = new Error('CLOUDINARY_CLOUD_NAME is missing or invalid');
+    e.status = 503;
+    throw e;
+  }
+  if (!/^\\d{5,30}$/.test(apiKey)) {
+    const e = new Error('CLOUDINARY_API_KEY is missing or invalid');
+    e.status = 503;
+    throw e;
+  }
   if (!uid) throw new Error('Authenticated user required');
 
   const timestamp = Math.floor(Date.now() / 1000);
@@ -1206,8 +1221,8 @@ async function handleCloudinarySign(env, uid) {
   const hash = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(signatureBase + secret));
   const signature = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
   return {
-    cloudName: CLOUDINARY_CLOUD_NAME,
-    apiKey: CLOUDINARY_API_KEY,
+    cloudName,
+    apiKey,
     timestamp,
     folder,
     publicId,
