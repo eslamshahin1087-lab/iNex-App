@@ -6685,6 +6685,10 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                     <input type="checkbox" id="termsCheck">
                     <label for="termsCheck" id="termsLabel">أوافق على <span class="link" onclick="openTermsModal()" id="termsLink">الشروط والأحكام</span> وسياسة الخصوصية للتطبيق</label>
                 </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="crmLeadSyncConsentCheck">
+                    <label for="crmLeadSyncConsentCheck" id="crmLeadSyncConsentLabel">أوافق اختياريًا على مشاركة بيانات التواصل المحددة أعلاه مع InsurNex CRM لمتابعة الطلبات وإدارة العملاء المحتملين. يمكنك التسجيل دون هذه الموافقة.</label>
+                </div>
                 <button class="btn-primary" id="signupBtn" onclick="handleSignup()" disabled>🌟 تسجيل الحساب</button>
                 <div class="switch-auth" id="signupSwitch">لديك حساب بالفعل؟ <b onclick="showScreen('login')">تسجيل الدخول</b></div>
             </div>
@@ -8614,7 +8618,8 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'العودة',
                 referralCodeLabel: 'كود الدعوة الخاص بك',
                 referralShareBtn: '📤 مشاركة رابط الدعوة',
-                signupDisclosure: '(SecurePath منصة توعوية وليست شركة تأمين. عند التسجيل، يتم إرسال الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM لإدارة العملاء المحتملين ومتابعة الطلبات. لا تُرسل كلمة المرور أو بيانات المصادقة. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
+                signupDisclosure: '(SecurePath منصة توعوية وليست شركة تأمين. لن تُرسل بيانات التواصل إلى InsurNex CRM إلا إذا اخترت الموافقة الاختيارية أدناه. عند الموافقة، تتم مشاركة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه لإدارة العملاء المحتملين ومتابعة الطلبات. لا تُرسل كلمة المرور أو بيانات المصادقة. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
+                crmLeadSyncConsentLabel: 'أوافق اختياريًا على مشاركة اسمي وبريدي الإلكتروني ورقم هاتفي ونوع العميل واسم المنشأة عند انطباقه مع InsurNex CRM لمتابعة الطلبات وإدارة العملاء المحتملين. يمكنك التسجيل دون هذه الموافقة.',
                 brokerDisclosure: 'منصة تعريفية وتوعوية هدفها خدمة حاملي وثائق التأمين،\nولا تمثل شركة تأمين بعينها.\n\nيتم عرض الشركات والمنتجات المرخّصة من الهيئة العامة للرقابة المالية (FRA).\nحال الرغبة في الحصول على مزيد من المعلومات،\nيُرجى التواصل مع الوسيط المرخّص الحر بكود FRA 38062.',
                 noOffers: 'لا توجد عروض حالياً',
                 noOffersText: 'سيتم إضافة عروض وخصومات جديدة قريباً',
@@ -8966,7 +8971,8 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'Back',
                 referralCodeLabel: 'Your referral code',
                 referralShareBtn: '📤 Share referral link',
-                signupDisclosure: '(SecurePath is an insurance awareness platform, not an insurer. When you register, your name, email, phone, client type and company name when applicable are sent to InsurNex CRM to manage leads and follow up on requests. Your password and authentication credentials are never sent. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
+                signupDisclosure: '(SecurePath is an insurance awareness platform, not an insurer. Your contact details will be sent to InsurNex CRM only if you choose the optional consent below. If you consent, your name, email, phone, client type and company name when applicable will be shared to manage leads and follow up on requests. Your password and authentication credentials are never sent. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
+                crmLeadSyncConsentLabel: 'I optionally agree to share my name, email, phone, client type and company name when applicable with InsurNex CRM to manage leads and follow up on requests. You can register without this consent.',
                 brokerDisclosure: 'An informational and awareness platform serving insurance policyholders,\nnot representing any single insurance company.\n\nLicensed companies and products approved by the Financial Regulatory Authority (FRA) are displayed.\nFor more information,\nplease contact the licensed independent broker under FRA code 38062.',
                 accountOffers: 'Offers & Discounts',
                 accountOffersSub: 'Latest exclusive offers',
@@ -10699,6 +10705,7 @@ function hrT(key, vars) {
                 businessActivity = (document.getElementById('regBusinessActivity').value || '').trim(),
                 employees = parseInt(document.getElementById('regEmployees').value, 10) || 0;
             var terms = document.getElementById('termsCheck'),
+                crmLeadSyncConsent = document.getElementById('crmLeadSyncConsentCheck'),
                 err = document.getElementById('signupError');
             var signupLang = document.getElementById('signupLanguage') ? document.getElementById('signupLanguage').value : 'ar';
             STATE.language = normalizeLanguage(signupLang);
@@ -10725,7 +10732,9 @@ function hrT(key, vars) {
                 clientType: clientType,
                 existingPolicies: getSelectedPolicies(),
                 termsAccepted: true,
-                crmLeadSyncConsent: true,
+                crmLeadSyncConsent: !!(crmLeadSyncConsent && crmLeadSyncConsent.checked),
+                crmLeadSyncConsentAt: crmLeadSyncConsent && crmLeadSyncConsent.checked ? firebase.firestore.FieldValue.serverTimestamp() : null,
+                crmLeadSyncConsentNoticeVersion: crmLeadSyncConsent && crmLeadSyncConsent.checked ? '2026-10-17' : '',
                 termsAcceptedDate: firebase.firestore.FieldValue.serverTimestamp(),
                 role: 'client',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -12582,10 +12591,11 @@ function hrT(key, vars) {
 
         function applyBrokerDisclosure() {
             var disclosure = getText('brokerDisclosure');
+            var signupDisclosure = getText('signupDisclosure');
             var footer = document.getElementById('brokerDisclosureFooter');
             if (footer) footer.textContent = disclosure;
             var signup = document.getElementById('signupDisclosure');
-            if (signup) signup.textContent = disclosure;
+            if (signup) signup.textContent = signupDisclosure;
             var tagline = document.getElementById('loginTagline');
             if (tagline) tagline.textContent = getText('loginTagline');
         }
@@ -14988,6 +14998,7 @@ function hrT(key, vars) {
             accStatScoreLabel: 'accStatScore',
             liveChatBadge: 'liveChatBadge',
             signupDisclosure: 'signupDisclosure',
+            crmLeadSyncConsentLabel: 'crmLeadSyncConsentLabel',
             accountSectionLegal: 'accountSectionLegal',
             accountPrivacyPolicy: 'accountPrivacyPolicy',
             accountPrivacyPolicySub: 'accountPrivacyPolicySub',
