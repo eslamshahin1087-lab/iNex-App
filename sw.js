@@ -1,6 +1,6 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'securepath-v7-no-email-verification';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'securepath-v8-signup-session-cors-fix';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
