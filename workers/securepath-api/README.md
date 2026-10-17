@@ -11,6 +11,22 @@ Set these as Cloudflare Worker Secrets:
 
 Do not put either value in Git.
 
+## InsurNex lead synchronization (Firebase Spark-compatible)
+
+The SecurePath-to-InsurNex lead sync writes directly to the InsurNex Firestore REST API through this Worker. It does not deploy or call Firebase Cloud Functions, Secret Manager, or require upgrading Firebase to Blaze.
+
+Configure the receiving destination in the Cloudflare Worker settings (not in Git):
+
+- `INSURNEX_RECEIVER_UID` — the Firebase Authentication UID of `securepath@nex.com`.
+- `INSURNEX_ORGANIZATION_ID` — the exact document ID of that receiver's organization in the InsurNex `organizations` collection.
+- `INSURNEX_RECEIVER_NAME` — optional display name; defaults to `secure path leads`.
+
+Create a dedicated service account in Google Cloud project `insurnex-8a9df` for this Worker. Avoid using a project Owner/Editor account or the receiver's password. Prefer a custom IAM role containing only the permissions needed to create Firestore documents (for example `datastore.entities.create`, plus the database/project metadata permissions required by your project). Do not grant broad read/update/delete permissions. Assign that role to the dedicated service account, create a JSON key, and store the entire JSON as the Cloudflare Worker Secret `INSURNEX_SERVICE_ACCOUNT_JSON`.
+
+The Worker creates deterministic `leads/sp_<hash>` and `leadActivities/<lead-id>_created` documents in a single atomic commit with create-only preconditions. Repeated calls return an idempotent success rather than creating duplicate leads. The Worker still reads the SecurePath client profile itself and sends contact details only when `crmLeadSyncConsent === true`.
+
+Treat the service-account JSON key as a credential: do not commit it, paste it into chat, or include it in screenshots. The receiving service account should not be given broad data-read permissions.
+
 ## Endpoints
 
 - `POST /v1/points` — insurance/habit/manual-driving/GPS point issuance.
