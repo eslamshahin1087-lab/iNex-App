@@ -2,14 +2,18 @@
 
 Cloudflare Worker backend for SecurePath. It replaces Firebase Cloud Functions so the Firebase project can remain on the Spark/free plan.
 
-## Runtime secrets
+## Cloudinary configuration
 
-Set these as Cloudflare Worker Secrets:
+Configure these in the Cloudflare Worker **Production** environment:
 
-- `FIREBASE_SERVICE_ACCOUNT_JSON`: the complete Firebase service-account JSON.
-- `CLOUDINARY_API_SECRET`: the Cloudinary API Secret.
+**Variables** (non-secret):
+- `CLOUDINARY_CLOUD_NAME`: the Cloudinary cloud name. For the currently selected SecurePath account, the console shows `securepath`.
+- `CLOUDINARY_API_KEY`: the active API key from that same Cloudinary account.
 
-Do not put either value in Git.
+**Secret**:
+- `CLOUDINARY_API_SECRET`: the API Secret paired with `CLOUDINARY_API_KEY`.
+
+Do not put the API Secret in source control, commit history, screenshots, or chat. If a secret has been shared outside the secret manager, rotate the API key pair and use the replacement.
 
 ## InsurNex lead synchronization (Firebase Spark-compatible)
 
