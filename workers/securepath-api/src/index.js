@@ -1102,7 +1102,20 @@ export default {
     }
 
     try {
-      return await route(request, env);
+      const response = await route(request, env);
+      // Keep successful API responses readable by the browser. The complaint handler
+      // commits the complaint before returning; missing CORS on that success response
+      // makes the browser report failure even though the record is already saved.
+      const headers = new Headers(response.headers);
+      headers.set('Access-Control-Allow-Origin', origin || 'https://eslamshahin1087-lab.github.io');
+      headers.set('Access-Control-Allow-Methods', 'POST,OPTIONS');
+      headers.set('Access-Control-Allow-Headers', 'Authorization,Content-Type');
+      headers.set('Vary', 'Origin');
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: headers
+      });
     } catch (e) {
       const status = e.status || 400;
       const message = e.message || 'Request failed';
