@@ -21,7 +21,7 @@ Configure the receiving destination in the Cloudflare Worker settings (not in Gi
 - `INSURNEX_ORGANIZATION_ID` — the exact document ID of that receiver's organization in the InsurNex `organizations` collection.
 - `INSURNEX_RECEIVER_NAME` — optional display name; defaults to `secure path leads`.
 
-Create a dedicated service account in Google Cloud project `insurnex-8a9df` for this Worker. Avoid using a project Owner/Editor account or the receiver's password. Prefer a custom IAM role containing only the permissions needed to create Firestore documents (for example `datastore.entities.create`, plus the database/project metadata permissions required by your project). Do not grant broad read/update/delete permissions. Assign that role to the dedicated service account, create a JSON key, and store the entire JSON as the Cloudflare Worker Secret `INSURNEX_SERVICE_ACCOUNT_JSON`.
+Create a dedicated service account in Google Cloud project `insurnex-8a9df` for this Worker. Avoid using a project Owner/Editor account or the receiver's password. Prefer a project-level custom IAM role with `datastore.entities.create` and only the database/project metadata permissions required by the Firestore API (such as `datastore.databases.get`, `datastore.databases.getMetadata`, and `resourcemanager.projects.get` if required). Do not add `datastore.entities.get`, `datastore.entities.list`, `datastore.entities.update`, or `datastore.entities.delete`; this Worker does not need to read or modify existing InsurNex records. Assign that role to the dedicated service account, create a JSON key, and store the entire JSON as the Cloudflare Worker Secret `INSURNEX_SERVICE_ACCOUNT_JSON`.
 
 The Worker creates deterministic `leads/sp_<hash>` and `leadActivities/<lead-id>_created` documents in a single atomic commit with create-only preconditions. Repeated calls return an idempotent success rather than creating duplicate leads. The Worker still reads the SecurePath client profile itself and sends contact details only when `crmLeadSyncConsent === true`.
 
@@ -51,6 +51,7 @@ Install Wrangler, then from this directory:
 npx wrangler login
 npx wrangler secret put FIREBASE_SERVICE_ACCOUNT_JSON
 npx wrangler secret put CLOUDINARY_API_SECRET
+npx wrangler secret put INSURNEX_SERVICE_ACCOUNT_JSON
 npx wrangler deploy
 ```
 
