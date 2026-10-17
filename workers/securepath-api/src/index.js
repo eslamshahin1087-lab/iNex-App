@@ -8,7 +8,8 @@ const FIREBASE_ISSUER = `https://securetoken.google.com/${PROJECT_ID}`;
 const FIREBASE_JWKS = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DATASTORE_SCOPE = 'https://www.googleapis.com/auth/datastore';
-const INSURNEX_INGEST_URL = 'https://europe-west1-insurnex-8a9df.cloudfunctions.net/ingestSecurePathLead';
+const INSURNEX_PROJECT_ID = 'insurnex-8a9df';
+const INSURNEX_DB_ROOT = `https://firestore.googleapis.com/v1/projects/${INSURNEX_PROJECT_ID}/databases/(default)/documents`;
 
 const CLOUDINARY_CLOUD_NAME = 'zs4wny34';
 const CLOUDINARY_API_KEY = '147401369695394';
@@ -49,6 +50,8 @@ const ROAD_TYPES = {
 
 let cachedGoogleToken = null;
 let cachedGoogleTokenExp = 0;
+let cachedInsurNexGoogleToken = null;
+let cachedInsurNexGoogleTokenExp = 0;
 let cachedFirebaseKeys = null;
 let cachedFirebaseKeysAt = 0;
 
@@ -132,6 +135,41 @@ async function getGoogleAccessToken(env) {
   cachedGoogleToken = data.access_token;
   cachedGoogleTokenExp = Date.now() + Number(data.expires_in || 3600) * 1000;
   return cachedGoogleToken;
+}
+
+async function getInsurNexGoogleAccessToken(env) {
+  if (cachedInsurNexGoogleToken && Date.now() < cachedInsurNexGoogleTokenExp - 60000) {
+    return cachedInsurNexGoogleToken;
+  }
+
+  let serviceAccount;
+  try {
+    serviceAccount = JSON.parse(env.INSURNEX_SERVICE_ACCOUNT_JSON || '{}');
+  } catch {
+    throw new Error('INSURNEX_SERVICE_ACCOUNT_JSON must contain valid JSON');
+  }
+  if (
+    serviceAccount.project_id !== INSURNEX_PROJECT_ID ||
+    !serviceAccount.client_email ||
+    !serviceAccount.private_key
+  ) {
+    throw new Error('InsurNex service account is not configured for the expected project');
+  }
+
+  const assertion = await signServiceJwt(serviceAccount);
+  const res = await fetch(GOOGLE_TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion
+    })
+  });
+  if (!res.ok) throw new Error('Failed to obtain InsurNex Google access token');
+  const data = await res.json();
+  cachedInsurNexGoogleToken = data.access_token;
+  cachedInsurNexGoogleTokenExp = Date.now() + Number(data.expires_in || 3600) * 1000;
+  return cachedInsurNexGoogleToken;
 }
 
 async function getFirebaseKeys() {
@@ -314,8 +352,8 @@ async function getDoc(env, collection, id) {
   return decodeFirestoreDoc(await res.json());
 }
 
-function documentName(collection, id) {
-  return `projects/${PROJECT_ID}/databases/(default)/documents/${collection}/${id}`;
+function documentName(collection, id, projectId = PROJECT_ID) {
+  return `projects/${projectId}/databases/(default)/documents/${collection}/${id}`;
 }
 
 function makeUpdateWrite(collection, id, fields, updateTime) {
@@ -329,10 +367,10 @@ function makeUpdateWrite(collection, id, fields, updateTime) {
   };
 }
 
-function makeCreateWrite(collection, id, fields) {
+function makeCreateWrite(collection, id, fields, projectId = PROJECT_ID) {
   return {
     update: {
-      name: documentName(collection, id),
+      name: documentName(collection, id, projectId),
       fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, encodeFirestoreValue(v)]))
     },
     currentDocument: { exists: false }
@@ -682,6 +720,27 @@ const WHEEL_PRIZES = [
             { text: '📚 يوم توعية مجاني', icon: '📚', color: '#E91E63' }
         ];
 
+async function commitInsurNexWrites(env, writes) {
+  const token = await getInsurNexGoogleAccessToken(env);
+  const res = await fetch(INSURNEX_DB_ROOT + ':commit', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ writes })
+  });
+
+  const result = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const err = new Error('InsurNex Firestore write failed (' + res.status + ')');
+    err.status = res.status;
+    err.code = String(result?.error?.status || '');
+    throw err;
+  }
+  return result;
+}
+
 async function handleSecurePathRegistrationLead(env, uid) {
   // Existing accounts are not transferred unless they recorded consent at signup.
   const client = await getDoc(env, 'clients', uid);
@@ -690,48 +749,91 @@ async function handleSecurePathRegistrationLead(env, uid) {
     return { ok: true, skipped: true, reason: 'consent_not_granted' };
   }
 
-  const secret = String(env.INSURNEX_INGEST_SECRET || '');
-  if (secret.length < 32) {
-    const e = new Error('InsurNex lead integration is not configured');
+  // Recipient identity and organization are configured as non-secret Worker variables.
+  // Their existence was verified in the InsurNex Firebase console before setup.
+  const receiverUid = textInput(env.INSURNEX_RECEIVER_UID, 128);
+  const organizationId = textInput(env.INSURNEX_ORGANIZATION_ID, 180);
+  const receiverName = textInput(env.INSURNEX_RECEIVER_NAME, 160, 'secure path leads');
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(receiverUid) ||
+      !/^org_[A-Za-z0-9_-]{1,180}$/.test(organizationId)) {
+    const e = new Error('InsurNex receiver UID or organization ID is not configured');
     e.status = 503;
     throw e;
   }
 
   // Contact data is read from SecurePath Firestore, not accepted from the browser.
-
   const fullName = textInput(client.fullName || client.name, 160);
   const email = textInput(client.email || client.loginEmail, 254).toLowerCase();
   const phone = textInput(client.phone, 40);
-  if (!fullName || !/^\S+@\S+\.\S+$/.test(email) || !phone) {
+  if (!fullName || !/^\\S+@\\S+\\.\\S+$/.test(email) || !phone) {
     throw new Error('Client profile is missing required lead contact details');
   }
 
-  const response = await fetch(INSURNEX_INGEST_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': 'Bearer ' + secret,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      sourceUid: uid,
-      fullName,
-      email,
-      phone,
-      clientType: textInput(client.clientType, 40, 'individual'),
-      businessName: textInput(client.businessName, 180, '')
-    })
-  });
-
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok || result.ok !== true || typeof result.leadId !== 'string') {
-    const e = new Error('InsurNex lead ingestion failed (' + response.status + '): ' +
-      String(result.error || 'Invalid ingestion response').slice(0, 180));
-    e.status = 502;
+  if (!String(env.INSURNEX_SERVICE_ACCOUNT_JSON || '').trim()) {
+    const e = new Error('InsurNex service account secret is not configured');
+    e.status = 503;
     throw e;
   }
-  return { ok: true, leadId: result.leadId, alreadyExists: !!result.alreadyExists };
-}
 
+  // Stable IDs plus create-only preconditions keep retries from duplicating leads.
+  const leadId = 'sp_' + await stableActionId(uid, 'insurnex-registration-lead', 'v1');
+  const activityId = leadId + '_created';
+  const now = new Date();
+  const notes = [
+    'Source: SecurePath',
+    'SecurePath account ID: ' + uid,
+    'Client type: ' + textInput(client.clientType, 40, 'individual')
+  ].join('\\n');
+
+  const writes = [
+    makeCreateWrite('leads', leadId, {
+      organizationId,
+      name: fullName,
+      companyName: textInput(client.clientType, 40, 'individual') === 'corporate'
+        ? textInput(client.businessName, 180, '')
+        : '',
+      phone,
+      email,
+      source: 'website',
+      priority: 'medium',
+      stage: 'new',
+      insuranceType: 'Not specified',
+      preferredInsurerId: '',
+      preferredInsurerName: '',
+      estimatedValue: 0,
+      assignedTo: receiverUid,
+      assignedToName: receiverName,
+      notes,
+      lostReason: '',
+      createdBy: receiverUid,
+      sourceSystem: 'SecurePath',
+      sourceExternalId: uid,
+      lastActivityAt: now,
+      createdAt: now,
+      updatedAt: now
+    }, INSURNEX_PROJECT_ID),
+    makeCreateWrite('leadActivities', activityId, {
+      organizationId,
+      leadId,
+      type: 'created',
+      message: 'تم استلام Lead من SecurePath',
+      createdBy: receiverUid,
+      createdAt: now
+    }, INSURNEX_PROJECT_ID)
+  ];
+
+  try {
+    await commitInsurNexWrites(env, writes);
+    return { ok: true, leadId, alreadyExists: false };
+  } catch (error) {
+    // A repeated registration hits the create-only precondition; the first atomic
+    // commit created both records, so this is an idempotent success.
+    if (error?.code === 'ALREADY_EXISTS' || error?.code === 'FAILED_PRECONDITION') {
+      return { ok: true, leadId, alreadyExists: true };
+    }
+    throw error;
+  }
+}
 async function handleClientAction(env, uid, action, data) {
   if (!uid) throw new Error('Authentication required');
   const key = requireIdempotencyKey(data);
