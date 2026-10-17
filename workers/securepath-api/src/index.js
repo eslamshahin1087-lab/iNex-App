@@ -683,6 +683,13 @@ const WHEEL_PRIZES = [
         ];
 
 async function handleSecurePathRegistrationLead(env, uid) {
+  // Existing accounts are not transferred unless they recorded consent at signup.
+  const client = await getDoc(env, 'clients', uid);
+  if (!client) throw new Error('Client profile not found');
+  if (client.crmLeadSyncConsent !== true) {
+    return { ok: true, skipped: true, reason: 'consent_not_granted' };
+  }
+
   const secret = String(env.INSURNEX_INGEST_SECRET || '');
   if (secret.length < 32) {
     const e = new Error('InsurNex lead integration is not configured');
@@ -690,10 +697,7 @@ async function handleSecurePathRegistrationLead(env, uid) {
     throw e;
   }
 
-  // Resolve the profile from SecurePath Firestore; never trust contact details
-  // posted directly by the browser for this cross-system CRM write.
-  const client = await getDoc(env, 'clients', uid);
-  if (!client) throw new Error('Client profile not found');
+  // Contact data is read from SecurePath Firestore, not accepted from the browser.
 
   const fullName = textInput(client.fullName || client.name, 160);
   const email = textInput(client.email || client.loginEmail, 254).toLowerCase();
@@ -714,8 +718,7 @@ async function handleSecurePathRegistrationLead(env, uid) {
       email,
       phone,
       clientType: textInput(client.clientType, 40, 'individual'),
-      businessName: textInput(client.businessName, 180, ''),
-      occupation: textInput(client.occupation, 120, '')
+      businessName: textInput(client.businessName, 180, '')
     })
   });
 
