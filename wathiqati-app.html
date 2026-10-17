@@ -6685,6 +6685,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                     <input type="checkbox" id="termsCheck">
                     <label for="termsCheck" id="termsLabel">أوافق على <span class="link" onclick="openTermsModal()" id="termsLink">الشروط والأحكام</span> وسياسة الخصوصية للتطبيق</label>
                 </div>
+                <p id="crmLeadSyncConsentNotice" style="font-size:11px;line-height:1.7;color:var(--muted);margin:-4px 0 10px;text-align:center;">تتضمن موافقتك على الشروط والأحكام الإذن بمزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM، للغرض الموضح في بند معالجة البيانات. لا تُرسل كلمات المرور أو بيانات المصادقة.</p>
                 <button class="btn-primary" id="signupBtn" onclick="handleSignup()" disabled>🌟 تسجيل الحساب</button>
                 <div class="switch-auth" id="signupSwitch">لديك حساب بالفعل؟ <b onclick="showScreen('login')">تسجيل الدخول</b></div>
             </div>
@@ -8476,7 +8477,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 termsFirstTitle: 'أولاً: البيانات بصحة الإقرار',
                 termsFirstText: 'بتقديمها أو بإدخالها يقوم المستخدم بتقديم البيانات والمعلومات والمستندات التي تكون صحيحة ودقيقة وكاملة، ويضمن أن جميع البيانات التي يدخلها أو يقدمها هي صحيحة وحديثة، وأنه مخول قانوناً بتقديمها، ويتحمل وحده المسؤولية القانونية الكاملة عن صحة البيانات، وأي تغيير يطرأ عليها، كما يلتزم المستخدم بتحديث بياناته كلما كانت غير محدثة أو غير صحيحة أو مضللة أو منتحلة، وقد تنشأ أضرار أو مسؤوليات نتيجة تقديم بيانات غير صحيحة أو مشاركة البيانات ومعالجتها وجمعها على الموافقة.',
                 termsSecondTitle: 'ثانياً: الموافقة على جمع ومعالجة البيانات الشخصية',
-                termsSecondText: 'يمنح المستخدم موافقته الصريحة والواضحة على هذه الشروط والأحكام، ويمنح التطبيق الموافقة على جمع بياناته الشخصية ومعالجتها وحفظها واستخدامها بالقدر اللازم لتقديم الخدمات التي يوفرها، وذلك داخل جمهورية مصر العربية، ومشاركة البيانات والمعلومات التي قام بإدخالها مع شركات التأمين المرخص لها أو الجهات أو الوسطاء المرخص لهم قانوناً، وذلك للأغراض التالية: دراسة احتياجات المستخدم لتقديم الحل أو التغطية التأمينية الأنسب لاحتياجاته، المساعدة في اختيار الخدمات أو العروض التي يطلبها المستخدم، التواصل مع المستخدم بشأن الخدمات المقدمة، تحسين جودة الخدمات المقدمة من خلال التطبيق. وذلك بالقدر اللازم فقط لتحقيق الأغراض المشار إليها، وفقاً لأحكام القوانين واللوائح النافذة ذات الصلة، بما في ذلك قانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.',
+                termsSecondText: 'يوافق المستخدم صراحةً على جمع بياناته الشخصية ومعالجتها وحفظها واستخدامها بالقدر اللازم لتقديم خدمات التطبيق، ومشاركتها مع الجهات وشركات التأمين والوسطاء المرخص لهم قانوناً للأغراض المرتبطة بالخدمات التي يطلبها. ويشمل ذلك، عند قبول هذه الشروط والأحكام، مزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه تلقائياً مع InsurNex CRM لإنشاء وإدارة العملاء المحتملين ومتابعة الطلبات المتعلقة بخدمات SecurePath. تُعامل البيانات المنقولة بسرية، ويقتصر استخدامها على هذا الغرض، ولا تُرسل كلمة المرور أو رموز الدخول أو بيانات المصادقة أو تاريخ الميلاد أو النوع أو المهنة أو قائمة الوثائق أو الملفات المرفوعة ضمن مزامنة العملاء المحتملين هذه. تتم المشاركة في حدود البيانات اللازمة وللأغراض المعلنة، وفقاً للقوانين واللوائح النافذة ذات الصلة، بما في ذلك قانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.',
                 appointmentBtn: '📅 حجز الموعد',
                 accAvatarChangeLabel: 'تغيير',
                 profileEditAvatarChangeLabel: 'تغيير',
@@ -8614,7 +8615,8 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'العودة',
                 referralCodeLabel: 'كود الدعوة الخاص بك',
                 referralShareBtn: '📤 مشاركة رابط الدعوة',
-                signupDisclosure: '(SecurePath منصة توعوية وليست شركة تأمين. عند التسجيل، يتم إرسال الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM لإدارة العملاء المحتملين ومتابعة الطلبات. لا تُرسل كلمة المرور أو بيانات المصادقة. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
+                signupDisclosure: '(SecurePath منصة توعوية وليست شركة تأمين. عند قبولك الشروط والأحكام، تتم مزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه تلقائيًا إلى InsurNex CRM لإدارة العملاء المحتملين ومتابعة الطلبات. تُعامل هذه البيانات بسرية وتُستخدم لهذا الغرض فقط. لا تُرسل كلمة المرور أو بيانات المصادقة ضمن مزامنة العملاء المحتملين. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
+                crmLeadSyncConsentNotice: 'تتضمن موافقتك على الشروط والأحكام الإذن بمزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM، للغرض الموضح في بند معالجة البيانات. لا تُرسل كلمات المرور أو بيانات المصادقة.',
                 brokerDisclosure: 'منصة تعريفية وتوعوية هدفها خدمة حاملي وثائق التأمين،\nولا تمثل شركة تأمين بعينها.\n\nيتم عرض الشركات والمنتجات المرخّصة من الهيئة العامة للرقابة المالية (FRA).\nحال الرغبة في الحصول على مزيد من المعلومات،\nيُرجى التواصل مع الوسيط المرخّص الحر بكود FRA 38062.',
                 noOffers: 'لا توجد عروض حالياً',
                 noOffersText: 'سيتم إضافة عروض وخصومات جديدة قريباً',
@@ -8832,7 +8834,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 termsFirstTitle: 'First: Accuracy of Submitted Data',
                 termsFirstText: 'By submitting or entering data, the user provides information and documents that are true, accurate and complete, and guarantees that all data entered or submitted is correct and up to date and that they are legally authorized to provide it. The user bears full legal responsibility for the accuracy of the data and any changes to it, and undertakes to update their data whenever it becomes outdated, incorrect, misleading, or falsified. Damages or liabilities may arise from providing inaccurate data or from sharing, processing and collecting data based on this consent.',
                 termsSecondTitle: 'Second: Consent to Collect and Process Personal Data',
-                termsSecondText: 'The user grants explicit and clear consent to these Terms and Conditions, and grants the application consent to collect, process, store and use their personal data to the extent necessary to provide its services, within the Arab Republic of Egypt, and to share the data and information entered with licensed insurance companies or legally licensed entities or brokers, for the following purposes: studying the user\u2019s needs to offer the most suitable insurance solution or coverage, assisting in selecting the services or offers requested by the user, communicating with the user regarding the services provided, and improving the quality of services provided through the application. This is done only to the extent necessary to achieve the purposes mentioned, in accordance with the relevant applicable laws and regulations, including the Egyptian Personal Data Protection Law No. 151 of 2020.',
+                termsSecondText: 'The user expressly agrees to the collection, processing, storage and use of personal data to the extent necessary to provide the application services, and to sharing it with legally licensed entities, insurers and brokers for purposes connected with services requested by the user. By accepting these Terms and Conditions, the user agrees that their name, email, phone number, client type and company name when applicable may be automatically synced to InsurNex CRM to create and manage leads and follow up on requests related to SecurePath services. Transferred data is treated as confidential and used only for this purpose. Passwords, login tokens, authentication credentials, date of birth, gender, occupation, policy lists and uploaded files are not sent as part of this lead-sync integration. Sharing is limited to the data necessary for the stated purpose and is subject to applicable laws and regulations, including the Egyptian Personal Data Protection Law No. 151 of 2020.',
                 appointmentBtn: '📅 Book Appointment',
                 accAvatarChangeLabel: 'Change',
                 profileEditAvatarChangeLabel: 'Change',
@@ -8966,7 +8968,8 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'Back',
                 referralCodeLabel: 'Your referral code',
                 referralShareBtn: '📤 Share referral link',
-                signupDisclosure: '(SecurePath is an insurance awareness platform, not an insurer. When you register, your name, email, phone, client type and company name when applicable are sent to InsurNex CRM to manage leads and follow up on requests. Your password and authentication credentials are never sent. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
+                signupDisclosure: '(SecurePath is an insurance awareness platform, not an insurer. By accepting the Terms and Conditions, your name, email, phone, client type and company name when applicable are automatically synced to InsurNex CRM to manage leads and follow up on requests. This data is treated as confidential and used only for this purpose. Passwords and authentication credentials are not sent as part of lead synchronization. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
+                crmLeadSyncConsentNotice: 'Accepting the Terms and Conditions includes agreement to sync your name, email, phone, client type and company name when applicable to InsurNex CRM for the purpose described in the data-processing section. Passwords and authentication credentials are not sent.',
                 brokerDisclosure: 'An informational and awareness platform serving insurance policyholders,\nnot representing any single insurance company.\n\nLicensed companies and products approved by the Financial Regulatory Authority (FRA) are displayed.\nFor more information,\nplease contact the licensed independent broker under FRA code 38062.',
                 accountOffers: 'Offers & Discounts',
                 accountOffersSub: 'Latest exclusive offers',
@@ -10726,6 +10729,8 @@ function hrT(key, vars) {
                 existingPolicies: getSelectedPolicies(),
                 termsAccepted: true,
                 crmLeadSyncConsent: true,
+                crmLeadSyncConsentAt: firebase.firestore.FieldValue.serverTimestamp(),
+                crmLeadSyncConsentNoticeVersion: '2026-10-17',
                 termsAcceptedDate: firebase.firestore.FieldValue.serverTimestamp(),
                 role: 'client',
                 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -12582,10 +12587,11 @@ function hrT(key, vars) {
 
         function applyBrokerDisclosure() {
             var disclosure = getText('brokerDisclosure');
+            var signupDisclosure = getText('signupDisclosure');
             var footer = document.getElementById('brokerDisclosureFooter');
             if (footer) footer.textContent = disclosure;
             var signup = document.getElementById('signupDisclosure');
-            if (signup) signup.textContent = disclosure;
+            if (signup) signup.textContent = signupDisclosure;
             var tagline = document.getElementById('loginTagline');
             if (tagline) tagline.textContent = getText('loginTagline');
         }
@@ -14988,6 +14994,7 @@ function hrT(key, vars) {
             accStatScoreLabel: 'accStatScore',
             liveChatBadge: 'liveChatBadge',
             signupDisclosure: 'signupDisclosure',
+            crmLeadSyncConsentNotice: 'crmLeadSyncConsentNotice',
             accountSectionLegal: 'accountSectionLegal',
             accountPrivacyPolicy: 'accountPrivacyPolicy',
             accountPrivacyPolicySub: 'accountPrivacyPolicySub',
