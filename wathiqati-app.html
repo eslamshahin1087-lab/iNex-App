@@ -10637,7 +10637,7 @@ function hrT(key, vars) {
             var identifier = normalizeLoginIdentifier(input && input.value),
                 pass = passInput ? passInput.value : '';
             if (err) err.style.display = 'none';
-            if (LOGIN_IN_PROGRESS) return;
+            if (LOGIN_IN_PROGRESS || SIGNUP_IN_PROGRESS) return;
             if (!identifier || !pass) {
                 if (err) { err.textContent = STATE.language === 'ar' ? 'يرجى إدخال اسم المستخدم أو البريد الإلكتروني وكلمة المرور' : 'Please enter your username/email and password';
                     err.style.display = 'block'; }
@@ -10777,7 +10777,7 @@ function hrT(key, vars) {
             }).catch(function(e) {
                 if (accountCreated) {
                     // The Auth account exists, but profile/session setup failed. Do not leave a partial session.
-                    SIGNUP_IN_PROGRESS = false;
+                    // Keep the auth-state listener suppressed until cleanup and the error message are complete.
                     return auth.signOut().catch(function() {}).then(function() {
                         resetState();
                         showScreen('login');
