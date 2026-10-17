@@ -8,6 +8,7 @@ const FIREBASE_ISSUER = `https://securetoken.google.com/${PROJECT_ID}`;
 const FIREBASE_JWKS = 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const DATASTORE_SCOPE = 'https://www.googleapis.com/auth/datastore';
+const INSURNEX_INGEST_URL = 'https://europe-west1-insurnex-8a9df.cloudfunctions.net/ingestSecurePathLead';
 
 const CLOUDINARY_CLOUD_NAME = 'zs4wny34';
 const CLOUDINARY_API_KEY = '147401369695394';
@@ -681,6 +682,53 @@ const WHEEL_PRIZES = [
             { text: '📚 يوم توعية مجاني', icon: '📚', color: '#E91E63' }
         ];
 
+async function handleSecurePathRegistrationLead(env, uid) {
+  const secret = String(env.INSURNEX_INGEST_SECRET || '');
+  if (secret.length < 32) {
+    const e = new Error('InsurNex lead integration is not configured');
+    e.status = 503;
+    throw e;
+  }
+
+  // Resolve the profile from SecurePath Firestore; never trust contact details
+  // posted directly by the browser for this cross-system CRM write.
+  const client = await getDoc(env, 'clients', uid);
+  if (!client) throw new Error('Client profile not found');
+
+  const fullName = textInput(client.fullName || client.name, 160);
+  const email = textInput(client.email || client.loginEmail, 254).toLowerCase();
+  const phone = textInput(client.phone, 40);
+  if (!fullName || !/^\S+@\S+\.\S+$/.test(email) || !phone) {
+    throw new Error('Client profile is missing required lead contact details');
+  }
+
+  const response = await fetch(INSURNEX_INGEST_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + secret,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      sourceUid: uid,
+      fullName,
+      email,
+      phone,
+      clientType: textInput(client.clientType, 40, 'individual'),
+      businessName: textInput(client.businessName, 180, ''),
+      occupation: textInput(client.occupation, 120, '')
+    })
+  });
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok || result.ok !== true || typeof result.leadId !== 'string') {
+    const e = new Error('InsurNex lead ingestion failed (' + response.status + '): ' +
+      String(result.error || 'Invalid ingestion response').slice(0, 180));
+    e.status = 502;
+    throw e;
+  }
+  return { ok: true, leadId: result.leadId, alreadyExists: !!result.alreadyExists };
+}
+
 async function handleClientAction(env, uid, action, data) {
   if (!uid) throw new Error('Authentication required');
   const key = requireIdempotencyKey(data);
@@ -1078,6 +1126,7 @@ async function route(request, env) {
   if (path === '/v1/points') return json(await handlePoints(env, uid, data));
   if (path === '/v1/redeem') return json(await handleRedeem(env, uid, data));
   if (path === '/v1/cloudinary/sign') return json(await handleCloudinarySign(env, uid));
+  if (path === '/v1/client/registration-lead') return json(await handleSecurePathRegistrationLead(env, uid));
   if (path === '/v1/client/appointment') return json(await handleClientAction(env, uid, 'appointment', data));
   if (path === '/v1/client/complaint') return json(await handleClientAction(env, uid, 'complaint', data));
   if (path === '/v1/client/renewal') return json(await handleClientAction(env, uid, 'renewal', data));
