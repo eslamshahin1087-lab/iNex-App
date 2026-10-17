@@ -765,7 +765,7 @@ async function handleSecurePathRegistrationLead(env, uid) {
   const fullName = textInput(client.fullName || client.name, 160);
   const email = textInput(client.email || client.loginEmail, 254).toLowerCase();
   const phone = textInput(client.phone, 40);
-  if (!fullName || !/^\\S+@\\S+\\.\\S+$/.test(email) || !phone) {
+  if (!fullName || !/^\S+@\S+\.\S+$/.test(email) || !phone) {
     throw new Error('Client profile is missing required lead contact details');
   }
 
@@ -783,7 +783,7 @@ async function handleSecurePathRegistrationLead(env, uid) {
     'Source: SecurePath',
     'SecurePath account ID: ' + uid,
     'Client type: ' + textInput(client.clientType, 40, 'individual')
-  ].join('\\n');
+  ].join('\n');
 
   const writes = [
     makeCreateWrite('leads', leadId, {
