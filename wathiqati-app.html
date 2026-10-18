@@ -14207,7 +14207,7 @@ function hrT(key, vars) {
                     fd.append('file', file);
                     fd.append('api_key', sig.apiKey);
                     fd.append('timestamp', String(sig.timestamp));
-                    fd.append('folder', sig.folder);
+                    fd.append('asset_folder', sig.assetFolder);
                     fd.append('public_id', sig.publicId);
                     fd.append('signature', sig.signature);
                     xhr.send(fd);
