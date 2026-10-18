@@ -1215,16 +1215,18 @@ async function handleCloudinarySign(env, uid) {
   if (!uid) throw new Error('Authenticated user required');
 
   const timestamp = Math.floor(Date.now() / 1000);
-  const folder = 'securepath_docs/' + uid;
+  const assetFolder = 'securepath_docs/' + uid;
   const publicId = 'doc_' + Date.now() + '_' + crypto.randomUUID().replace(/-/g, '').slice(0, 12);
-  const signatureBase = 'folder=' + folder + '&public_id=' + publicId + '&timestamp=' + timestamp;
+  // Dynamic Folders accounts use asset_folder; the legacy `folder` parameter is deprecated.
+  // Sign exactly the same upload parameters that the browser sends to Cloudinary.
+  const signatureBase = 'asset_folder=' + assetFolder + '&public_id=' + publicId + '&timestamp=' + timestamp;
   const hash = await crypto.subtle.digest('SHA-1', new TextEncoder().encode(signatureBase + secret));
   const signature = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
   return {
     cloudName,
     apiKey,
     timestamp,
-    folder,
+    assetFolder,
     publicId,
     signature
   };
