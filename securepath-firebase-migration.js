@@ -22,12 +22,16 @@
  *   node securepath-firebase-migration.js apply-test
  *   node securepath-firebase-migration.js apply-admin
  *   node securepath-firebase-migration.js apply-both
+ *   node securepath-firebase-migration.js provision-unverified-client-tests [--apply]
+ *   node securepath-firebase-migration.js migrate-client-uids [--apply]
  *
  * apply commands set custom claims only for the explicit accounts above.
  * They do NOT delete users or Firestore data.
  */
 
-const admin = require('firebase-admin');
+const { cert, initializeApp } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
+const { FieldValue, getFirestore } = require('firebase-admin/firestore');
 
 function envList(name) {
   return String(process.env[name] || '')
@@ -43,8 +47,9 @@ function requireServiceAccount() {
   catch (e) { throw new Error('FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON.'); }
 }
 
-admin.initializeApp({ credential: admin.credential.cert(requireServiceAccount()) });
-const auth = admin.auth();
+initializeApp({ credential: cert(requireServiceAccount()) });
+const auth = getAuth();
+const db = getFirestore();
 
 async function resolveTargets(emails, uids) {
   const resolved = [];
@@ -113,11 +118,119 @@ async function applyClaims(kind) {
   }
 }
 
+async function findUnverifiedClientTestUsers() {
+  const snapshot = await db.collection('clients').get();
+  const emailToUsers = new Map();
+  let pageToken;
+  do {
+    const page = await auth.listUsers(1000, pageToken);
+    for (const user of page.users) {
+      if (!user.email) continue;
+      const email = user.email.trim().toLowerCase();
+      if (!emailToUsers.has(email)) emailToUsers.set(email, []);
+      emailToUsers.get(email).push(user);
+    }
+    pageToken = page.pageToken;
+  } while (pageToken);
+
+  const targets = new Map();
+  let skipped = 0;
+  for (const doc of snapshot.docs) {
+    const data = doc.data() || {};
+    if (data.uid) continue;
+    const emails = [data.email, data.loginEmail, data.authEmail]
+      .map(value => String(value || '').trim().toLowerCase())
+      .filter(Boolean);
+    const matches = new Map();
+    for (const email of emails) {
+      for (const user of emailToUsers.get(email) || []) matches.set(user.uid, user);
+    }
+    const users = Array.from(matches.values());
+    if (users.length !== 1 || users[0].emailVerified === true) { skipped++; continue; }
+    const user = users[0];
+    if (doc.id !== user.uid && (await db.collection('clients').doc(user.uid).get()).exists) { skipped++; continue; }
+    targets.set(user.uid, user);
+  }
+  return { targets: Array.from(targets.values()), skipped };
+}
+
+async function provisionUnverifiedClientTests() {
+  const apply = process.argv.includes('--apply');
+  const { targets, skipped } = await findUnverifiedClientTestUsers();
+  for (const user of targets) {
+    if (apply) {
+      await auth.updateUser(user.uid, { emailVerified: true });
+      await auth.setCustomUserClaims(user.uid, { ...(user.customClaims || {}), securepathTest: true });
+    }
+  }
+  console.log(`${apply ? 'Applied' : 'Dry run'}: ${targets.length} unverified client test account(s) ${apply ? 'provisioned' : 'eligible'}; ${skipped} ambiguous or unmatched record(s) skipped.`);
+  if (!apply) console.log('No accounts were changed. Rerun with --apply only after confirming every eligible account is a test account.');
+}
+
+async function migrateClientUids() {
+  const apply = process.argv.includes('--apply');
+  const snapshot = await db.collection('clients').get();
+  const emailToUsers = new Map();
+  let pageToken;
+  do {
+    const page = await auth.listUsers(1000, pageToken);
+    for (const user of page.users) {
+      if (!user.email) continue;
+      const email = user.email.trim().toLowerCase();
+      if (!emailToUsers.has(email)) emailToUsers.set(email, []);
+      emailToUsers.get(email).push(user);
+    }
+    pageToken = page.pageToken;
+  } while (pageToken);
+
+  let linked = 0;
+  let skipped = 0;
+  for (const doc of snapshot.docs) {
+    const data = doc.data() || {};
+    if (data.uid) {
+      if (data.uid !== doc.id) console.log(`SKIP ${doc.id} reason=existing-uid-conflicts-with-document-id`);
+      skipped++;
+      continue;
+    }
+    const emails = [data.email, data.loginEmail, data.authEmail]
+      .map(value => String(value || '').trim().toLowerCase())
+      .filter(Boolean);
+    const matches = new Map();
+    for (const email of emails) {
+      for (const user of emailToUsers.get(email) || []) matches.set(user.uid, user);
+    }
+    const uniqueMatches = Array.from(matches.values());
+    if (!emails.length || uniqueMatches.length !== 1 || uniqueMatches[0].emailVerified !== true) {
+      console.log(`SKIP ${doc.id} reason=${!emails.length ? 'no-email' : uniqueMatches.length !== 1 ? 'missing-or-ambiguous-auth-user' : 'email-not-verified'}`);
+      skipped++;
+      continue;
+    }
+    const user = uniqueMatches[0];
+    if (doc.id !== user.uid) {
+      const uidDoc = await db.collection('clients').doc(user.uid).get();
+      if (uidDoc.exists) {
+        console.log(`SKIP ${doc.id} reason=uid-document-already-exists`);
+        skipped++;
+        continue;
+      }
+    }
+    console.log(`${apply ? 'LINK' : 'WOULD_LINK'} ${doc.id} -> ${user.uid}`);
+    if (apply) {
+      await doc.ref.set({ uid: user.uid, identityMigratedAt: FieldValue.serverTimestamp() }, { merge: true });
+    }
+    linked++;
+  }
+  console.log(`${apply ? 'Applied' : 'Dry run'}: ${linked} eligible, ${skipped} skipped. No records were deleted.`);
+  if (!apply) console.log('Review the output, back up Firestore, then rerun with --apply to write UID links.');
+}
+
 (async () => {
   const command = process.argv[2] || 'list';
   if (command === 'list') return listAccounts();
   if (command === 'apply-test') return applyClaims('test');
   if (command === 'apply-admin') return applyClaims('admin');
   if (command === 'apply-both') return applyClaims('both');
-  throw new Error('Unknown command. Use list, apply-test, apply-admin, or apply-both.');
+  if (command === 'provision-unverified-client-tests') return provisionUnverifiedClientTests();
+  if (command === 'migrate-client-uids') return migrateClientUids();
+  throw new Error('Unknown command. Use list, apply-test, apply-admin, apply-both, provision-unverified-client-tests [--apply], or migrate-client-uids [--apply].');
 })().catch(err => { console.error('ERROR:', err.message); process.exit(1); });

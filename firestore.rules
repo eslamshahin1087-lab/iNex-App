@@ -4,7 +4,14 @@ service cloud.firestore {
 
     // ---------- helpers ----------
     function isSignedIn() {
-      return request.auth != null;
+      return request.auth != null
+        && request.auth.token.email_verified == true;
+    }
+    // Account creation may write only the new account's own seed records
+    // before email verification. All reads and normal data operations use
+    // isSignedIn(), which requires a verified email.
+    function isAuthenticatedAs(uid) {
+      return request.auth != null && request.auth.uid == uid;
     }
     function isOwner(clientId) {
       return isSignedIn() && request.auth.uid == clientId;
@@ -47,10 +54,7 @@ service cloud.firestore {
     // ---------- identity / access ----------
     function isSameClientRecord(data) {
       return isSignedIn()
-        && (
-          data.get('uid', '') == request.auth.uid
-          || data.get('email', '') == request.auth.token.email
-        );
+        && data.get('uid', '') == request.auth.uid;
     }
 
     match /clients/{clientId} {
@@ -61,7 +65,7 @@ service cloud.firestore {
         || (resource != null && isSameClientRecord(resource.data))
         || isAdmin();
 
-      allow create: if (isOwner(clientId) || isSameClientRecord(request.resource.data))
+      allow create: if (isAdmin() || isAuthenticatedAs(clientId))
         && request.resource.data.role == 'client'
         && request.resource.data.get('insuraPoints', 0) == 0
         && request.resource.data.get('insuraPointsLifetime', 0) == 0
@@ -84,7 +88,11 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read, create: if isOwner(uid);
+      allow read: if isOwner(uid);
+      allow create: if isAdmin()
+        || (isAuthenticatedAs(uid)
+          && request.resource.data.uid == uid
+          && request.resource.data.role == 'user');
       allow update: if (isOwner(uid) && !touchesProtectedFields()) || isAdmin();
       allow delete: if isAdmin();
     }

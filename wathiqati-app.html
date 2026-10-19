@@ -6614,6 +6614,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 <div class="field"><label id="loginEmailLabel">اسم المستخدم أو البريد الإلكتروني</label><input type="text" id="loginEmail" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="اسم المستخدم أو البريد الإلكتروني"></div>
                 <div class="field"><label id="loginPassLabel">كلمة المرور</label><input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••"></div>
                 <div class="forgot-password-link" id="forgotPasswordLink" onclick="openForgotPassword()">نسيت كلمة المرور؟</div>
+                <button type="button" class="forgot-password-link" id="emailVerificationResend" onclick="resendVerificationEmail()" style="display:block;width:100%;background:none;border:0;text-align:right;font:inherit;cursor:pointer;">لم يصلك رابط التفعيل؟ أعد إرساله</button>
                 <button class="btn-primary" id="loginBtn" onclick="handleLogin()">🚀 دخول المنصة</button>
                 <div class="switch-auth" id="loginSwitch">ليس لديك حساب؟ <b onclick="showScreen('signup')">إنشاء حساب جديد</b></div>
             </div>
@@ -8444,6 +8445,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 loginSwitchLink: 'إنشاء حساب جديد',
                 loginTagline: 'Insurance Ecosystem',
                 forgotPasswordLink: 'نسيت كلمة المرور؟',
+                emailVerificationResend: 'لم يصلك رابط التفعيل؟ أعد إرساله',
                 forgotBackToLogin: 'العودة إلى تسجيل الدخول',
                 onboardingSkip: 'تخطي',
                 policyLife: 'تأمين الحياة',
@@ -8801,6 +8803,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 loginSwitchLink: 'Create new account',
                 loginTagline: 'Insurance Ecosystem',
                 forgotPasswordLink: 'Forgot password?',
+                emailVerificationResend: 'Didn’t receive the verification email? Resend it',
                 forgotBackToLogin: 'Back to login',
                 onboardingSkip: 'Skip',
                 policyLife: 'Life insurance',
@@ -10525,17 +10528,13 @@ function hrT(key, vars) {
             });
         }
 
-        function getClientProfile(uid, email) {
+        function getClientProfile(uid) {
             return db.collection('clients').doc(uid).get().then(function(doc) {
                 if (doc.exists) return { ref: doc.ref, data: doc.data() || {} };
                 return db.collection('clients').where('uid', '==', uid).limit(2).get().then(function(snap) {
                     if (snap.size > 1) throw { code: 'client/duplicate-uid', message: 'Multiple client records are linked to this account.' };
                     if (snap.size === 1) return { ref: snap.docs[0].ref, data: snap.docs[0].data() || {} };
-                    return db.collection('clients').where('email', '==', String(email || '').trim().toLowerCase()).limit(2).get().then(function(esnap) {
-                        if (esnap.size > 1) throw { code: 'client/duplicate-email', message: 'Multiple client records use this email.' };
-                        if (esnap.size === 1) return { ref: esnap.docs[0].ref, data: esnap.docs[0].data() || {} };
-                        return null;
-                    });
+                    return null;
                 });
             });
         }
@@ -10547,6 +10546,11 @@ function hrT(key, vars) {
 
         function verifyClientIdentity(profile, user, identifier) {
             var data = profile && profile.data || {};
+            var profileId = profile && profile.ref && profile.ref.id || '';
+            var storedUid = String(data.uid || '').trim();
+            if (!user || !user.uid || (profileId && profileId !== user.uid && storedUid !== user.uid) || (storedUid && storedUid !== user.uid)) {
+                throw { code: 'client/identity-mismatch', message: 'The client profile is not linked to the authenticated Firebase UID.' };
+            }
             if (identifier && identifier.indexOf('@') < 0) {
                 var requested = normalizeLoginIdentifier(identifier);
                 var storedUsername = normalizeLoginIdentifier(data.username || '');
@@ -10567,23 +10571,27 @@ function hrT(key, vars) {
         // and the auto-login/session-resume flow (resumeClientSession) so the
         // profile-provisioning logic never drifts between the two paths.
         function resolveClientProfileForUser(user) {
-            return getClientProfile(user.uid, user.email).then(function(profile) {
+            return getClientProfile(user.uid).then(function(profile) {
                 if (!profile) {
-                    // SECURITY: Auto-provision a minimal profile for accounts
-                    // verified manually via Admin SDK but with no Firestore doc.
-                    var emailLocal = String(user.email || '').split('@')[0] || 'client';
-                    var stub = {
-                        fullName: emailLocal,
-                        email: user.email || '',
-                        username: emailLocal,
-                        role: 'client',
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        language: STATE.language || 'ar',
-                        onboardingSeen: false
-                    };
-                    var ref = db.collection('clients').doc(user.uid);
-                    return ref.set(stub, { merge: true }).then(function() {
-                        return { ref: ref, data: stub };
+                    return user.getIdTokenResult().then(function(tokenResult) {
+                        if (!tokenResult || !tokenResult.claims || tokenResult.claims.securepathTest !== true) {
+                            throw { code: 'client/profile-not-found', message: 'No client profile is linked to this Firebase UID.' };
+                        }
+                        var emailLocal = String(user.email || '').split('@')[0] || 'client';
+                        var stub = {
+                            uid: user.uid,
+                            fullName: emailLocal,
+                            email: user.email || '',
+                            username: emailLocal,
+                            role: 'client',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            language: STATE.language || 'ar',
+                            onboardingSeen: false
+                        };
+                        var ref = db.collection('clients').doc(user.uid);
+                        return ref.set(stub, { merge: true }).then(function() {
+                            return { ref: ref, data: stub };
+                        });
                     });
                 }
 
@@ -10608,6 +10616,7 @@ function hrT(key, vars) {
             renderAll();
             showScreen('home');
             syncSecurePathLeadToInsurNex();
+            syncSignupReferralLeads();
             requestAnimationFrame(function() { renderCompaniesSlider(); });
             setTimeout(function() { renderCompaniesSlider(); }, 120);
             if (!STATE.userData.onboardingSeen) {
@@ -10616,9 +10625,48 @@ function hrT(key, vars) {
             requestNotificationPermission().catch(function() {});
         }
 
-        // Resume an authenticated Firebase session without requiring email verification.
+        function syncSignupReferralLeads() {
+            if (!STATE.currentUser || !window.securePathApiCall) return;
+            var profile = STATE.userData || {};
+            var jobs = [];
+            if (profile.referredBy) {
+                jobs.push(securePathApiCall('/v1/client/lead', {
+                    idempotencyKey: 'signup-referral-v1',
+                    source: 'referral',
+                    details: { referredCode: profile.referredBy, message: 'New signup via referral' }
+                }));
+            }
+            if (profile.offerReferralId) {
+                jobs.push(securePathApiCall('/v1/client/lead', {
+                    idempotencyKey: 'signup-offer-v1',
+                    source: 'offer_referral',
+                    details: {
+                        offerId: profile.offerReferralId,
+                        offerName: profile.offerReferralName || '',
+                        message: 'New signup via offer'
+                    }
+                }));
+            }
+            Promise.all(jobs).catch(function(error) {
+                console.warn('Signup referral lead sync deferred:', error && error.message || error);
+            });
+        }
+
+        function ensureVerifiedEmail(user) {
+            if (!user || typeof user.reload !== 'function') {
+                return Promise.reject({ code: 'auth/no-user', message: 'Firebase did not return a user.' });
+            }
+            return user.reload().then(function() {
+                if (user.emailVerified === true) return user;
+                return Promise.reject({ code: 'auth/email-not-verified', message: 'Please verify your email address before signing in.' });
+            }).then(function(verifiedUser) {
+                return verifiedUser.getIdToken(true).then(function() { return verifiedUser; });
+            });
+        }
+
+        // Resume a stored session only after refreshing and verifying its email state.
         function resumeClientSession(user) {
-            return resolveClientProfileForUser(user).then(function(profile) {
+            return ensureVerifiedEmail(user).then(function() { return resolveClientProfileForUser(user); }).then(function(profile) {
                 STATE.userData = Object.assign({}, profile.data || {});
                 STATE.currentUser = { uid: user.uid, name: displayClientName(STATE.userData, (user.email || '').split('@')[0]), email: user.email || STATE.userData.email || STATE.userData.loginEmail || '' };
                 if (STATE.userData.language === 'ar' || STATE.userData.language === 'en') STATE.language = STATE.userData.language;
@@ -10630,7 +10678,7 @@ function hrT(key, vars) {
         function finishClientLogin(credential, identifier) {
             var user = credential && credential.user;
             if (!user) return Promise.reject({ code: 'auth/no-user', message: 'Firebase did not return a user.' });
-            return resolveClientProfileForUser(user).then(function(profile) {
+            return ensureVerifiedEmail(user).then(function() { return resolveClientProfileForUser(user); }).then(function(profile) {
                 var name = verifyClientIdentity(profile, user, identifier);
                 STATE.userData = Object.assign({}, profile.data || {});
                 STATE.currentUser = { uid: user.uid, name: name, email: user.email || STATE.userData.email || STATE.userData.loginEmail || '' };
@@ -10672,6 +10720,7 @@ function hrT(key, vars) {
                     else if (code === 'auth/username-lookup-blocked') message = STATE.language === 'ar' ? 'تعذر البحث عن اسم المستخدم بسبب صلاحيات Firebase. جرّب تسجيل الدخول بالبريد الإلكتروني الكامل بدلاً من اسم المستخدم.' : 'Could not look up that username due to Firestore permissions. Try logging in with the full email address instead of the username.';
                     else if (code === 'auth/username-email-missing') message = STATE.language === 'ar' ? 'هذا العميل موجود في Firestore لكن لا يوجد البريد الإلكتروني المرتبط بحساب Firebase داخل سجل العميل.' : 'The client exists in Firestore, but its Firebase login email is missing from the client record.';
                     else if (code === 'auth/username-ambiguous') message = STATE.language === 'ar' ? 'اسم المستخدم مرتبط بأكثر من حساب. يجب أن يكون فريداً.' : 'This username is linked to more than one client account.';
+                    else if (code === 'auth/email-not-verified') message = STATE.language === 'ar' ? 'يجب تفعيل بريدك الإلكتروني من الرابط المرسل إليك قبل الدخول. يمكنك إعادة إرسال الرابط من هنا.' : 'Verify your email using the link we sent before signing in. You can resend it here.';
                     else if (code === 'client/profile-not-found') message = STATE.language === 'ar' ? 'تم التحقق من الحساب، لكن ملف العميل غير مرتبط بهذا الحساب.' : 'Authentication succeeded, but no client profile is linked to this account.';
                     else if (code === 'client/identity-mismatch') message = STATE.language === 'ar' ? 'تم تسجيل الدخول بحساب Firebase مختلف عن اسم المستخدم المطلوب.' : 'The authenticated Firebase account does not match the requested username.';
                     else if (code === 'client/name-missing') message = STATE.language === 'ar' ? 'ملف العميل لا يحتوي اسمًا صالحًا للعرض.' : 'The client profile has no valid display name.';
@@ -10685,6 +10734,55 @@ function hrT(key, vars) {
             }).finally(function() {
                 LOGIN_IN_PROGRESS = false;
                 hideLoading('loginBtn');
+            });
+        }
+
+        function resendVerificationEmail() {
+            var emailInput = document.getElementById('loginEmail');
+            var passwordInput = document.getElementById('loginPass');
+            var error = document.getElementById('loginError');
+            var email = normalizeLoginIdentifier(emailInput && emailInput.value);
+            var password = passwordInput ? passwordInput.value : '';
+            var button = document.getElementById('emailVerificationResend');
+            if (!email || email.indexOf('@') < 1 || !password) {
+                if (error) {
+                    error.textContent = STATE.language === 'ar'
+                        ? 'أدخل بريدك الإلكتروني وكلمة المرور أولاً لإعادة إرسال رابط التفعيل.'
+                        : 'Enter your email and password first to resend the verification link.';
+                    error.style.display = 'block';
+                }
+                return;
+            }
+            if (LOGIN_IN_PROGRESS || SIGNUP_IN_PROGRESS) return;
+            LOGIN_IN_PROGRESS = true;
+            if (button) button.disabled = true;
+            if (error) error.style.display = 'none';
+            Promise.resolve(AUTH_READY).then(function() {
+                return auth.signInWithEmailAndPassword(email, password);
+            }).then(function(credential) {
+                return credential.user.reload().then(function() {
+                    if (credential.user.emailVerified) return { alreadyVerified: true };
+                    return credential.user.sendEmailVerification().then(function() { return { sent: true }; });
+                });
+            }).then(function(result) {
+                return auth.signOut().then(function() { return result; });
+            }).then(function(result) {
+                if (error) {
+                    error.textContent = result.alreadyVerified
+                        ? (STATE.language === 'ar' ? 'البريد مفعّل بالفعل. سجّل الدخول الآن.' : 'Your email is already verified. You can log in now.')
+                        : (STATE.language === 'ar' ? 'أُعيد إرسال رابط التفعيل. افحص بريدك الوارد والرسائل غير المرغوب فيها.' : 'Verification email sent again. Check your inbox and spam folder.');
+                    error.style.display = 'block';
+                }
+            }).catch(function(e) {
+                return auth.signOut().catch(function() {}).then(function() {
+                    if (error) {
+                        error.textContent = (STATE.language === 'ar' ? 'تعذر إرسال رابط التفعيل: ' : 'Could not send the verification email: ') + friendlyFirebaseError(e);
+                        error.style.display = 'block';
+                    }
+                });
+            }).finally(function() {
+                LOGIN_IN_PROGRESS = false;
+                if (button) button.disabled = false;
             });
         }
 
@@ -10757,37 +10855,19 @@ function hrT(key, vars) {
                 accountCreated = true;
                 return db.collection('clients').doc(cred.user.uid).set(data, { merge: true }).then(function() { return cred; });
             }).then(function(cred) {
-                if (refCode) {
-                    securePathApiCall('/v1/client/lead', {
-                        idempotencyKey: makeActionKey('signup-referral'),
-                        source: 'referral',
-                        details: {
-                            referredCode: refCode,
-                            message: STATE.language === 'ar' ? 'تسجيل جديد عن طريق دعوة' : 'New signup via referral'
+                return cred.user.sendEmailVerification().then(function() {
+                    return auth.signOut().then(function() {
+                        resetState();
+                        showScreen('login');
+                        var loginErr = document.getElementById('loginError');
+                        if (loginErr) {
+                            loginErr.textContent = STATE.language === 'ar'
+                                ? 'تم إنشاء الحساب. افتح رابط التفعيل المرسل إلى بريدك، ثم سجّل الدخول.'
+                                : 'Your account is ready. Verify your email using the link we sent, then log in.';
+                            loginErr.style.display = 'block';
                         }
-                    }).catch(function() {});
-                }
-                if (STATE.offerReferralId) {
-                    securePathApiCall('/v1/client/lead', {
-                        idempotencyKey: makeActionKey('signup-offer'),
-                        source: 'offer_referral',
-                        details: {
-                            offerId: STATE.offerReferralId,
-                            offerName: STATE.offerReferralName || '',
-                            message: STATE.language === 'ar' ? 'تسجيل جديد عن طريق عرض' : 'New signup via offer referral'
-                        }
-                    }).catch(function() {});
-                    try {
-                        sessionStorage.removeItem('SecurePath_offer_ref');
-                        sessionStorage.removeItem('SecurePath_offer_name');
-                        sessionStorage.removeItem('SecurePath_offer_company');
-                    } catch (e) {}
-                    STATE.offerReferralId = null;
-                    STATE.offerReferralName = null;
-                    STATE.offerReferralCompany = null;
-                }
-                // Keep the newly-created Firebase user signed in and reuse the normal login flow.
-                return finishClientLogin(cred, email);
+                    });
+                });
             }).then(function() {
                 err.style.display = 'none';
             }).catch(function(e) {
@@ -10800,8 +10880,8 @@ function hrT(key, vars) {
                         var loginErr = document.getElementById('loginError');
                         if (loginErr) {
                             loginErr.textContent = STATE.language === 'ar'
-                                ? 'تم إنشاء الحساب، لكن تعذّر تجهيز ملفك للدخول تلقائيًا. يرجى تسجيل الدخول مرة أخرى أو التواصل مع الدعم. (' + friendlyFirebaseError(e) + ')'
-                                : 'Your account was created, but automatic sign-in could not be completed. Please try logging in or contact support. (' + friendlyFirebaseError(e) + ')';
+                                ? 'تم إنشاء الحساب، لكن لم يكتمل إعداد الدخول أو إرسال التفعيل. سجّل الدخول أو أعد إرسال رابط التفعيل من شاشة الدخول. (' + friendlyFirebaseError(e) + ')'
+                                : 'Your account was created, but setup or verification email delivery did not finish. Log in or resend the verification link from the login screen. (' + friendlyFirebaseError(e) + ')';
                             loginErr.style.display = 'block';
                         }
                     });
@@ -15023,6 +15103,7 @@ function hrT(key, vars) {
             offerReferralBannerCta: 'offerReferralBannerCta',
             offerShareBtn: 'offerShareBtn',
             forgotPasswordLink: 'forgotPasswordLink',
+            emailVerificationResend: 'emailVerificationResend',
             forgotBackToLogin: 'forgotBackToLogin',
             onboardingSkip: 'onboardingSkip',
             policyLife: 'policyLife',
@@ -15737,7 +15818,7 @@ function updateHRTexts() {
         // LOAD DATA                                                     //
         // ============================================================ //
         function loadUserData(uid, preloadedProfile) {
-            var clientPromise = preloadedProfile ? Promise.resolve(preloadedProfile) : getClientProfile(uid, (auth.currentUser && auth.currentUser.email) || '');
+            var clientPromise = preloadedProfile ? Promise.resolve(preloadedProfile) : getClientProfile(uid);
             clientPromise = clientPromise.then(function(profile) {
                 if (!profile) throw { code: 'client/profile-not-found', message: 'Client profile not found.' };
                 STATE.userData = profile.data || {};
@@ -15959,9 +16040,11 @@ auth.onAuthStateChanged(function(user) {
             showOfferReferralBanner('home');
         }).catch(function(e) {
             console.warn('Session resume failed:', e);
-            var message = STATE.language === 'ar'
-                ? 'تعذّر استعادة جلستك تلقائيًا. يرجى تسجيل الدخول مرة أخرى.'
-                : 'We could not restore your session automatically. Please log in again.';
+                    var message = e && e.code === 'auth/email-not-verified'
+                ? (STATE.language === 'ar' ? 'يجب تفعيل بريدك الإلكتروني من الرابط المرسل إليك قبل الدخول.' : 'Verify your email using the link we sent before signing in.')
+                : (STATE.language === 'ar'
+                    ? 'تعذّر استعادة جلستك تلقائيًا. يرجى تسجيل الدخول مرة أخرى.'
+                    : 'We could not restore your session automatically. Please log in again.');
             auth.signOut().catch(function() {});
             showLoginAfterAuthChange(message);
         });

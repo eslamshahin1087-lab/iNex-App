@@ -1465,7 +1465,6 @@
     const auth = firebase.auth();
     const db = firebase.firestore();
     const SECUREPATH_ADMIN_CLAIM = 'securepathAdmin';
-    const SECUREPATH_TEST_CLAIM = 'securepathTest';
 
     // حساب ثانوي لإنشاء العملاء
     let clientAuth = null;
@@ -1649,22 +1648,11 @@
       if (!email) { document.getElementById('loginErr').textContent = '⚠️ يرجى إدخال البريد'; return; }
       auth.sendPasswordResetEmail(email).then(() => { toast('📧 تم إرسال رابط إعادة التعيين'); }).catch(err => { document.getElementById('loginErr').textContent = '❌ ' + err.message; });
     }
-    const SECUREPATH_LOCAL_ADMIN_MODE = (window.location.protocol === 'file:');
-
-    // Pre-built placeholder accounts on this domain (no real inbox) are
-    // exempt from the mandatory email-verification check below — same
-    // allowlist used by the client app (wathiqati-app.html). Only use for
-    // domains you fully control end-to-end.
-    const SECUREPATH_VERIFICATION_EXEMPT_DOMAINS = ['securepath.com'];
-    function isVerificationExemptEmail(email) {
-      const e = String(email || '').trim().toLowerCase();
-      const at = e.lastIndexOf('@');
-      if (at < 0) return false;
-      return SECUREPATH_VERIFICATION_EXEMPT_DOMAINS.indexOf(e.slice(at + 1)) !== -1;
-    }
-
     async function checkAdmin(user) {
       if (!user) return { ok: false, reason: 'missing-user' };
+      try { await user.reload(); }
+      catch (e) { console.error('Unable to refresh Firebase user state:', e); return { ok: false, reason: 'verification-check-failed' }; }
+      if (user.emailVerified !== true) return { ok: false, reason: 'email-not-verified' };
       // Server-issued claim is the strongest path and avoids requiring a
       // Firestore read for admins that have already been provisioned.
       try {
@@ -1676,15 +1664,13 @@
       }
 
       // Backward-compatible path for existing admin/{uid} documents.
-      // We verify role first so existing local development admins do not get
-      // locked out merely because their placeholder email cannot receive mail.
+      // Existing admins may still be provisioned through an admin/{uid} doc.
       try {
         const doc = await db.collection('admin').doc(user.uid).get();
         if (!doc.exists) return { ok: false, reason: 'admin-profile-missing' };
         const role = String(doc.data().role || '').trim().toLowerCase();
         if (role !== 'admin') return { ok: false, reason: 'invalid-role' };
-        if (!user.emailVerified && !SECUREPATH_LOCAL_ADMIN_MODE && !isVerificationExemptEmail(user.email)) return { ok: false, reason: 'email-not-verified' };
-        return { ok: true, reason: (SECUREPATH_LOCAL_ADMIN_MODE || isVerificationExemptEmail(user.email)) && !user.emailVerified ? 'local-admin-document' : 'admin-document' };
+        return { ok: true, reason: 'admin-document' };
       } catch (e) {
         console.error('Admin profile check failed:', e);
         return { ok: false, reason: 'firestore-permission' };
@@ -1706,6 +1692,7 @@
             await auth.signOut();
             const messages = {
               'email-not-verified': 'يجب تفعيل البريد الإلكتروني أولاً قبل الدخول إلى لوحة الإدارة.',
+              'verification-check-failed': 'تعذر التحقق من حالة البريد. أعد المحاولة بعد اتصال مستقر.',
               'admin-profile-missing': 'تم تسجيل الدخول، لكن لا يوجد ملف إداري مرتبط بهذا الحساب.',
               'invalid-role': 'الحساب موجود، لكن صلاحية الدور ليست admin.',
               'firestore-permission': 'تم تسجيل الدخول لكن Firebase منع التحقق من صلاحية الأدمن. راجع Firestore Rules.',
@@ -3648,12 +3635,16 @@
         const user = cred.user;
         await db.collection('users').doc(user.uid).set({ email, uid: user.uid, role: 'user', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
         await db.collection('clients').doc(user.uid).set({ fullName: name, email, phone, username: email.split('@')[0], uid: user.uid, client: true, role: 'client', status: 'active', createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-        if (user.sendEmailVerification) user.sendEmailVerification().catch(() => {});
+        let verificationEmailSent = false;
+        if (user.sendEmailVerification) {
+          try { await user.sendEmailVerification(); verificationEmailSent = true; }
+          catch (verificationError) { console.warn('Client verification email was not sent:', verificationError); }
+        }
         await clientAuth.signOut();
         await refreshCollection('clients');
         hideLoading('createClientBtn');
         closeModal('clientModal');
-        toast('✅ تم إنشاء العميل بنجاح');
+        toast(verificationEmailSent ? '✅ تم إنشاء العميل وإرسال رابط تفعيل البريد' : '⚠️ تم إنشاء العميل، لكن تعذر إرسال رابط التفعيل', !verificationEmailSent);
       } catch (e) {
         hideLoading('createClientBtn');
         if (e.code === 'auth/email-already-in-use') err.textContent = '⚠️ البريد مستخدم بالفعل';

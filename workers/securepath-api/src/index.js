@@ -425,9 +425,15 @@ async function authenticate(request) {
     throw e;
   }
   try {
-    return await verifyFirebaseIdToken(token);
+    const claims = await verifyFirebaseIdToken(token);
+    if (claims.email_verified !== true) {
+      const e = new Error('Email verification is required');
+      e.status = 403;
+      throw e;
+    }
+    return claims;
   } catch (e) {
-    e.status = 401;
+    e.status = e.status || 401;
     throw e;
   }
 }

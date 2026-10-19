@@ -91,6 +91,9 @@ function awardFlag(base, key, value) {
 function assertAuthenticated(request) {
   const uid = request.auth && request.auth.uid;
   if (!uid) throw new HttpsError('unauthenticated', 'Sign in required');
+  if (request.auth.token?.email_verified !== true) {
+    throw new HttpsError('permission-denied', 'Email verification is required');
+  }
   return uid;
 }
 
