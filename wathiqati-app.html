@@ -6891,7 +6891,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                         </div>
                         <span class="quick-label" id="quickAdvice">طلب نصيحة</span>
                     </div>
-                    <div class="quick-card hr-home-quick" id="homeHRHubCard" onclick="openCorporateHRHub()">
+                    <div class="quick-card hr-home-quick" id="homeHRHubCard" style="display:none" onclick="openCorporateHRHub()">
                         <div class="qicon hr-home-icon">
                             <span class="app-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/><circle cx="17" cy="16" r="1.2"/></svg></span>
                         </div>
@@ -10115,7 +10115,8 @@ function hrT(key, vars) {
             if (id === 'referral') renderReferralScreen();
             if (id === 'pointsHub') renderPointsHub();
             if (id === 'corporateHRHub') {
-                ensureXLSX().then(function(){ loadCorporateHRData(); }).catch(function(e){ console.warn('SheetJS lazy-load failed', e); loadCorporateHRData(); });
+                ensureXLSX().catch(function(e){ console.warn('SheetJS lazy-load failed', e); });
+                loadCorporateHRData();
                 setTimeout(function(){ try { updateHRTexts(); } catch(e) {} }, 0);
             }
             if (id === 'login') {
@@ -13321,9 +13322,13 @@ function hrT(key, vars) {
 
         function isCorporateHRUser() {
             var u = STATE.userData || {};
-            var type = String(u.clientType || u.accountType || u.customerType || '').toLowerCase();
-            var role = String(u.role || u.userRole || u.accessRole || '').toLowerCase();
-            return type === 'corporate' || !!u.companyId || /(^|[^a-z])(hr|human.?resources|corporate.?admin)([^a-z]|$)/i.test(role);
+            var type = String(u.clientType || u.accountType || u.customerType || '').trim().toLowerCase();
+            var role = String(u.role || u.userRole || u.accessRole || '').trim().toLowerCase();
+            var corporateType = /^(corporate|company|business|group)$/.test(type);
+            var hrRole = /(^|[^a-z])(hr|human.?resources|corporate.?admin)([^a-z]|$)/i.test(role);
+            var hasBusinessProfile = !!String(u.businessName || '').trim()
+                && (!!String(u.businessActivity || '').trim() || Number(u.employees) > 0);
+            return corporateType || !!String(u.companyId || '').trim() || hrRole || hasBusinessProfile;
         }
 
         function simpleHash(value) {
@@ -13406,7 +13411,6 @@ function hrT(key, vars) {
             }
             showScreen('corporateHRHub');
             switchHRTab('dashboard');
-            if (typeof loadCorporateHRData === 'function') loadCorporateHRData();
         }
 
         function updateCorporateHRAccessVisibility() {
@@ -17594,13 +17598,9 @@ html.dark-mode .navbar .nav-item.on .nav-icon .app-icon,html.dark-mode .navbar .
     if(typeof originalSwitch==='function'){
         window.switchHRTab=function(tab){var r=originalSwitch.apply(this,arguments);if(tab==='dashboard')setTimeout(function(){renderHRInsuranceAnalytics(false);},70);return r;};
     }
-    var originalAccess=window.updateCorporateHRAccessVisibility;
-    if(typeof originalAccess==='function'){
-        window.updateCorporateHRAccessVisibility=function(){var r=originalAccess.apply(this,arguments);var q=document.getElementById('homeHRHubCard');if(q)q.style.display=isCorporateHRUser()?'flex':'none';var old=document.getElementById('corporateHRQuickCard');if(old)old.style.display='none';var a=document.getElementById('corporateHRAccountCard');if(a)a.style.display='none';return r;};
-    }
     var threshold=document.getElementById('hrLossThreshold');
     if(threshold)threshold.addEventListener('input',function(){setTimeout(function(){renderHRInsuranceAnalytics(true);},0);});
-    document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){if(typeof updateCorporateHRAccessVisibility==='function')updateCorporateHRAccessVisibility();renderHRInsuranceAnalytics(false);},250);});
+    document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){renderHRInsuranceAnalytics(false);},250);});
 })();
 </script>
 </body>
