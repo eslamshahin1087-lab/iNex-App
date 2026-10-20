@@ -14506,6 +14506,14 @@ function hrT(key, vars) {
             var d=new Date(s);return isNaN(d.getTime())?null:d;
         }
 
+        function calculateHRAge(birthDate, referenceDate){
+            var born=parseHRDate(birthDate), asOf=parseHRDate(referenceDate)||new Date();
+            if(!born||born>asOf)return null;
+            var age=asOf.getFullYear()-born.getFullYear();
+            if(asOf.getMonth()<born.getMonth()||(asOf.getMonth()===born.getMonth()&&asOf.getDate()<born.getDate()))age--;
+            return age>=0&&age<=120?age:null;
+        }
+
         function hrDateKey(v){var d=parseHRDate(v);return d?d.toISOString().slice(0,10):'';}
         function formatHRMoney(n) {
     var locale = STATE.language === 'en' ? 'en-US' : 'ar-EG';
