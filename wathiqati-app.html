@@ -10653,24 +10653,45 @@ function hrT(key, vars) {
         function resolveClientProfileForUser(user) {
             return getClientProfile(user.uid).then(function(profile) {
                 if (!profile) {
-                    return user.getIdTokenResult().then(function(tokenResult) {
-                        if (!tokenResult || !tokenResult.claims || tokenResult.claims.securepathTest !== true) {
-                            throw { code: 'client/profile-not-found', message: 'No client profile is linked to this Firebase UID.' };
-                        }
-                        var emailLocal = String(user.email || '').split('@')[0] || 'client';
-                        var stub = {
-                            uid: user.uid,
-                            fullName: emailLocal,
-                            email: user.email || '',
-                            username: emailLocal,
-                            role: 'client',
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            language: STATE.language || 'ar',
-                            onboardingSeen: false
-                        };
-                        var ref = db.collection('clients').doc(user.uid);
-                        return ref.set(stub, { merge: true }).then(function() {
-                            return { ref: ref, data: stub };
+                    // A verified Firebase account can occasionally outlive a failed
+                    // client-profile write (for example, a network interruption during
+                    // signup). Recreate only its own minimal client record. Firestore
+                    // rules still require the verified user's UID and a client role,
+                    // and all point balances start at zero.
+                    if (!user.email || user.emailVerified !== true) {
+                        throw { code: 'client/profile-not-found', message: 'No client profile is linked to this Firebase UID.' };
+                    }
+                    return user.getIdTokenResult(true).then(function(tokenResult) {
+                        return db.collection('admin').doc(user.uid).get().then(function(adminDoc) {
+                            if ((tokenResult && tokenResult.claims && tokenResult.claims.securepathAdmin === true)
+                                || (adminDoc && adminDoc.exists)) {
+                                throw { code: 'client/invalid-role', message: 'An administrator account cannot be provisioned as a client.' };
+                            }
+                            var emailLocal = String(user.email || '').split('@')[0] || 'client';
+                            var displayName = String(user.displayName || '').trim();
+                            var recoveredProfile = {
+                                uid: user.uid,
+                                fullName: displayName || emailLocal,
+                                email: user.email,
+                                username: emailLocal,
+                                role: 'client',
+                                insuraPoints: 0,
+                                insuraPointsLifetime: 0,
+                                insuraPointsRedeemed: 0,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                language: STATE.language || 'ar',
+                                onboardingSeen: false,
+                                profileRecoveredAt: firebase.firestore.FieldValue.serverTimestamp()
+                            };
+                            var ref = db.collection('clients').doc(user.uid);
+                            return ref.set(recoveredProfile, { merge: true }).then(function() {
+                                return { ref: ref, data: recoveredProfile };
+                            }).catch(function(error) {
+                                if (error && (error.code === 'permission-denied' || error.code === 'firestore/permission-denied')) {
+                                    throw { code: 'client/profile-recovery-denied', message: 'Firestore rules prevented client profile recovery.', cause: error };
+                                }
+                                throw error;
+                            });
                         });
                     });
                 }
@@ -10760,7 +10781,7 @@ function hrT(key, vars) {
         function isPermanentClientProfileError(error) {
             return !!(error && [
                 'client/profile-not-found', 'client/invalid-role', 'client/identity-mismatch',
-                'client/name-missing', 'client/duplicate-uid'
+                'client/name-missing', 'client/duplicate-uid', 'client/profile-recovery-denied'
             ].indexOf(error.code) >= 0);
         }
 
@@ -10817,8 +10838,10 @@ function hrT(key, vars) {
                 var code = e && e.code || '';
                 var authenticatedUid = loginCredential && loginCredential.user && loginCredential.user.uid;
                 if (authenticatedUid && auth.currentUser && auth.currentUser.uid === authenticatedUid && code !== 'auth/email-not-verified') {
-                    var nonRetryable = ['client/profile-not-found', 'client/invalid-role', 'client/identity-mismatch', 'client/name-missing', 'client/duplicate-uid'];
-                    var detail = code === 'client/profile-not-found'
+                    var nonRetryable = ['client/profile-not-found', 'client/invalid-role', 'client/identity-mismatch', 'client/name-missing', 'client/duplicate-uid', 'client/profile-recovery-denied'];
+                    var detail = code === 'client/profile-recovery-denied'
+                        ? (STATE.language === 'ar' ? 'تعذر إنشاء سجل العميل بسبب صلاحيات قاعدة البيانات.' : 'Database rules prevented creation of the client profile.')
+                        : code === 'client/profile-not-found'
                         ? (STATE.language === 'ar' ? 'لا يوجد ملف عميل مرتبط بهذا الحساب.' : 'No client profile is linked to this account.')
                         : code === 'client/invalid-role'
                             ? (STATE.language === 'ar' ? 'هذا الحساب لا يملك صلاحية دخول واجهة العميل.' : 'This account does not have the client role.')
@@ -10830,8 +10853,8 @@ function hrT(key, vars) {
                                         ? (STATE.language === 'ar' ? 'يوجد أكثر من ملف مرتبط بالحساب.' : 'Multiple client profiles are linked to this account.')
                                         : (STATE.language === 'ar' ? 'تعذّر تحميل بيانات الحساب.' : 'Could not load the account data.');
                     var retainedMessage = STATE.language === 'ar'
-                        ? 'تم التحقق من الدخول ولم يتم تسجيل الخروج. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' اضغط إعادة محاولة استعادة الجلسة.' : ' يرجى مراجعة مسؤول النظام لربط الحساب بشكل صحيح.')
-                        : 'Sign-in succeeded and your session is still active. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' Choose “Retry session restore”.' : ' Please ask the administrator to correct the account link.');
+                        ? 'تم التحقق من الدخول ولم يتم تسجيل الخروج. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' اضغط إعادة محاولة استعادة الجلسة.' : ' يرجى مراجعة مسؤول النظام لصلاحيات قاعدة البيانات أو ربط الحساب.')
+                        : 'Sign-in succeeded and your session is still active. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' Choose “Retry session restore”.' : ' Please ask the administrator to check database permissions or the account link.');
                     showLoginAfterAuthChange(retainedMessage, nonRetryable.indexOf(code) < 0);
                     return;
                 }
