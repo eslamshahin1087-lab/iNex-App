@@ -10608,11 +10608,29 @@ function hrT(key, vars) {
             });
         }
 
-        function getClientProfile(uid) {
+        function getClientProfile(uid, email) {
             return db.collection('clients').doc(uid).get().then(function(doc) {
                 if (doc.exists) return { ref: doc.ref, data: doc.data() || {} };
-                return db.collection('clients').where('uid', '==', uid).limit(2).get().then(function(snap) {
-                    if (snap.size > 1) throw { code: 'client/duplicate-uid', message: 'Multiple client records are linked to this account.' };
+                return db.collection('clients').where('uid', '==', uid).limit(10).get().then(function(snap) {
+                    if (snap.size > 1) {
+                        // Older imports can leave duplicate client records with the
+                        // same Firebase UID. Prefer the record that matches the
+                        // authenticated email, then the most complete profile.
+                        var wantedEmail = normalizeLoginIdentifier(email || '');
+                        var candidates = snap.docs.map(function(candidate) {
+                            var candidateData = candidate.data() || {};
+                            var candidateEmail = normalizeLoginIdentifier(candidateData.email || candidateData.loginEmail || candidateData.authEmail || '');
+                            var completeness = ['fullName', 'full_name', 'name', 'phone', 'clientType', 'businessName'].reduce(function(score, key) {
+                                return score + (String(candidateData[key] || '').trim() ? 1 : 0);
+                            }, 0);
+                            return { ref: candidate.ref, data: candidateData, emailMatch: !!wantedEmail && candidateEmail === wantedEmail, completeness: completeness };
+                        }).sort(function(a, b) {
+                            if (a.emailMatch !== b.emailMatch) return a.emailMatch ? -1 : 1;
+                            return b.completeness - a.completeness;
+                        });
+                        console.warn('Multiple client profiles share this UID; using the best matching profile.', uid);
+                        return candidates[0];
+                    }
                     if (snap.size === 1) return { ref: snap.docs[0].ref, data: snap.docs[0].data() || {} };
                     return null;
                 });
@@ -10641,7 +10659,10 @@ function hrT(key, vars) {
                 }
             }
             var role = String(data.role || 'client').trim().toLowerCase();
-            if (role !== 'client' && role !== 'customer') throw { code: 'client/invalid-role', message: 'This account is not a client account.' };
+            // Accept non-privileged legacy client labels. Admin, staff and broker
+            // roles remain excluded from the client application.
+            var clientRoles = ['client', 'customer', 'user', 'individual', 'corporate', 'company', 'business', 'group', 'organization', 'policyholder'];
+            if (clientRoles.indexOf(role) < 0) throw { code: 'client/invalid-role', message: 'This account is not a client account.' };
             var name = displayClientName(data, identifier);
             if (!name) throw { code: 'client/name-missing', message: 'Client profile has no display name.' };
             return name;
@@ -10651,7 +10672,7 @@ function hrT(key, vars) {
         // and the auto-login/session-resume flow (resumeClientSession) so the
         // profile-provisioning logic never drifts between the two paths.
         function resolveClientProfileForUser(user) {
-            return getClientProfile(user.uid).then(function(profile) {
+            return getClientProfile(user.uid, user.email).then(function(profile) {
                 if (!profile) {
                     // A verified Firebase account can occasionally outlive a failed
                     // client-profile write (for example, a network interruption during
@@ -10695,7 +10716,15 @@ function hrT(key, vars) {
                         });
                     });
                 }
-
+                // The document path is authoritative when it exactly matches the
+                // authenticated UID. Repair stale uid fields left by account imports
+                // so the same user is not sent back to login on the next restore.
+                if (profile.ref && profile.ref.id === user.uid && String((profile.data || {}).uid || '') !== user.uid) {
+                    return profile.ref.set({ uid: user.uid }, { merge: true }).then(function() {
+                        profile.data = Object.assign({}, profile.data || {}, { uid: user.uid });
+                        return profile;
+                    });
+                }
                 return profile;
             });
         }
@@ -10786,6 +10815,26 @@ function hrT(key, vars) {
             ].indexOf(error.code) >= 0);
         }
 
+        function clientProfileIssueMessage(error) {
+            var code = error && error.code || '';
+            if (STATE.language === 'ar') {
+                if (code === 'client/profile-not-found') return 'لم يُعثر على سجل العميل لهذا الحساب.';
+                if (code === 'client/identity-mismatch') return 'معرّف سجل العميل لا يطابق معرّف حساب الدخول.';
+                if (code === 'client/invalid-role') return 'نوع الحساب المسجل لا يسمح بدخول واجهة العميل.';
+                if (code === 'client/name-missing') return 'سجل العميل لا يحتوي اسمًا صالحًا.';
+                if (code === 'client/duplicate-uid') return 'توجد سجلات عميل متعددة لهذا الحساب؛ راجع مسؤول النظام.';
+                if (code === 'client/profile-recovery-denied') return 'قواعد Firestore منعت استعادة سجل العميل.';
+                return 'ملف العميل يحتاج إلى مراجعة مسؤول النظام.';
+            }
+            if (code === 'client/profile-not-found') return 'No client profile was found for this account.';
+            if (code === 'client/identity-mismatch') return 'The client profile UID does not match the sign-in account.';
+            if (code === 'client/invalid-role') return 'The stored account role cannot access the client interface.';
+            if (code === 'client/name-missing') return 'The client profile has no valid display name.';
+            if (code === 'client/duplicate-uid') return 'Multiple client profiles exist for this account; ask the administrator to review them.';
+            if (code === 'client/profile-recovery-denied') return 'Firestore rules prevented client profile recovery.';
+            return 'An administrator must review the client profile.';
+        }
+
         function resumeClientSessionWithRetry(user, retries) {
             return resumeClientSession(user).catch(function(error) {
                 if (!retries || isPermanentClientProfileError(error) || (error && error.code === 'auth/email-not-verified')) throw error;
@@ -10856,7 +10905,7 @@ function hrT(key, vars) {
                     var retainedMessage = STATE.language === 'ar'
                         ? 'تم التحقق من الدخول ولم يتم تسجيل الخروج. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' اضغط إعادة محاولة استعادة الجلسة.' : ' يرجى مراجعة مسؤول النظام لصلاحيات قاعدة البيانات أو ربط الحساب.')
                         : 'Sign-in succeeded and your session is still active. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' Choose “Retry session restore”.' : ' Please ask the administrator to check database permissions or the account link.');
-                    showLoginAfterAuthChange(retainedMessage, nonRetryable.indexOf(code) < 0);
+                    showLoginAfterAuthChange(retainedMessage, true);
                     return;
                 }
                 return auth.signOut().catch(function() {}).then(function() {
@@ -16166,7 +16215,7 @@ function updateHRTexts() {
         // LOAD DATA                                                     //
         // ============================================================ //
         function loadUserData(uid, preloadedProfile) {
-            var clientPromise = preloadedProfile ? Promise.resolve(preloadedProfile) : getClientProfile(uid);
+            var clientPromise = preloadedProfile ? Promise.resolve(preloadedProfile) : getClientProfile(uid, auth.currentUser && auth.currentUser.email);
             clientPromise = clientPromise.then(function(profile) {
                 if (!profile) throw { code: 'client/profile-not-found', message: 'Client profile not found.' };
                 STATE.userData = profile.data || {};
@@ -16354,7 +16403,10 @@ function showLoginAfterAuthChange(message, canRetry) {
     var email = document.getElementById('loginEmail'),
         pass = document.getElementById('loginPass'),
         err = document.getElementById('loginError');
-    if (email) { email.value = ''; email.focus(); }
+    if (email) {
+        email.value = auth.currentUser && auth.currentUser.email ? auth.currentUser.email : '';
+        if (!email.value) email.focus();
+    }
     if (pass) pass.value = '';
     if (err) {
         if (message) { err.textContent = message; err.style.display = 'block'; }
@@ -16397,7 +16449,7 @@ function retrySavedSession() {
         var message = e && e.code === 'auth/email-not-verified'
             ? (STATE.language === 'ar' ? 'يجب تفعيل بريدك الإلكتروني من الرابط المرسل قبل الدخول.' : 'Verify your email using the link we sent before signing in.')
             : permanentProfileError
-                ? (STATE.language === 'ar' ? 'جلسة الدخول محفوظة، لكن ملف العميل يحتاج إلى تصحيح أو ربط من مسؤول النظام.' : 'Your session is active, but an administrator must correct or link the client profile.')
+                ? (STATE.language === 'ar' ? 'الجلسة ما زالت نشطة. ' + clientProfileIssueMessage(e) : 'Your session is still active. ' + clientProfileIssueMessage(e))
                 : (STATE.language === 'ar'
                     ? 'تعذّر تحميل بيانات الحساب، لكن جلسة الدخول ما زالت محفوظة. حاول مرة أخرى بعد قليل.'
                     : 'We could not load your account data, but your sign-in session is still active. Please try again shortly.');
@@ -16405,7 +16457,7 @@ function retrySavedSession() {
             return auth.signOut().catch(function() {}).then(function() { showLoginAfterAuthChange(message); });
         }
         console.warn('Manual session restore retry failed:', e);
-        showLoginAfterAuthChange(message, !!auth.currentUser && !permanentProfileError);
+        showLoginAfterAuthChange(message, !!auth.currentUser);
     }).finally(function() {
         SESSION_RESTORE_IN_PROGRESS = false;
         if (retry && retry.style.display !== 'none') retry.disabled = false;
@@ -16443,15 +16495,15 @@ auth.onAuthStateChanged(function(user) {
                 ? (STATE.language === 'ar' ? 'يجب تفعيل بريدك الإلكتروني من الرابط المرسل إليك قبل الدخول.' : 'Verify your email using the link we sent before signing in.')
                 : permanentProfileError
                     ? (STATE.language === 'ar'
-                        ? 'جلسة الدخول محفوظة، لكن ملف العميل يحتاج إلى تصحيح أو ربط من مسؤول النظام.'
-                        : 'Your sign-in session is still active, but an administrator must correct or link the client profile.')
+                        ? 'الجلسة ما زالت نشطة. ' + clientProfileIssueMessage(e)
+                        : 'Your sign-in session is still active. ' + clientProfileIssueMessage(e))
                     : (STATE.language === 'ar'
                         ? 'تعذّر تحميل بيانات الحساب. بقيت جلسة الدخول محفوظة؛ اضغط «إعادة محاولة استعادة الجلسة».'
                         : 'We could not load your account data. Your sign-in session is still active; choose “Retry session restore”.');
             if (isEmailUnverified) {
                 return auth.signOut().catch(function() {}).then(function() { showLoginAfterAuthChange(message); });
             }
-            showLoginAfterAuthChange(message, !!auth.currentUser && !permanentProfileError);
+            showLoginAfterAuthChange(message, !!auth.currentUser);
         });
     }).catch(function(e) {
         console.warn('Auth persistence initialization failed:', e);
