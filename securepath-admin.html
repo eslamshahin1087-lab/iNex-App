@@ -11,6 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
   <script src="js/securepath-backend.js"></script>
+  <script src="js/securepath-flows.js"></script>
 
   <style>
     /* ================================================================
@@ -2680,7 +2681,8 @@
         const badge = st === 'pending' ? 'badge-warning' : st === 'approved' || st === 'verified' ? 'badge-success' : st === 'rejected' ? 'badge-danger' : 'badge-gray';
         const label = st === 'pending' ? 'قيد المراجعة' : st === 'approved' || st === 'verified' ? 'معتمد' : st === 'rejected' ? 'مرفوض' : '—';
         const hasData = !!(d.dataUrl || d.downloadURL || d.fileUrl || d.url);
-        return `<tr><td>${clientLink(d.clientId||d.uid)}</td><td>${esc(d.fileName||'—')}</td><td>${esc(d.fileType||d.category||'—')}</td><td>${(d.uploadedBy === 'agent' || d.role === 'admin') ? '<span class="badge badge-info">أدمن</span>' : '<span class="badge badge-success">عميل</span>'}</td><td><span class="badge ${badge}">${label}</span></td><td>${date(d.createdAt)}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">${hasData ? `<button class="btn btn-outline btn-xs" title="معاينة المستند" onclick="openDocumentById('${d.id}')"><i class="fas fa-eye"></i></button>` : ''}${st === 'pending' ? `<button class="btn btn-success btn-xs" title="اعتماد المستند" onclick="verifyDocument('${d.id}','approved')"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-xs" title="رفض المستند" onclick="verifyDocument('${d.id}','rejected')"><i class="fas fa-times"></i></button>` : ''}</div></td></tr>`;
+        const rewardPending = (st === 'approved' || st === 'verified') && d.pointsRewardStatus === 'pending';
+        return `<tr><td>${clientLink(d.clientId||d.uid)}</td><td>${esc(d.fileName||'—')}</td><td>${esc(d.fileType||d.category||'—')}</td><td>${(d.uploadedBy === 'agent' || d.role === 'admin') ? '<span class="badge badge-info">أدمن</span>' : '<span class="badge badge-success">عميل</span>'}</td><td><span class="badge ${badge}">${label}</span>${rewardPending ? '<div class="badge badge-warning" style="margin-top:4px">النقاط معلّقة</div>' : ''}</td><td>${date(d.createdAt)}</td><td><div style="display:flex;gap:4px;flex-wrap:wrap">${hasData ? `<button class="btn btn-outline btn-xs" title="معاينة المستند" onclick="openDocumentById('${d.id}')"><i class="fas fa-eye"></i></button>` : ''}${st === 'pending' ? `<button class="btn btn-success btn-xs" title="اعتماد المستند" onclick="verifyDocument('${d.id}','approved')"><i class="fas fa-check"></i></button><button class="btn btn-danger btn-xs" title="رفض المستند" onclick="verifyDocument('${d.id}','rejected')"><i class="fas fa-times"></i></button>` : ''}${rewardPending ? `<button class="btn btn-outline btn-xs" title="إعادة محاولة مكافأة النقاط" onclick="verifyDocument('${d.id}','approved')"><i class="fas fa-rotate"></i> إعادة النقاط</button>` : ''}</div></td></tr>`;
       }).join('');
       document.getElementById('documentsBody').innerHTML = html || '<tr><td colspan="7"><div class="empty">لا توجد مستندات</div></td></tr>';
     }
@@ -3528,44 +3530,49 @@
       btn.textContent = '⏳ جاري...';
       if (progress) { progress.style.display = 'block'; bar.style.width = '2%'; }
       status.className = 'upload-status loading';
-      status.textContent = '⏳ جاري التحويل...';
+      status.textContent = '⏳ جاري الرفع...';
 
       try {
-        const dataUrl = await new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onprogress = e => { if (e.lengthComputable) { const pct = Math.min(70, Math.round((e.loaded / e.total) * 70)); bar.style.width = pct + '%'; btn.textContent = '📦 ' + pct + '%'; } };
-          reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(reader.error);
-          reader.readAsDataURL(selectedFile);
+        const upload = await uploadAdminDocumentToCloudinary(selectedFile, pct => {
+          bar.style.width = Math.max(2, pct) + '%';
+          btn.textContent = '📤 ' + pct + '%';
         });
-
-        if (new Blob([dataUrl]).size > 1024 * 1024) throw new Error('حجم Base64 كبير جداً');
         bar.style.width = '82%';
-        btn.textContent = '💾 حفظ...';
-        status.textContent = '⏳ جاري الحفظ...';
+        btn.textContent = '💾 حفظ البيانات...';
+        status.textContent = '⏳ جاري حفظ بيانات المستند...';
 
         const docData = {
           clientId, uid: clientId, fileName, fileType: fileType || 'أخرى',
           mimeType: selectedFile.type || 'application/octet-stream',
           fileOriginalName: selectedFile.name,
           fileSize: selectedFile.size,
-          dataUrl: dataUrl,
+          downloadURL: upload.secure_url,
+          cloudinaryPublicId: upload.public_id,
+          cloudinaryResourceType: upload.resource_type,
           uploadedBy: 'agent',
           uploaderUid: APP_STATE.currentUser.uid,
           uploaderEmail: APP_STATE.currentUser.email,
           role: 'admin',
           verificationStatus: 'pending',
-          storageMode: 'firestore-dataUrl',
+          pointsRewardStatus: 'not_applicable',
+          reviewStatus: 'pending',
+          storageMode: 'cloudinary',
           createdAt: existing?.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         let ref;
-        if (existing) { ref = db.collection('documents').doc(existing.id); await ref.update(docData); } else { ref = db.collection('documents').doc(); await ref.set(docData); }
+        if (existing) {
+          ref = db.collection('documents').doc(existing.id);
+          await ref.update(Object.assign({}, docData, { dataUrl: firebase.firestore.FieldValue.delete() }));
+        } else {
+          ref = db.collection('documents').doc();
+          await ref.set(docData);
+        }
 
         bar.style.width = '96%';
         const snap = await ref.get();
-        if (!snap.exists || !snap.data().dataUrl) throw new Error('فشل التحقق من الحفظ');
+        if (!snap.exists || !snap.data().downloadURL) throw new Error('فشل التحقق من حفظ رابط المستند');
 
         await refreshCollection('documents');
         renderDocuments();
@@ -3590,29 +3597,58 @@
       }
     }
 
-    async function verifyDocument(id, status) {
-      await updateDocument('documents', id, {
-        verificationStatus: status,
-        verifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        verifiedBy: APP_STATE.currentUser?.uid
+    async function uploadAdminDocumentToCloudinary(file, onProgress) {
+      const signature = await securePathApiCall('/v1/cloudinary/sign', {});
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.cloudinary.com/v1_1/' + signature.cloudName + '/auto/upload', true);
+        xhr.upload.onprogress = event => {
+          if (onProgress && event.lengthComputable) onProgress(Math.round(event.loaded / event.total * 78));
+        };
+        xhr.onload = () => {
+          let result = null;
+          try { result = JSON.parse(xhr.responseText); } catch (error) {}
+          if (xhr.status >= 200 && xhr.status < 300 && result && result.secure_url && result.public_id) resolve(result);
+          else reject(new Error((result && result.error && result.error.message) || ('Cloudinary upload failed (' + xhr.status + ')')));
+        };
+        xhr.onerror = () => reject(new Error('تعذر الاتصال بخدمة رفع المستندات'));
+        const form = new FormData();
+        form.append('file', file);
+        form.append('api_key', signature.apiKey);
+        form.append('timestamp', String(signature.timestamp));
+        form.append('asset_folder', signature.assetFolder);
+        form.append('public_id', signature.publicId);
+        form.append('signature', signature.signature);
+        xhr.send(form);
       });
+    }
 
-      // On approval, award the document points through the admin-authenticated
-      // Cloudflare Worker. Rejection never issues points.
-      if (status === 'approved' || status === 'verified') {
-        try {
+    async function verifyDocument(id, status) {
+      const approved = status === 'approved' || status === 'verified';
+      const outcome = await SecurePathFlows.approveThenReward(
+        () => updateDocument('documents', id, {
+          verificationStatus: status,
+          pointsRewardStatus: approved ? 'pending' : 'not_applicable',
+          verifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          verifiedBy: APP_STATE.currentUser?.uid
+        }),
+        approved ? async () => {
           const result = await securePathApiCall('/v1/document/verified', { docId: id });
-          if (result && result.points > 0) {
-            toast('✅ تم اعتماد المستند وإضافة ' + result.points + ' نقاط');
-          }
-        } catch (e) {
-          console.warn('Verified-document points request failed:', e);
-          toast('⚠️ تم اعتماد المستند، لكن تعذر تسجيل نقاطه الآن', true);
-        }
-      }
+          if (result && result.reason === 'daily_cap') throw new Error('Daily document reward limit reached');
+          await updateDocument('documents', id, { pointsRewardStatus: 'issued' });
+          return result;
+        } : null,
+        () => refreshCollection('documents')
+      );
 
-      await refreshCollection('documents');
-      toast(status === 'approved' ? '✅ تم الاعتماد' : '✅ تم الرفض');
+      if (approved && outcome.rewardError) {
+        console.warn('Document was approved; points reward is pending retry:', outcome.rewardError);
+        toast('✅ تم اعتماد المستند. مكافأة النقاط معلّقة؛ استخدم زر إعادة النقاط عند عودة الاتصال.', true);
+      } else if (approved && outcome.reward && outcome.reward.points > 0) {
+        toast('✅ تم الاعتماد وإضافة ' + outcome.reward.points + ' نقاط');
+      } else {
+        toast(status === 'approved' || status === 'verified' ? '✅ تم الاعتماد' : '✅ تم الرفض');
+      }
     }
 
     // ================================================================

@@ -2,6 +2,8 @@
  * Cloudflare Workers + Firestore REST API
  * No Firebase Cloud Functions required.
  */
+import { handleDocumentVerifiedReward } from './document-rewards.js';
+
 const PROJECT_ID = 'path-1a672';
 const DB_ROOT = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 const FIREBASE_ISSUER = `https://securetoken.google.com/${PROJECT_ID}`;
@@ -668,32 +670,15 @@ async function handleRedeem(env, uid, data) {
 }
 
 async function handleDocumentVerified(env, uid, data, claims) {
-  if (!(await isAdminUser(env, uid, claims))) throw new Error('Admin access required');
-  const docId = String(data?.docId || '');
-  const doc = await getDoc(env, 'documents', docId);
-  if (!doc || !doc.clientId) throw new Error('Document not found');
-  const status = String(doc.verificationStatus || doc.reviewStatus || '').toLowerCase();
-  if (!['verified', 'approved'].includes(status)) throw new Error('Document is not verified');
-  const url = String(doc.downloadURL || doc.fileUrl || '');
-  if (!url.startsWith(CLOUDINARY_ALLOWED_PREFIX)) throw new Error('Document storage is not approved');
-
-  const client = await getDoc(env, 'clients', doc.clientId);
-  if (!client) throw new Error('Client not found');
-
-  const today = todayKey();
-  const flags = { ...(client.pointsFlags || {}) };
-  const awardedIds = Array.isArray(flags.docUploadAwardedIds) ? flags.docUploadAwardedIds : [];
-  if (awardedIds.includes(docId)) return { ok: true, points: 0, reason: 'already_awarded' };
-  const count = flags.docUploadAwardDate === today ? Number(flags.docUploadAwardCount || 0) : 0;
-  if (count >= MAX_DOCS_PER_DAY) return { ok: true, points: 0, reason: 'daily_cap' };
-
-  flags.docUploadAwardDate = today;
-  flags.docUploadAwardCount = count + 1;
-  flags.docUploadAwardedIds = awardedIds.slice(-49).concat(docId);
-
-  return issuePoints(env, doc.clientId, client, POINTS.documentUpload, 'insurance_habit',
-    'اعتماد مستند تأميني', 'Verified insurance document',
-    { pointsFlags: flags });
+  return handleDocumentVerifiedReward(env, uid, data, claims, {
+    isAdminUser,
+    getDoc,
+    todayKey,
+    maxDocsPerDay: MAX_DOCS_PER_DAY,
+    documentPoints: POINTS.documentUpload,
+    makeCreateWrite,
+    issuePoints
+  });
 }
 
 function textInput(value, max, fallback = '') {

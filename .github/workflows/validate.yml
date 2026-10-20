@@ -17,6 +17,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Test critical client workflows
+        run: npm test
+
       - name: Validate JSON files
         run: |
           set -e

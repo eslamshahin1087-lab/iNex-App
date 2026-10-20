@@ -1,9 +1,11 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'securepath-v8-signup-session-cors-fix';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'securepath-v9-reliable-doc-points-flow';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
+  './js/securepath-backend.js',
+  './js/securepath-flows.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'

@@ -31,6 +31,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js">
     </script>
     <script src="js/securepath-backend.js"></script>
+    <script src="js/securepath-flows.js"></script>
     <script>
     /* Fallback: if js/securepath-backend.js failed to load, define a stub that REJECTS
        (never fakes success) so features that need the backend fail cleanly instead of
@@ -10617,6 +10618,7 @@ function hrT(key, vars) {
             showScreen('home');
             syncSecurePathLeadToInsurNex();
             syncSignupReferralLeads();
+            retryPendingAssessmentReward();
             requestAnimationFrame(function() { renderCompaniesSlider(); });
             setTimeout(function() { renderCompaniesSlider(); }, 120);
             if (!STATE.userData.onboardingSeen) {
@@ -11571,7 +11573,7 @@ function hrT(key, vars) {
             return { recommendations: recs, gaps: gaps };
         }
 
-        function runFullAssessment() {
+        async function runFullAssessment() {
             if (!STATE.currentUser) { alert(STATE.language === 'ar' ? 'يرجى تسجيل الدخول أولاً' : 'Please login first'); return; }
             var u = STATE.userData || {},
                 pol = STATE.policies.filter(function(p) { return p.clientId === STATE.currentUser.uid; }),
@@ -11597,7 +11599,8 @@ function hrT(key, vars) {
             assessmentCache[STATE.currentUser.uid] = result;
             STATE.insuranceAssessments[STATE.currentUser.uid] = result;
             STATE.lastAssessmentResult = result;
-            db.collection('insuranceAssessments').doc(STATE.currentUser.uid).set({
+            var uid = STATE.currentUser.uid;
+            var assessmentData = {
                 score: result.score,
                 status: result.status,
                 recommendations: result.recommendations,
@@ -11606,10 +11609,30 @@ function hrT(key, vars) {
                 activeCount: result.activeCount,
                 ownedCount: result.ownedCount,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true }).catch(function(e) { console.warn('Assessment save failed', e); });
-            maybeAwardAssessmentPoints();
-            showAssessmentResults(result);
-            renderAll();
+            };
+            try {
+                var outcome = await SecurePathFlows.saveThenReward(
+                    function() { return db.collection('insuranceAssessments').doc(uid).set(assessmentData, { merge: true }); },
+                    function() { return maybeAwardAssessmentPoints(false, true); },
+                    function() {
+                        showAssessmentResults(result);
+                        renderAll();
+                    }
+                );
+                if (outcome.rewardError) {
+                    console.warn('Assessment points reward is pending retry:', outcome.rewardError);
+                    alert(STATE.language === 'ar'
+                        ? 'تم حفظ التقييم. تعذر تسجيل النقاط مؤقتاً؛ سنعيد المحاولة عند عودة الاتصال.'
+                        : 'Assessment saved. Points could not be recorded yet; we will retry when the connection returns.');
+                }
+            } catch (e) {
+                console.warn('Assessment save failed:', e);
+                showAssessmentResults(result);
+                renderAll();
+                alert(STATE.language === 'ar'
+                    ? 'تعذر حفظ التقييم. لم تُطلب النقاط؛ تحقق من الاتصال ثم أعد التقييم.'
+                    : 'Assessment could not be saved. No points were requested; check your connection and try again.');
+            }
         }
 
         function showAssessmentResults(result) {
@@ -11805,12 +11828,65 @@ function hrT(key, vars) {
             console.warn('Direct point mutation is disabled. Use the SecurePath backend event APIs.');
         }
 
-        function maybeAwardAssessmentPoints() {
-            if (!STATE.currentUser) return;
-            callSecurePoints({ event: 'assessment' },
-                'إتمام تقييم الحماية الشامل', 'Completed the full protection assessment')
-                .catch(reportPointsError);
+        var ASSESSMENT_REWARD_PENDING_PREFIX = 'securepath:pending-assessment-reward:';
+        var ASSESSMENT_REWARD_WINDOW_MS = 14 * 60 * 1000;
+
+        function assessmentRewardPendingKey(uid) { return ASSESSMENT_REWARD_PENDING_PREFIX + uid; }
+
+        function maybeAwardAssessmentPoints(silent, newAssessment) {
+            if (!STATE.currentUser) return Promise.resolve({ ok: false, reason: 'not_signed_in' });
+            var uid = STATE.currentUser.uid;
+            var key = assessmentRewardPendingKey(uid);
+            var pending = null;
+            try { pending = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+            var savedAt = !newAssessment && pending && Number(pending.savedAt) || Date.now();
+            try { localStorage.setItem(key, JSON.stringify({ savedAt: savedAt })); } catch (e) {}
+
+            function requestReward() {
+                if (!STATE.currentUser || STATE.currentUser.uid !== uid) return Promise.reject(new Error('Assessment reward session changed'));
+                return callSecurePoints({ event: 'assessment' },
+                    'إتمام تقييم الحماية الشامل', 'Completed the full protection assessment');
+            }
+
+            function attempt(number) {
+                return requestReward().then(function(result) {
+                    try { localStorage.removeItem(key); } catch (e) {}
+                    return result;
+                }).catch(function(error) {
+                    if (Date.now() - savedAt < ASSESSMENT_REWARD_WINDOW_MS && number < 2) {
+                        return new Promise(function(resolve) { setTimeout(resolve, number === 0 ? 800 : 2400); })
+                            .then(function() { return attempt(number + 1); });
+                    }
+                    try { localStorage.setItem(key, JSON.stringify({ savedAt: savedAt })); } catch (e) {}
+                    if (!silent) console.warn('Assessment points reward is pending retry:', error);
+                    return { ok: false, pending: true, error: error };
+                });
+            }
+
+            if (Date.now() - savedAt >= ASSESSMENT_REWARD_WINDOW_MS) {
+                try { localStorage.removeItem(key); } catch (e) {}
+                return Promise.resolve({ ok: false, reason: 'assessment_reward_window_expired' });
+            }
+            return attempt(0);
         }
+
+        function retryPendingAssessmentReward() {
+            if (!STATE.currentUser) return Promise.resolve();
+            var key = assessmentRewardPendingKey(STATE.currentUser.uid);
+            var pending = null;
+            try { pending = JSON.parse(localStorage.getItem(key) || 'null'); } catch (e) {}
+            if (!pending) return Promise.resolve();
+            return maybeAwardAssessmentPoints(true).then(function(result) {
+                if (result && result.reason === 'assessment_reward_window_expired') {
+                    alert(STATE.language === 'ar'
+                        ? 'تعذر استرداد نقاط التقييم السابق بعد انتهاء مهلة الاتصال. أعد التقييم الآن لإرسال المكافأة.'
+                        : 'The previous assessment reward expired while offline. Run the assessment again to submit its reward.');
+                }
+                return result;
+            });
+        }
+
+        window.addEventListener('online', function() { retryPendingAssessmentReward(); });
 
         // Document rewards are issued by the admin-only verification workflow.
         function maybeAwardDocUploadPoints() {
@@ -12091,28 +12167,35 @@ function hrT(key, vars) {
             var btn = document.getElementById('redeemConfirmBtn');
             if (btn) btn.disabled = true;
 
-            securePathApiCall('/v1/redeem', { points: pts })
-                .then(function(result) {
-                    return refreshPointsLocal().then(function() { return result; });
-                })
-                .then(function(result) {
-                    closeModal('redeemPointsModal');
-                    var note = lang === 'ar'
+            SecurePathFlows.redeemThenOpenForm(
+                function() { return window.open('about:blank', '_blank'); },
+                function() {
+                    return securePathApiCall('/v1/redeem', { points: pts })
+                        .then(function(result) { return refreshPointsLocal().then(function() { return result; }); });
+                },
+                function(result) {
+                    var url = new URL(SECUREPATH_GOOGLE_FORM_URL);
+                    url.searchParams.set('utm_source', 'securepath_app');
+                    url.searchParams.set('utm_medium', 'app');
+                    url.searchParams.set('utm_content', 'points_redemption');
+                    url.searchParams.set('points_note', lang === 'ar'
                         ? ('طلب خصم بنقاط الأمان: ' + result.discountPercent + '% (' + result.pointsUsed + ' نقطة)')
-                        : ('InsuraPoints discount request: ' + result.discountPercent + '% (' + result.pointsUsed + ' pts)');
-                    try {
-                        var url = new URL(SECUREPATH_GOOGLE_FORM_URL);
-                        url.searchParams.set('utm_source', 'securepath_app');
-                        url.searchParams.set('utm_medium', 'app');
-                        url.searchParams.set('utm_content', 'points_redemption');
-                        url.searchParams.set('points_note', note);
-                        window.open(url.toString(), '_blank', 'noopener,noreferrer');
-                    } catch (e) {
-                        window.open(SECUREPATH_GOOGLE_FORM_URL, '_blank', 'noopener,noreferrer');
-                    }
+                        : ('InsuraPoints discount request: ' + result.discountPercent + '% (' + result.pointsUsed + ' pts)'));
+                    return url.toString();
+                },
+                function(url) {
                     alert(lang === 'ar'
-                        ? '✅ تم حجز خصمك! سيتواصل معك فريقنا لإتمام طلبك بالخصم المستحق.'
-                        : '✅ Your discount is reserved! Our team will contact you to complete your request.');
+                        ? 'تم حجز الخصم. سيتم فتح نموذج الطلب في هذه النافذة.'
+                        : 'Your discount is reserved. The request form will open in this tab.');
+                    window.location.assign(url);
+                }
+            ).then(function(flow) {
+                    closeModal('redeemPointsModal');
+                    if (flow.popupOpened) {
+                        alert(lang === 'ar'
+                            ? '✅ تم حجز خصمك! سيتواصل معك فريقنا لإتمام طلبك بالخصم المستحق.'
+                            : '✅ Your discount is reserved! Our team will contact you to complete your request.');
+                    }
                 })
                 .catch(reportPointsError)
                 .finally(function() {
