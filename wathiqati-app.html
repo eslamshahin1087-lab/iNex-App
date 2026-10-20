@@ -1168,6 +1168,70 @@
             line-height: 1.7;
         }
 
+        .signup-disclosure-card {
+            width: calc(100% - 28px);
+            max-width: 390px;
+            margin: 16px auto 14px;
+            padding: 16px 17px 14px;
+            border-color: rgba(242,189,99,.58);
+            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(19,48,91,.98), rgba(8,26,55,.98));
+            box-shadow: 0 16px 36px rgba(3,15,36,.25), inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        .signup-disclosure-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            margin: 0 0 10px;
+            color: #ffd27f;
+            font-family: "Cairo", var(--font-ar);
+            font-size: 12px;
+            font-weight: 800;
+        }
+        .signup-disclosure-mark {
+            width: 20px;
+            height: 20px;
+            display: inline-grid;
+            place-items: center;
+            border: 1px solid rgba(255,210,127,.48);
+            border-radius: 7px;
+            font-size: 11px;
+        }
+        .signup-disclosure-text {
+            display: grid;
+            gap: 8px;
+            color: rgba(255,255,255,.92);
+            font-family: "Cairo", var(--font-ar);
+            font-size: 11.5px;
+            font-weight: 500;
+            line-height: 1.9;
+            letter-spacing: 0;
+            text-align: start;
+            white-space: normal;
+        }
+        .signup-disclosure-text .disclosure-line { display: block; }
+        .signup-disclosure-text .disclosure-line:first-child { color: #fff; font-weight: 800; }
+        html[dir="ltr"] .signup-disclosure-title { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 11px; }
+        html[dir="ltr"] .signup-disclosure-text { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 10px; line-height: 1.75; }
+        .signup-disclosure-highlights {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .signup-disclosure-highlights span {
+            padding: 5px 8px;
+            border: 1px solid rgba(255,255,255,.14);
+            border-radius: 999px;
+            background: rgba(255,255,255,.07);
+            color: rgba(255,255,255,.9);
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 1.45;
+        }
+
         /* ===== ROBOT TIPS WIDGET ===== */
         .robot-tips-container {
             position: absolute;
@@ -2203,39 +2267,48 @@
 
         /* ===== NEXT ACTION ===== */
         .next-action-card {
-            margin: 14px 16px 4px;
-            padding: 14px;
-            border-radius: 18px;
-            border: 1px solid rgba(242,189,99,.28);
-            background: linear-gradient(135deg, rgba(242,189,99,.12), rgba(14,42,92,.05));
-            box-shadow: var(--shadow);
-            display: flex;
+            display: none;
+            position: absolute;
+            z-index: 80;
+            left: 12px;
+            right: 12px;
+            bottom: calc(82px + var(--safe-area-bottom));
+            margin: 0;
+            padding: 13px 42px 13px 13px;
+            border-radius: 16px;
+            border: 1px solid rgba(242,189,99,.42);
+            background: linear-gradient(135deg, rgba(20,35,62,.98), rgba(11,24,45,.98));
+            box-shadow: 0 16px 36px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.08);
+            color: #fff;
             align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+            gap: 11px;
+            cursor: default;
+            animation: nextActionToastIn .28s cubic-bezier(.2,.8,.2,1) both;
         }
-        .next-action-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: rgba(242,189,99,.48); }
+        .next-action-card.is-toast-visible { display: flex; }
+        @keyframes nextActionToastIn {
+            from { opacity: 0; transform: translateY(12px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
         .next-action-card .na-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
             display: grid;
             place-items: center;
             background: var(--gradient-gold);
             color: var(--navy);
-            flex: 0 0 44px;
+            flex: 0 0 38px;
             box-shadow: 0 12px 24px -12px rgba(242,189,99,.75);
         }
         .next-action-card .na-copy { min-width: 0; flex: 1; }
-        .next-action-card .na-kicker { display:block; font-size:9px; font-weight:900; color:var(--muted); letter-spacing:.4px; margin-bottom:2px; }
-        .next-action-card .na-title { display:block; font-size:13px; font-weight:900; color:var(--slate); line-height:1.45; }
-        .next-action-card .na-sub { display:block; font-size:10px; color:var(--muted); line-height:1.55; margin-top:2px; }
-        .next-action-card .na-cta { flex:0 0 auto; font-size:10px; font-weight:900; color:var(--navy-2); background:var(--card); border:1px solid var(--line); padding:7px 9px; border-radius:10px; }
-        html.dark-mode .next-action-card { background: linear-gradient(135deg, rgba(242,189,99,.10), rgba(255,255,255,.02)); }
-        html.dark-mode .next-action-card .na-cta { color: var(--gold-2); background: #141A28; border-color: #2A3344; }
+        .next-action-card .na-kicker { display:block; font-size:9px; font-weight:800; color:rgba(255,255,255,.66); margin-bottom:2px; }
+        .next-action-card .na-title { display:block; font-size:12px; font-weight:900; color:#fff; line-height:1.5; }
+        .next-action-card .na-sub { display:block; font-size:10px; color:rgba(255,255,255,.72); line-height:1.55; margin-top:2px; }
+        .next-action-card .na-cta { flex:0 0 auto; font:inherit; font-size:10px; font-weight:900; color:var(--navy); background:var(--gold); border:0; padding:8px 10px; border-radius:10px; cursor:pointer; }
+        .next-action-card .na-dismiss { position:absolute; top:6px; inset-inline-end:7px; width:26px; height:26px; border:0; border-radius:50%; background:rgba(255,255,255,.1); color:#fff; font-size:16px; line-height:1; cursor:pointer; }
+        .next-action-card .na-dismiss:focus-visible, .next-action-card .na-cta:focus-visible { outline:2px solid #fff; outline-offset:2px; }
+        @media (prefers-reduced-motion: reduce) { .next-action-card { animation:none; } }
 
         /* ===== QUICK ACCESS ===== */
         .quick-section {
@@ -6629,8 +6702,13 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         <div class="screen" id="signup">
             <div class="brand brand-premium">
                 <img class="brand-logo-full" src="inex-logo.png" alt="iNex logo">
-                <div class="broker-disclosure-card" style="margin-top:14px;">
-                    <p id="signupDisclosure" class="broker-disclosure-text" style="text-align:center;"></p>
+                <div class="broker-disclosure-card signup-disclosure-card">
+                    <div class="signup-disclosure-title"><span class="signup-disclosure-mark" aria-hidden="true">i</span><span id="signupDisclosureTitle">معلومات مهمة قبل التسجيل</span></div>
+                    <p id="signupDisclosure" class="broker-disclosure-text signup-disclosure-text"></p>
+                    <div class="signup-disclosure-highlights">
+                        <span id="signupDisclosureSecurity">🔒 لا نرسل كلمات المرور</span>
+                        <span id="signupDisclosureLicense">وسيط مرخص · FRA 38062</span>
+                    </div>
                 </div>
             </div>
             <div class="login-card">
@@ -6906,14 +6984,15 @@ html.dark-mode .hr-control-value{color:var(--gold)}
             </div>
             <div class="policies home-policies-list" id="homePoliciesList"></div>
 
-            <div class="next-action-card" id="nextActionCard" role="button" tabindex="0" aria-live="polite">
+            <div class="next-action-card" id="nextActionCard" role="status" aria-live="polite" aria-hidden="true">
+                <button class="na-dismiss" type="button" onclick="dismissNextActionToast(event)" aria-label="إغلاق التنبيه">×</button>
                 <div class="na-icon icon-gold"><span class="app-icon animated float"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><path d="m17 7 4 5-4 5"/></svg></span></div>
                 <div class="na-copy">
-                    <span class="na-kicker" id="nextActionKicker">WHAT'S NEXT</span>
+                    <span class="na-kicker" id="nextActionKicker">تنبيه</span>
                     <span class="na-title" id="nextActionTitle">جاري تحديد الخطوة التالية…</span>
                     <span class="na-sub" id="nextActionSub">سأقترح عليك أهم إجراء مفيد الآن.</span>
                 </div>
-                <span class="na-cta" id="nextActionCta">ابدأ</span>
+                <button class="na-cta" id="nextActionCta" type="button">ابدأ</button>
             </div>
 
             <div class="robot-tips-container" id="robotTipsContainer">
@@ -8616,7 +8695,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'العودة',
                 referralCodeLabel: 'كود الدعوة الخاص بك',
                 referralShareBtn: '📤 مشاركة رابط الدعوة',
-                signupDisclosure: '(iNex منصة توعوية وليست شركة تأمين. عند قبولك الشروط والأحكام، تتم مزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه تلقائيًا إلى InsurNex CRM لإدارة العملاء المحتملين ومتابعة الطلبات. تُعامل هذه البيانات بسرية وتُستخدم لهذا الغرض فقط. لا تُرسل كلمة المرور أو بيانات المصادقة ضمن مزامنة العملاء المحتملين. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
+                signupDisclosure: 'iNex منصة توعوية وليست شركة تأمين.|بموافقتك على الشروط، يُزامن اسمك وبريدك الإلكتروني ورقم هاتفك ونوع العميل واسم المنشأة عند انطباقه مع InsurNex CRM لمتابعة الطلبات وإدارة العملاء المحتملين.|تُستخدم هذه البيانات لهذا الغرض بسرية. لا نرسل كلمات المرور أو بيانات المصادقة.|المنتجات المعروضة من شركات مرخصة من FRA، وتُحال طلبات التأمين إلى وسيط مرخص برقم 38062.',
                 crmLeadSyncConsentNotice: 'تتضمن موافقتك على الشروط والأحكام الإذن بمزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM، للغرض الموضح في بند معالجة البيانات. لا تُرسل كلمات المرور أو بيانات المصادقة.',
                 brokerDisclosure: 'منصة تعريفية وتوعوية هدفها خدمة حاملي وثائق التأمين،\nولا تمثل شركة تأمين بعينها.\n\nيتم عرض الشركات والمنتجات المرخّصة من الهيئة العامة للرقابة المالية (FRA).\nحال الرغبة في الحصول على مزيد من المعلومات،\nيُرجى التواصل مع الوسيط المرخّص الحر بكود FRA 38062.',
                 noOffers: 'لا توجد عروض حالياً',
@@ -8969,7 +9048,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'Back',
                 referralCodeLabel: 'Your referral code',
                 referralShareBtn: '📤 Share referral link',
-                signupDisclosure: '(iNex is an insurance awareness platform, not an insurer. By accepting the Terms and Conditions, your name, email, phone, client type and company name when applicable are automatically synced to InsurNex CRM to manage leads and follow up on requests. This data is treated as confidential and used only for this purpose. Passwords and authentication credentials are not sent as part of lead synchronization. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
+                signupDisclosure: 'iNex is an insurance awareness platform, not an insurer.|By accepting the Terms and Conditions, your name, email, phone, client type and company name when applicable are synced to InsurNex CRM to manage leads and follow up on requests.|This data is kept confidential and used only for that purpose. Passwords and authentication credentials are never sent.|Products are offered by FRA-licensed insurers. Insurance requests are referred to a licensed broker under FRA number 38062.',
                 crmLeadSyncConsentNotice: 'Accepting the Terms and Conditions includes agreement to sync your name, email, phone, client type and company name when applicable to InsurNex CRM for the purpose described in the data-processing section. Passwords and authentication credentials are not sent.',
                 brokerDisclosure: 'An informational and awareness platform serving insurance policyholders,\nnot representing any single insurance company.\n\nLicensed companies and products approved by the Financial Regulatory Authority (FRA) are displayed.\nFor more information,\nplease contact the licensed independent broker under FRA code 38062.',
                 accountOffers: 'Offers & Discounts',
@@ -12348,6 +12427,24 @@ function hrT(key, vars) {
             });
         }
 
+        var nextActionToastTimer = null;
+
+        function hideNextActionToast() {
+            var card = document.getElementById('nextActionCard');
+            if (!card) return;
+            card.classList.remove('is-toast-visible');
+            card.setAttribute('aria-hidden', 'true');
+            if (nextActionToastTimer) {
+                clearTimeout(nextActionToastTimer);
+                nextActionToastTimer = null;
+            }
+        }
+
+        function dismissNextActionToast(event) {
+            if (event) event.stopPropagation();
+            hideNextActionToast();
+        }
+
         function renderNextAction() {
             var card = document.getElementById('nextActionCard');
             if (!card || !STATE.currentUser) return;
@@ -12417,12 +12514,28 @@ function hrT(key, vars) {
                 };
             }
 
-            setText('nextActionKicker', lang === 'ar' ? 'ماذا بعد؟' : 'WHAT\'S NEXT');
+            setText('nextActionKicker', lang === 'ar' ? 'تذكير لك' : 'A QUICK REMINDER');
             setText('nextActionTitle', action.title);
             setText('nextActionSub', action.sub);
             setText('nextActionCta', action.cta);
-            card.onclick = function(){ try { action.run(); } catch(e) { console.warn('Next action failed', e); } };
-            card.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } };
+            var cta = document.getElementById('nextActionCta');
+            if (cta) cta.onclick = function() {
+                hideNextActionToast();
+                try { action.run(); } catch(e) { console.warn('Next action failed', e); }
+            };
+
+            var profileKey = 'inex-next-action-toast-seen:' + uid;
+            var alreadySeen = card.dataset.toastShown === 'true';
+            try { alreadySeen = alreadySeen || sessionStorage.getItem(profileKey) === '1'; } catch (e) {}
+            if (alreadySeen) return;
+
+            card.dataset.toastShown = 'true';
+            card.classList.add('is-toast-visible');
+            card.setAttribute('aria-hidden', 'false');
+            var dismiss = card.querySelector('.na-dismiss');
+            if (dismiss) dismiss.setAttribute('aria-label', lang === 'ar' ? 'إغلاق التنبيه' : 'Dismiss reminder');
+            try { sessionStorage.setItem(profileKey, '1'); } catch (e) {}
+            nextActionToastTimer = setTimeout(hideNextActionToast, 8500);
         }
 
         function renderAll() {
@@ -12773,7 +12886,24 @@ function hrT(key, vars) {
             var footer = document.getElementById('brokerDisclosureFooter');
             if (footer) footer.textContent = disclosure;
             var signup = document.getElementById('signupDisclosure');
-            if (signup) signup.textContent = signupDisclosure;
+            if (signup) {
+                signup.textContent = '';
+                String(signupDisclosure || '').split('|').forEach(function(line) {
+                    var text = line.trim();
+                    if (!text) return;
+                    var row = document.createElement('span');
+                    row.className = 'disclosure-line';
+                    row.textContent = text;
+                    signup.appendChild(row);
+                });
+            }
+            var isArabic = (STATE.language || 'ar') === 'ar';
+            var title = document.getElementById('signupDisclosureTitle');
+            var security = document.getElementById('signupDisclosureSecurity');
+            var license = document.getElementById('signupDisclosureLicense');
+            if (title) title.textContent = isArabic ? 'معلومات مهمة قبل التسجيل' : 'Important information before signing up';
+            if (security) security.textContent = isArabic ? '🔒 لا نرسل كلمات المرور' : '🔒 Passwords are never sent';
+            if (license) license.textContent = isArabic ? 'وسيط مرخص · FRA 38062' : 'Licensed broker · FRA 38062';
         }
 
         function logLead(source, details) {
