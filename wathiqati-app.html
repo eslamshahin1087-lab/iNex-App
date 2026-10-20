@@ -6738,7 +6738,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                     <p id="signupDisclosure" class="broker-disclosure-text signup-disclosure-text"></p>
                     <div class="signup-disclosure-highlights">
                         <span id="signupDisclosureSecurity">🔒 لا نرسل كلمات المرور</span>
-                        <span id="signupDisclosureLicense">وسيط مرخص · FRA 38062</span>
+                        <span id="signupDisclosureLicense">إعلانات شركات مرخصة · FRA</span>
                     </div>
                 </div>
             </div>
@@ -8727,9 +8727,9 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'العودة',
                 referralCodeLabel: 'كود الدعوة الخاص بك',
                 referralShareBtn: '📤 مشاركة رابط الدعوة',
-                signupDisclosure: 'iNex منصة توعوية لخدمة حاملي وثائق التأمين، وليست شركة تأمين.|بموافقتك، تُزامن بيانات التواصل ونوع العميل وبيانات المنشأة عند انطباقها مع InsurNex CRM لمتابعة طلباتك.|لا نرسل كلمات المرور أو بيانات الدخول.|المنتجات من شركات مرخصة من FRA، وتُحال طلبات العروض إلى وسيط مرخص برقم 38062.',
+                signupDisclosure: 'iNex منصة توعوية متخصصة لخدمة حاملي وثائق التأمين، ولا تمثل أي شركة تأمين.|نقدّم محتوى يساعدك على فهم التغطيات والحقوق واتخاذ قرارات تأمينية أكثر وعيًا.|نحافظ على سرية بيانات الدخول ولا نشارك كلمات المرور.|الإعلانات التأمينية المعروضة تخص شركات مرخصة من الهيئة العامة للرقابة المالية (FRA).',
                 crmLeadSyncConsentNotice: 'تتضمن موافقتك على الشروط والأحكام الإذن بمزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM، للغرض الموضح في بند معالجة البيانات. لا تُرسل كلمات المرور أو بيانات المصادقة.',
-                brokerDisclosure: 'منصة توعوية لخدمة حاملي وثائق التأمين، وليست شركة تأمين.\nالمنتجات المعروضة من شركات مرخصة من الهيئة العامة للرقابة المالية (FRA).\nتُحال طلبات العروض إلى وسيط مرخص برقم FRA 38062.',
+                brokerDisclosure: 'iNex منصة توعوية متخصصة لخدمة حاملي وثائق التأمين، ولا تمثل أي شركة تأمين.\nنساعدك على فهم التغطيات والحقوق لاتخاذ قرارات تأمينية أكثر وعيًا.\nالإعلانات التأمينية المعروضة تخص شركات مرخصة من الهيئة العامة للرقابة المالية (FRA).',
                 noOffers: 'لا توجد عروض حالياً',
                 noOffersText: 'سيتم إضافة عروض وخصومات جديدة قريباً',
                 documentsTitle: 'المستندات والملفات',
@@ -9080,9 +9080,9 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'Back',
                 referralCodeLabel: 'Your referral code',
                 referralShareBtn: '📤 Share referral link',
-                signupDisclosure: 'iNex is an awareness platform for insurance policyholders, not an insurer.|With your consent, contact details, client type and business details when applicable are synced with InsurNex CRM to follow up on your requests.|Passwords and sign-in credentials are never shared.|Products are from FRA-licensed insurers; quote requests go to a licensed broker under FRA code 38062.',
+                signupDisclosure: 'iNex is an educational platform for insurance policyholders and does not represent any insurance company.|We provide clear information about coverage and policyholder rights to support informed decisions.|We protect sign-in information and never share passwords.|Insurance advertisements shown are for companies licensed by the Financial Regulatory Authority (FRA).',
                 crmLeadSyncConsentNotice: 'Accepting the Terms and Conditions includes agreement to sync your name, email, phone, client type and company name when applicable to InsurNex CRM for the purpose described in the data-processing section. Passwords and authentication credentials are not sent.',
-                brokerDisclosure: 'An awareness platform for insurance policyholders, not an insurance company.\nProducts are offered by companies licensed by the Financial Regulatory Authority (FRA).\nQuote requests are referred to a licensed broker under FRA code 38062.',
+                brokerDisclosure: 'iNex is an educational platform serving insurance policyholders and does not represent any insurance company.\nWe explain coverage and policyholder rights to support informed insurance decisions.\nInsurance advertisements shown are for companies licensed by the Financial Regulatory Authority (FRA).',
                 accountOffers: 'Offers & Discounts',
                 accountOffersSub: 'Latest exclusive offers',
                 accountCompanyAds: 'Ads',
@@ -13150,7 +13150,7 @@ function hrT(key, vars) {
             var license = document.getElementById('signupDisclosureLicense');
             if (title) title.textContent = isArabic ? 'معلومات مهمة قبل التسجيل' : 'Important information before signing up';
             if (security) security.textContent = isArabic ? '🔒 لا نرسل كلمات المرور' : '🔒 Passwords are never sent';
-            if (license) license.textContent = isArabic ? 'وسيط مرخص · FRA 38062' : 'Licensed broker · FRA 38062';
+            if (license) license.textContent = isArabic ? 'إعلانات شركات مرخصة · FRA' : 'FRA-licensed insurer ads';
         }
 
         function logLead(source, details) {
