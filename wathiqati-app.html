@@ -1186,7 +1186,7 @@
             margin: 0 0 10px;
             color: #ffd27f;
             font-family: "Cairo", var(--font-ar);
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
         }
         .signup-disclosure-mark {
@@ -1200,20 +1200,20 @@
         }
         .signup-disclosure-text {
             display: grid;
-            gap: 8px;
+            gap: 6px;
             color: rgba(255,255,255,.92);
             font-family: "Cairo", var(--font-ar);
-            font-size: 11.5px;
+            font-size: 10.25px;
             font-weight: 500;
-            line-height: 1.9;
+            line-height: 1.75;
             letter-spacing: 0;
             text-align: start;
             white-space: normal;
         }
         .signup-disclosure-text .disclosure-line { display: block; }
         .signup-disclosure-text .disclosure-line:first-child { color: #fff; font-weight: 800; }
-        html[dir="ltr"] .signup-disclosure-title { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 11px; }
-        html[dir="ltr"] .signup-disclosure-text { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 10px; line-height: 1.75; }
+        html[dir="ltr"] .signup-disclosure-title { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 10px; }
+        html[dir="ltr"] .signup-disclosure-text { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 9px; line-height: 1.65; }
         .signup-disclosure-highlights {
             display: flex;
             flex-wrap: wrap;
@@ -6684,6 +6684,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 </div>
                 <h2 id="loginTitle">تسجيل الدخول</h2>
                 <div id="loginError" style="color:var(--red);font-size:12px;margin-bottom:10px;display:none;"></div>
+                <button id="sessionRestoreRetry" class="btn-gold-small" type="button" onclick="retrySavedSession()" style="display:none;width:100%;justify-content:center;margin:-2px 0 10px;">إعادة محاولة استعادة الجلسة</button>
                 <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
                     <button id="loginLangToggle" class="lang-toggle light" onclick="toggleLanguage()" style="background:var(--card);color:var(--slate);border:1px solid var(--line);">EN</button>
                 </div>
@@ -8503,6 +8504,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
 
         var LOGIN_IN_PROGRESS = false;
         var SIGNUP_IN_PROGRESS = false;
+        var SESSION_RESTORE_IN_PROGRESS = false;
         var activeObjectUrls = [];
         var assessmentCache = {};
         var RENEWAL_WINDOW_DAYS = 45;
@@ -10746,12 +10748,31 @@ function hrT(key, vars) {
         // Resume a stored session only after refreshing and verifying its email state.
         function resumeClientSession(user) {
             return ensureVerifiedEmail(user).then(function() { return resolveClientProfileForUser(user); }).then(function(profile) {
+                var name = verifyClientIdentity(profile, user, user.email || '');
                 STATE.userData = Object.assign({}, profile.data || {});
-                STATE.currentUser = { uid: user.uid, name: displayClientName(STATE.userData, (user.email || '').split('@')[0]), email: user.email || STATE.userData.email || STATE.userData.loginEmail || '' };
+                STATE.currentUser = { uid: user.uid, name: name, email: user.email || STATE.userData.email || STATE.userData.loginEmail || '' };
                 if (STATE.userData.language === 'ar' || STATE.userData.language === 'en') STATE.language = STATE.userData.language;
                 updateUserUI(STATE.userData);
                 return loadUserData(user.uid, profile);
             }).then(enterClientHome);
+        }
+
+        function isPermanentClientProfileError(error) {
+            return !!(error && [
+                'client/profile-not-found', 'client/invalid-role', 'client/identity-mismatch',
+                'client/name-missing', 'client/duplicate-uid'
+            ].indexOf(error.code) >= 0);
+        }
+
+        function resumeClientSessionWithRetry(user, retries) {
+            return resumeClientSession(user).catch(function(error) {
+                if (!retries || isPermanentClientProfileError(error) || (error && error.code === 'auth/email-not-verified')) throw error;
+                resetState();
+                return new Promise(function(resolve) { setTimeout(resolve, 650); }).then(function() {
+                    if (!auth.currentUser || auth.currentUser.uid !== user.uid) throw { code: 'auth/no-user' };
+                    return resumeClientSessionWithRetry(user, retries - 1);
+                });
+            });
         }
 
         function finishClientLogin(credential, identifier) {
@@ -10777,23 +10798,45 @@ function hrT(key, vars) {
             var identifier = normalizeLoginIdentifier(input && input.value),
                 pass = passInput ? passInput.value : '';
             if (err) err.style.display = 'none';
-            if (LOGIN_IN_PROGRESS || SIGNUP_IN_PROGRESS) return;
+            if (LOGIN_IN_PROGRESS || SIGNUP_IN_PROGRESS || SESSION_RESTORE_IN_PROGRESS) return;
             if (!identifier || !pass) {
                 if (err) { err.textContent = STATE.language === 'ar' ? 'يرجى إدخال اسم المستخدم أو البريد الإلكتروني وكلمة المرور' : 'Please enter your username/email and password';
                     err.style.display = 'block'; }
                 return;
             }
             LOGIN_IN_PROGRESS = true;
+            var loginCredential = null;
             showLoading('loginBtn', STATE.language === 'ar' ? 'جاري التحقق من الحساب...' : 'Verifying account...');
             (AUTH_READY || Promise.resolve()).then(function() {
                 resetState();
                 return signInWithLoginIdentifier(identifier, pass);
             }).then(function(credential) {
+                loginCredential = credential;
                 return finishClientLogin(credential, identifier);
             }).catch(function(e) {
+                var code = e && e.code || '';
+                var authenticatedUid = loginCredential && loginCredential.user && loginCredential.user.uid;
+                if (authenticatedUid && auth.currentUser && auth.currentUser.uid === authenticatedUid && code !== 'auth/email-not-verified') {
+                    var nonRetryable = ['client/profile-not-found', 'client/invalid-role', 'client/identity-mismatch', 'client/name-missing', 'client/duplicate-uid'];
+                    var detail = code === 'client/profile-not-found'
+                        ? (STATE.language === 'ar' ? 'لا يوجد ملف عميل مرتبط بهذا الحساب.' : 'No client profile is linked to this account.')
+                        : code === 'client/invalid-role'
+                            ? (STATE.language === 'ar' ? 'هذا الحساب لا يملك صلاحية دخول واجهة العميل.' : 'This account does not have the client role.')
+                            : code === 'client/identity-mismatch'
+                                ? (STATE.language === 'ar' ? 'بيانات الحساب لا تطابق ملف العميل.' : 'The account does not match its client profile.')
+                                : code === 'client/name-missing'
+                                    ? (STATE.language === 'ar' ? 'ملف العميل يحتاج إلى اسم صالح.' : 'The client profile needs a valid name.')
+                                    : code === 'client/duplicate-uid'
+                                        ? (STATE.language === 'ar' ? 'يوجد أكثر من ملف مرتبط بالحساب.' : 'Multiple client profiles are linked to this account.')
+                                        : (STATE.language === 'ar' ? 'تعذّر تحميل بيانات الحساب.' : 'Could not load the account data.');
+                    var retainedMessage = STATE.language === 'ar'
+                        ? 'تم التحقق من الدخول ولم يتم تسجيل الخروج. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' اضغط إعادة محاولة استعادة الجلسة.' : ' يرجى مراجعة مسؤول النظام لربط الحساب بشكل صحيح.')
+                        : 'Sign-in succeeded and your session is still active. ' + detail + (nonRetryable.indexOf(code) < 0 ? ' Choose “Retry session restore”.' : ' Please ask the administrator to correct the account link.');
+                    showLoginAfterAuthChange(retainedMessage, nonRetryable.indexOf(code) < 0);
+                    return;
+                }
                 return auth.signOut().catch(function() {}).then(function() {
                     resetState();
-                    var code = e && e.code || '';
                     var message;
                     if (code === 'auth/username-not-found') message = STATE.language === 'ar' ? 'اسم المستخدم غير مسجل في بيانات العملاء.' : 'Username is not registered in the client directory.';
                     else if (code === 'auth/username-lookup-blocked') message = STATE.language === 'ar' ? 'تعذر البحث عن اسم المستخدم بسبب صلاحيات Firebase. جرّب تسجيل الدخول بالبريد الإلكتروني الكامل بدلاً من اسم المستخدم.' : 'Could not look up that username due to Firestore permissions. Try logging in with the full email address instead of the username.';
@@ -10832,7 +10875,7 @@ function hrT(key, vars) {
                 }
                 return;
             }
-            if (LOGIN_IN_PROGRESS || SIGNUP_IN_PROGRESS) return;
+            if (LOGIN_IN_PROGRESS || SIGNUP_IN_PROGRESS || SESSION_RESTORE_IN_PROGRESS) return;
             LOGIN_IN_PROGRESS = true;
             if (button) button.disabled = true;
             if (error) error.style.display = 'none';
@@ -10866,7 +10909,7 @@ function hrT(key, vars) {
         }
 
         function handleSignup() {
-            if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS) return;
+            if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS || SESSION_RESTORE_IN_PROGRESS) return;
             var fullName = (document.getElementById('regFullName').value || '').trim(),
                 email = (document.getElementById('regEmail').value || '').trim(),
                 pass = document.getElementById('regPass').value || '';
@@ -16244,7 +16287,7 @@ function updateHRTexts() {
 // 🔐 مراقبة حالة المستخدم - استئناف الجلسة تلقائيًا (مع التحقق من
 // توثيق البريد الإلكتروني - جلسة محفوظة لا تعني تخطي هذا الشرط)
 // ═══════════════════════════════════════════════════════════════
-function showLoginAfterAuthChange(message) {
+function showLoginAfterAuthChange(message, canRetry) {
     resetState();
     updateAllTexts();
     showScreen('login');
@@ -16257,13 +16300,61 @@ function showLoginAfterAuthChange(message) {
         if (message) { err.textContent = message; err.style.display = 'block'; }
         else err.style.display = 'none';
     }
+    var retry = document.getElementById('sessionRestoreRetry');
+    if (retry) {
+        retry.style.display = canRetry && auth.currentUser ? 'flex' : 'none';
+        retry.disabled = false;
+        retry.textContent = STATE.language === 'ar' ? 'إعادة محاولة استعادة الجلسة' : 'Retry session restore';
+    }
     captureOfferReferral();
     showOfferReferralBanner('login');
 }
 
+function retrySavedSession() {
+    if (SESSION_RESTORE_IN_PROGRESS || LOGIN_IN_PROGRESS || SIGNUP_IN_PROGRESS) return;
+    var user = auth.currentUser;
+    var retry = document.getElementById('sessionRestoreRetry');
+    var err = document.getElementById('loginError');
+    if (!user) {
+        showLoginAfterAuthChange(STATE.language === 'ar' ? 'انتهت جلسة الدخول. سجّل الدخول مرة أخرى.' : 'Your session has ended. Please log in again.');
+        return;
+    }
+    SESSION_RESTORE_IN_PROGRESS = true;
+    if (retry) {
+        retry.disabled = true;
+        retry.textContent = STATE.language === 'ar' ? 'جارٍ استعادة الجلسة...' : 'Restoring session...';
+    }
+    if (err) err.style.display = 'none';
+    resetState();
+    Promise.resolve(AUTH_READY).then(function() {
+        if (!auth.currentUser || auth.currentUser.uid !== user.uid) throw { code: 'auth/no-user' };
+        return resumeClientSessionWithRetry(user, 2);
+    }).then(function() {
+        if (err) err.style.display = 'none';
+        if (retry) retry.style.display = 'none';
+    }).catch(function(e) {
+        var permanentProfileError = isPermanentClientProfileError(e);
+        var message = e && e.code === 'auth/email-not-verified'
+            ? (STATE.language === 'ar' ? 'يجب تفعيل بريدك الإلكتروني من الرابط المرسل قبل الدخول.' : 'Verify your email using the link we sent before signing in.')
+            : permanentProfileError
+                ? (STATE.language === 'ar' ? 'جلسة الدخول محفوظة، لكن ملف العميل يحتاج إلى تصحيح أو ربط من مسؤول النظام.' : 'Your session is active, but an administrator must correct or link the client profile.')
+                : (STATE.language === 'ar'
+                    ? 'تعذّر تحميل بيانات الحساب، لكن جلسة الدخول ما زالت محفوظة. حاول مرة أخرى بعد قليل.'
+                    : 'We could not load your account data, but your sign-in session is still active. Please try again shortly.');
+        if (e && e.code === 'auth/email-not-verified') {
+            return auth.signOut().catch(function() {}).then(function() { showLoginAfterAuthChange(message); });
+        }
+        console.warn('Manual session restore retry failed:', e);
+        showLoginAfterAuthChange(message, !!auth.currentUser && !permanentProfileError);
+    }).finally(function() {
+        SESSION_RESTORE_IN_PROGRESS = false;
+        if (retry && retry.style.display !== 'none') retry.disabled = false;
+    });
+}
+
 auth.onAuthStateChanged(function(user) {
     // Signup/login own their auth transition; the listener must not race their profile writes.
-    if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS) return;
+    if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS || SESSION_RESTORE_IN_PROGRESS) return;
 
     if (!user) {
         console.log('ℹ️ عرض شاشة الدخول');
@@ -16271,6 +16362,7 @@ auth.onAuthStateChanged(function(user) {
         return;
     }
 
+    SESSION_RESTORE_IN_PROGRESS = true;
     // Wait for persistence initialization before restoring a stored session.
     Promise.resolve(AUTH_READY).then(function() {
         if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS) return;
@@ -16279,19 +16371,27 @@ auth.onAuthStateChanged(function(user) {
         if (STATE.currentUser && STATE.currentUser.uid === user.uid) return;
 
         resetState();
-        return resumeClientSession(user).then(function() {
+        return resumeClientSessionWithRetry(user, 2).then(function() {
             console.log('✅ تم استئناف الجلسة تلقائيًا:', user.email);
             captureOfferReferral();
             showOfferReferralBanner('home');
         }).catch(function(e) {
             console.warn('Session resume failed:', e);
-                    var message = e && e.code === 'auth/email-not-verified'
+            var isEmailUnverified = e && e.code === 'auth/email-not-verified';
+            var permanentProfileError = isPermanentClientProfileError(e);
+            var message = isEmailUnverified
                 ? (STATE.language === 'ar' ? 'يجب تفعيل بريدك الإلكتروني من الرابط المرسل إليك قبل الدخول.' : 'Verify your email using the link we sent before signing in.')
-                : (STATE.language === 'ar'
-                    ? 'تعذّر استعادة جلستك تلقائيًا. يرجى تسجيل الدخول مرة أخرى.'
-                    : 'We could not restore your session automatically. Please log in again.');
-            auth.signOut().catch(function() {});
-            showLoginAfterAuthChange(message);
+                : permanentProfileError
+                    ? (STATE.language === 'ar'
+                        ? 'جلسة الدخول محفوظة، لكن ملف العميل يحتاج إلى تصحيح أو ربط من مسؤول النظام.'
+                        : 'Your sign-in session is still active, but an administrator must correct or link the client profile.')
+                    : (STATE.language === 'ar'
+                        ? 'تعذّر تحميل بيانات الحساب. بقيت جلسة الدخول محفوظة؛ اضغط «إعادة محاولة استعادة الجلسة».'
+                        : 'We could not load your account data. Your sign-in session is still active; choose “Retry session restore”.');
+            if (isEmailUnverified) {
+                return auth.signOut().catch(function() {}).then(function() { showLoginAfterAuthChange(message); });
+            }
+            showLoginAfterAuthChange(message, !!auth.currentUser && !permanentProfileError);
         });
     }).catch(function(e) {
         console.warn('Auth persistence initialization failed:', e);
@@ -16299,6 +16399,8 @@ auth.onAuthStateChanged(function(user) {
             ? 'تعذّر تهيئة جلسة الدخول. يرجى إعادة تحميل الصفحة والمحاولة مرة أخرى.'
             : 'Could not initialize the sign-in session. Please reload the page and try again.';
         showLoginAfterAuthChange(message);
+    }).finally(function() {
+        SESSION_RESTORE_IN_PROGRESS = false;
     });
 });
             if ('IntersectionObserver' in window) {
