@@ -1,6 +1,6 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'inex-v15-client-session-recovery';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v16-email-verification-session';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
