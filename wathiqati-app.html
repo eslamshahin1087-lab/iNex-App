@@ -1149,13 +1149,13 @@
 
         .broker-disclosure-text {
             color: #fff;
-            font-family: "Cairo", var(--font-ar);
-            font-size: 10.5px;
-            line-height: 1.9;
+            font-family: "Tajawal", var(--font-ar);
+            font-size: 11.5px;
+            line-height: 1.8;
             font-weight: 600;
             text-align: center;
             white-space: pre-line;
-            letter-spacing: 0.1px;
+            letter-spacing: 0;
             margin: 0;
             position: relative;
             z-index: 1;
@@ -1163,9 +1163,9 @@
 
         html[dir="ltr"] .broker-disclosure-text {
             font-family: "Plus Jakarta Sans", var(--font-ui);
-            font-size: 9px;
-            letter-spacing: 0.15px;
-            line-height: 1.7;
+            font-size: 10px;
+            letter-spacing: 0;
+            line-height: 1.65;
         }
 
         .signup-disclosure-card {
@@ -1185,8 +1185,8 @@
             gap: 7px;
             margin: 0 0 10px;
             color: #ffd27f;
-            font-family: "Cairo", var(--font-ar);
-            font-size: 11px;
+            font-family: "Tajawal", var(--font-ar);
+            font-size: 12.5px;
             font-weight: 800;
         }
         .signup-disclosure-mark {
@@ -1200,20 +1200,20 @@
         }
         .signup-disclosure-text {
             display: grid;
-            gap: 6px;
+            gap: 5px;
             color: rgba(255,255,255,.92);
-            font-family: "Cairo", var(--font-ar);
-            font-size: 10.25px;
-            font-weight: 500;
-            line-height: 1.75;
+            font-family: "Tajawal", var(--font-ar);
+            font-size: 11.5px;
+            font-weight: 600;
+            line-height: 1.8;
             letter-spacing: 0;
             text-align: start;
             white-space: normal;
         }
         .signup-disclosure-text .disclosure-line { display: block; }
         .signup-disclosure-text .disclosure-line:first-child { color: #fff; font-weight: 800; }
-        html[dir="ltr"] .signup-disclosure-title { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 10px; }
-        html[dir="ltr"] .signup-disclosure-text { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 9px; line-height: 1.65; }
+        html[dir="ltr"] .signup-disclosure-title { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 11px; }
+        html[dir="ltr"] .signup-disclosure-text { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 10px; line-height: 1.65; }
         .signup-disclosure-highlights {
             display: flex;
             flex-wrap: wrap;
@@ -10716,6 +10716,7 @@ function hrT(key, vars) {
             updateAllTexts();
             renderAll();
             showScreen('home');
+            resolveCorporateHRAccessFromCompany();
             syncSecurePathLeadToInsurNex();
             syncSignupReferralLeads();
             retryPendingAssessmentReward();
@@ -13534,24 +13535,60 @@ function hrT(key, vars) {
 
         function isCorporateHRUser() {
             var u = STATE.userData || {};
-            var accountTypes = [u.clientType, u.accountType, u.customerType, u.companyType, u.accountKind]
+            var accountTypes = [u.clientType, u.client_type, u.accountType, u.account_type, u.customerType, u.customer_type,
+                    u.companyType, u.company_type, u.accountKind, u.account_kind, u.customerKind, u.customer_kind, u.type]
                 .map(function(value) { return String(value || '').trim().toLowerCase(); });
-            var roles = [u.role, u.userRole, u.accessRole, u.businessRole]
+            var roles = [u.role, u.userRole, u.user_role, u.accessRole, u.access_role, u.businessRole, u.business_role]
                 .map(function(value) { return String(value || '').trim().toLowerCase(); });
             var corporateType = accountTypes.some(function(type) {
-                return /^(corporate|company|business|group|organization|company_account|corporate_account|شركة|مؤسسة|جماعي)$/.test(type);
+                return /^(corporate|company|business|group|organization|company_account|corporate_account|شركة|شركات|مؤسسة|منشأة|جماعي|جماعى)$/.test(type)
+                    || /^(شركة|مؤسسة|منشأة|حساب شركات|عميل شركات|جماعي)/.test(type);
             });
             var hrRole = roles.some(function(role) {
                 return /(^|[^a-z])(hr|human.?resources|corporate.?admin)([^a-z]|$)/i.test(role);
             });
-            var businessName = String(u.businessName || u.companyName || u.organizationName || '').trim();
+            var businessName = String(u.businessName || u.business_name || u.companyName || u.company_name || u.organizationName || u.organization_name || '').trim();
             var hasBusinessProfile = !!businessName && (
-                !!String(u.businessActivity || u.businessType || u.industry || '').trim()
-                || Number(u.employees || u.employeeCount) > 0
+                !!String(u.businessActivity || u.business_activity || u.businessType || u.business_type || u.industry || '').trim()
+                || Number(u.employees || u.employeeCount || u.employee_count) > 0
                 || corporateType
             );
-            var explicitCompanyFlag = u.isCorporate === true || u.isCompanyAccount === true;
-            return corporateType || explicitCompanyFlag || !!String(u.companyId || '').trim() || hrRole || hasBusinessProfile;
+            var explicitCompanyFlag = u.isCorporate === true || u.is_corporate === true || u.isCompanyAccount === true || u.is_company_account === true
+                || u.hrHubEnabled === true || u.hr_hub_enabled === true;
+            var companyId = String(u.companyId || u.company_id || '').trim();
+            var hasCompanyName = !!businessName;
+            var ownsLoadedCompany = !!(STATE.hrCompany && STATE.currentUser
+                && String(STATE.hrCompany.ownerClientId || '') === String(STATE.currentUser.uid));
+            return corporateType || explicitCompanyFlag || !!companyId || hrRole || hasBusinessProfile || hasCompanyName || ownsLoadedCompany;
+        }
+
+        function resolveCorporateHRAccessFromCompany() {
+            if (!STATE.currentUser) return Promise.resolve(false);
+            if (isCorporateHRUser()) {
+                updateCorporateHRAccessVisibility();
+                return Promise.resolve(true);
+            }
+            var uid = STATE.currentUser.uid;
+            return db.collection('corporateCompanies').where('ownerClientId', '==', uid).limit(1).get().then(function(snap) {
+                if (!snap || snap.empty || !STATE.currentUser || STATE.currentUser.uid !== uid) {
+                    updateCorporateHRAccessVisibility();
+                    return false;
+                }
+                var doc = snap.docs[0];
+                var company = doc.data() || {};
+                company.companyId = doc.id;
+                STATE.userData = Object.assign({}, STATE.userData || {}, { companyId: doc.id });
+                STATE.hrCompany = company;
+                updateCorporateHRAccessVisibility();
+                db.collection('clients').doc(uid).set({ companyId: doc.id }, { merge: true }).catch(function(error) {
+                    console.warn('Could not persist recovered corporate company link:', error && error.message || error);
+                });
+                return true;
+            }).catch(function(error) {
+                console.warn('Corporate HR ownership lookup failed:', error && error.message || error);
+                updateCorporateHRAccessVisibility();
+                return false;
+            });
         }
 
         function simpleHash(value) {

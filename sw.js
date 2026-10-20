@@ -1,6 +1,6 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'inex-v13-session-restore-signup-type';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v14-hr-access-disclosure-type';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
