@@ -1444,6 +1444,11 @@
         <div class="table-wrap"><table><thead><tr>
           <th>السنة</th><th>إجمالي الاستهلاك</th><th>Loss Ratio</th><th>عدد السجلات</th><th>تاريخ الحفظ</th>
         </tr></thead><tbody id="hrDetailMedicalBody"></tbody></table></div>
+
+        <h3 style="margin:20px 0 6px;">سجل التغييرات</h3>
+        <div class="table-wrap"><table><thead><tr>
+          <th>التاريخ</th><th>الإجراء</th><th>المستخدم</th><th>التفاصيل</th>
+        </tr></thead><tbody id="hrDetailAuditBody"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -2273,7 +2278,7 @@
     // own live listener since new requests need timely broker attention,
     // mirroring the appointments/complaints pattern above.
     // ================================================================
-    const HR_REQUEST_STATUS_LABELS = { submitted: 'مُقدَّم', review: 'قيد المراجعة', approved: 'تمت الموافقة', rejected: 'مرفوض', completed: 'مكتمل' };
+    const HR_REQUEST_STATUS_LABELS = { submitted: 'مُقدَّم', review: 'قيد المراجعة', approved: 'تمت الموافقة', rejected: 'مرفوض', paid: 'مدفوع', completed: 'مكتمل' };
     const HR_REQUEST_TYPE_LABELS = { issuance: 'إصدار', renewal: 'تجديد', reimbursement: 'تعويض' };
 
     function startCorporateRequestsListener() {
@@ -2380,11 +2385,87 @@
           <td>${m.records ?? '—'}</td>
           <td>${date(m.createdAt)}</td>
         </tr>`).join('') : `<tr><td colspan="5" style="text-align:center;padding:16px;color:var(--muted,#999);">لا توجد تحليلات استهلاك طبي بعد</td></tr>`;
+
+      const auditRows = (APP_STATE.corporateAuditLogs || []).filter(log => log.companyId === companyId)
+        .slice().sort((a, b) => ms(b.createdAt) - ms(a.createdAt)).slice(0, 50);
+      const auditBody = document.getElementById('hrDetailAuditBody');
+      const auditLabels = {
+        create_employee: 'إضافة موظف', update_employee: 'تعديل موظف', delete_employee: 'حذف موظف',
+        import_employees: 'استيراد موظفين', upload_company_document: 'رفع مستند',
+        create_request: 'إنشاء طلب', update_request_status: 'تحديث حالة طلب',
+        save_medical_analysis: 'حفظ تحليل استهلاك'
+      };
+      if (auditBody) auditBody.innerHTML = auditRows.length ? auditRows.map(log => {
+        const metadata = log.metadata || {};
+        const detail = metadata.fromStatus || metadata.toStatus
+          ? `من ${HR_REQUEST_STATUS_LABELS[metadata.fromStatus] || metadata.fromStatus || '—'} إلى ${HR_REQUEST_STATUS_LABELS[metadata.toStatus] || metadata.toStatus || '—'}`
+          : (metadata.name || metadata.requestNumber || metadata.file || metadata.count || metadata.year || '—');
+        return `<tr><td>${date(log.createdAt)}</td><td>${esc(auditLabels[log.action] || log.action || 'تغيير')}</td><td>${esc(log.actorEmail || log.actorId || '—')}</td><td>${esc(String(detail))}</td></tr>`;
+      }).join('') : `<tr><td colspan="4" style="text-align:center;padding:16px;color:var(--muted,#999);">لا توجد تغييرات مسجلة</td></tr>`;
     }
 
     async function updateHRRequestStatus(id, status) {
-      await db.collection('corporateRequests').doc(id).update({ status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-      toast('✅ تم تحديث حالة الطلب');
+      const allowedStatuses = ['submitted', 'review', 'approved', 'rejected', 'paid', 'completed'];
+      if (!allowedStatuses.includes(status)) { toast('❌ حالة الطلب غير معتمدة', true); renderCorporateHRDetail(); return; }
+      const requestRef = db.collection('corporateRequests').doc(id);
+      try {
+        const requestSnap = await requestRef.get();
+        if (!requestSnap.exists) throw new Error('الطلب غير موجود');
+        const request = requestSnap.data() || {};
+        const fromStatus = request.status || 'submitted';
+        if (fromStatus === status) return;
+        if (!APP_STATE.currentUser || !request.companyId) throw new Error('تعذر التحقق من مسؤول الإجراء أو الشركة');
+        const companySnap = await db.collection('corporateCompanies').doc(request.companyId).get();
+        const ownerClientId = companySnap.exists ? (companySnap.data() || {}).ownerClientId : '';
+        const changedAt = new Date().toISOString();
+        const auditRef = db.collection('corporateAuditLogs').doc();
+        const statusHistory = (Array.isArray(request.statusHistory) ? request.statusHistory : []).concat({
+          status, fromStatus, at: changedAt, actorId: APP_STATE.currentUser.uid,
+          actorEmail: APP_STATE.currentUser.email || ''
+        }).slice(-50);
+        const batch = db.batch();
+        batch.update(requestRef, {
+          status,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          statusHistory
+        });
+        batch.set(auditRef, {
+          companyId: request.companyId, actorId: APP_STATE.currentUser.uid,
+          actorEmail: APP_STATE.currentUser.email || '', action: 'update_request_status',
+          entity: 'request', entityId: id,
+          metadata: { requestNumber: request.requestNumber || id, fromStatus, toStatus: status },
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        await batch.commit();
+
+        let notificationSent = false;
+        if (typeof ownerClientId === 'string' && ownerClientId) {
+          const requestNumber = String(request.requestNumber || id).slice(0, 100);
+          try {
+            await db.collection('notifications').add({
+              clientId: ownerClientId, companyId: request.companyId,
+              title: 'تحديث طلب التأمين',
+              body: `تم تحديث حالة الطلب ${requestNumber} إلى: ${HR_REQUEST_STATUS_LABELS[status] || status}`.slice(0, 500),
+              type: 'corporate_request_status', requestId: id, read: false,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            notificationSent = true;
+          } catch (notificationError) {
+            console.warn('HR status saved but owner notification failed:', notificationError);
+          }
+        }
+        APP_STATE.corporateAuditLogs.unshift({
+          id: auditRef.id, companyId: request.companyId, actorId: APP_STATE.currentUser.uid,
+          actorEmail: APP_STATE.currentUser.email || '', action: 'update_request_status',
+          metadata: { requestNumber: request.requestNumber || id, fromStatus, toStatus: status }, createdAt: new Date()
+        });
+        toast(notificationSent ? '✅ تم تحديث حالة الطلب وإشعار الشركة' : '✅ تم تحديث الحالة؛ تعذر تحديد مالك الشركة أو إرسال الإشعار', !notificationSent);
+        renderCorporateHRDetail();
+      } catch (error) {
+        console.error('HR request status update failed:', error);
+        toast('❌ تعذر تحديث الحالة: ' + (error.message || error), true);
+        renderCorporateHRDetail();
+      }
     }
 
     // ================================================================

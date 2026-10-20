@@ -206,7 +206,10 @@ service cloud.firestore {
       allow create: if isAdmin();
       allow update, delete: if isAdmin();    }
     match /notifications/{id} {
-      allow read: if isSignedIn() && (resource.data.clientId == request.auth.uid || isAdmin());
+      // Allow a signed-in owner to check a deterministic notification ID before
+      // creating it. A missing document contains no data to disclose; existing
+      // notifications remain scoped to their owner or an admin.
+      allow read: if isSignedIn() && (resource == null || resource.data.clientId == request.auth.uid || isAdmin());
 
       // SECURITY: Notifications are created by admins (broadcast/targeted),
       // OR by a client's own Corporate HR Hub action (notifyHR() in
@@ -222,7 +225,14 @@ service cloud.firestore {
           && request.resource.data.body.size() > 0
           && request.resource.data.body.size() <= 500)
         || (ownsAsClient()
-          && request.resource.data.type == 'corporate_request_created'
+          && request.resource.data.clientId == request.auth.uid
+          && request.resource.data.type in ['corporate_request_created', 'hr_document_expiry']
+          && request.resource.data.title is string
+          && request.resource.data.title.size() > 0
+          && request.resource.data.title.size() <= 100
+          && request.resource.data.message is string
+          && request.resource.data.message.size() > 0
+          && request.resource.data.message.size() <= 500
           && ownsCompany(request.resource.data.companyId));
 
       // Client can mark as read/unread only. Admin can do anything.

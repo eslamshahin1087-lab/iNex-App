@@ -1151,11 +1151,11 @@
             color: rgba(255, 255, 255, .9);
             font-family: "Cairo", "Tajawal", var(--font-ar);
             font-size: 10.5px;
-            line-height: 1.7;
+            line-height: 1.65;
             font-weight: 400;
             text-align: start;
             white-space: pre-line;
-            letter-spacing: -.08px;
+            letter-spacing: 0;
             margin: 0;
             position: relative;
             z-index: 1;
@@ -1166,9 +1166,6 @@
 
         html[dir="ltr"] .broker-disclosure-text {
             font-family: "Plus Jakarta Sans", var(--font-ui);
-            font-size: 10.5px;
-            letter-spacing: 0;
-            line-height: 1.65;
         }
 
         .signup-disclosure-card {
@@ -1209,15 +1206,14 @@
             font-size: 10.5px;
             font-weight: 400;
             line-height: 1.65;
-            letter-spacing: -.08px;
+            letter-spacing: 0;
             text-align: start;
             white-space: normal;
         }
         .signup-disclosure-text .disclosure-line { display: block; }
         .signup-disclosure-text .disclosure-line:first-child { color: #fff; font-weight: 500; }
-        html[dir="ltr"] .broker-disclosure-text { font-size: 10px; line-height: 1.6; }
-        html[dir="ltr"] .signup-disclosure-title { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 10.5px; }
-        html[dir="ltr"] .signup-disclosure-text { font-family: "Plus Jakarta Sans", var(--font-ui); font-size: 10px; line-height: 1.6; }
+        html[dir="ltr"] .signup-disclosure-title { font-family: "Plus Jakarta Sans", var(--font-ui); }
+        html[dir="ltr"] .signup-disclosure-text { font-family: "Plus Jakarta Sans", var(--font-ui); }
         .signup-disclosure-highlights {
             display: flex;
             flex-wrap: wrap;
@@ -7841,7 +7837,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                     <div class="hr-search-row">
                         <input id="hrRequestSearch" placeholder="بحث برقم الطلب أو الموظف أو النوع" oninput="renderHRRequests()">
                         <select id="hrRequestStatusFilter" onchange="renderHRRequests()">
-                            <option value="">كل الحالات</option><option value="submitted">مُقدَّم</option><option value="review">قيد المراجعة</option><option value="approved">مُعتمد</option><option value="rejected">مرفوض</option><option value="paid">مدفوع</option>
+                            <option value="">كل الحالات</option><option value="submitted">مُقدَّم</option><option value="review">قيد المراجعة</option><option value="approved">مُعتمد</option><option value="rejected">مرفوض</option><option value="paid">مدفوع</option><option value="completed">مكتمل</option>
                         </select>
                     </div>
                 </div>
@@ -7939,13 +7935,13 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                         <div class="hr-report-card"><h4>حسب النوع</h4><div id="hrByGender"></div></div>
                         <div class="hr-report-card"><h4>التصنيفات الطبية</h4><div id="hrByService"></div></div>
                         <div class="hr-report-card"><h4>الاتجاه الشهري</h4><div id="hrByMonth"></div></div>
-                        <div class="hr-report-card"><h4>أعلى المستهلكين</h4><div id="hrTopConsumers"></div></div>
+                        <div class="hr-report-card"><h4 data-hr-t="hrConsReportTopConsumers">خصوصية بيانات الأفراد</h4><div id="hrTopConsumers"></div></div>
                     </div>
                     <div class="hr-section-card" style="margin:9px -1px 0">
                         <div class="hr-section-head"><h3 class="hr-section-title">مقارنة سنة بسنة</h3></div>
                         <div id="hrYoY"></div>
                     </div>
-                    <div class="hr-privacy" style="margin-top:9px" data-hr-t="hrConsReportPrivacy">العرض هنا تجميعي لتقليل كشف التفاصيل الطبية الحساسة. اسم الموظف يظهر عند الحاجة لسياق HR، لكن تفاصيل الخدمة الطبية الدقيقة لا تُحفظ ضمن سجل التحليل التجميعي.</div>
+                    <div class="hr-privacy" style="margin-top:9px" data-hr-t="hrConsReportPrivacy">تعرض هذه اللوحة مؤشرات مجمعة فقط. لا تظهر أسماء الموظفين أو قيم استهلاكهم الفردية، ولا تُحفظ صفوف ملف المطالبات الخام ضمن التقرير.</div>
                     <div class="hr-offer-cta">
                         <div class="hr-offer-cta-copy">
                             <span class="hr-offer-cta-icon">✦</span>
@@ -8729,7 +8725,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralShareBtn: '📤 مشاركة رابط الدعوة',
                 signupDisclosure: 'iNex منصة توعوية متخصصة لخدمة حاملي وثائق التأمين، ولا تمثل أي شركة تأمين.|نقدّم محتوى يساعدك على فهم التغطيات والحقوق واتخاذ قرارات تأمينية أكثر وعيًا.|نحافظ على سرية بيانات الدخول ولا نشارك كلمات المرور.|الإعلانات التأمينية المعروضة تخص شركات مرخصة من الهيئة العامة للرقابة المالية (FRA).',
                 crmLeadSyncConsentNotice: 'تتضمن موافقتك على الشروط والأحكام الإذن بمزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM، للغرض الموضح في بند معالجة البيانات. لا تُرسل كلمات المرور أو بيانات المصادقة.',
-                brokerDisclosure: 'iNex منصة توعوية متخصصة لخدمة حاملي وثائق التأمين، ولا تمثل أي شركة تأمين.\nنساعدك على فهم التغطيات والحقوق لاتخاذ قرارات تأمينية أكثر وعيًا.\nالإعلانات التأمينية المعروضة تخص شركات مرخصة من الهيئة العامة للرقابة المالية (FRA).',
+                brokerDisclosure: 'iNex منصة توعوية لحاملي وثائق التأمين، ولا تمثل أي شركة تأمين.\nنوضح التغطيات والحقوق لدعم قرارات تأمينية واعية.\nالإعلانات المعروضة لشركات مرخصة من الهيئة العامة للرقابة المالية (FRA).',
                 noOffers: 'لا توجد عروض حالياً',
                 noOffersText: 'سيتم إضافة عروض وخصومات جديدة قريباً',
                 documentsTitle: 'المستندات والملفات',
@@ -9082,7 +9078,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralShareBtn: '📤 Share referral link',
                 signupDisclosure: 'iNex is an educational platform for insurance policyholders and does not represent any insurance company.|We provide clear information about coverage and policyholder rights to support informed decisions.|We protect sign-in information and never share passwords.|Insurance advertisements shown are for companies licensed by the Financial Regulatory Authority (FRA).',
                 crmLeadSyncConsentNotice: 'Accepting the Terms and Conditions includes agreement to sync your name, email, phone, client type and company name when applicable to InsurNex CRM for the purpose described in the data-processing section. Passwords and authentication credentials are not sent.',
-                brokerDisclosure: 'iNex is an educational platform serving insurance policyholders and does not represent any insurance company.\nWe explain coverage and policyholder rights to support informed insurance decisions.\nInsurance advertisements shown are for companies licensed by the Financial Regulatory Authority (FRA).',
+                brokerDisclosure: 'iNex educates insurance policyholders and represents no insurer.\nWe clarify coverage and rights for informed decisions.\nAds shown are from FRA-licensed insurance companies.',
                 accountOffers: 'Offers & Discounts',
                 accountOffersSub: 'Latest exclusive offers',
                 accountCompanyAds: 'Ads',
@@ -9383,6 +9379,7 @@ var HR_TRANSLATIONS = {
         hrReqStatusApproved: 'مُعتمد',
         hrReqStatusRejected: 'مرفوض',
         hrReqStatusPaid: 'مدفوع',
+        hrReqStatusCompleted: 'مكتمل',
         hrReqTimelineSubmitted: 'مُقدَّم',
         hrReqTimelineReview: 'قيد المراجعة',
         hrReqTimelineApproved: 'مُعتمد/مرفوض',
@@ -9488,9 +9485,10 @@ var HR_TRANSLATIONS = {
         hrConsReportByGender: 'حسب النوع',
         hrConsReportByService: 'التصنيفات الطبية',
         hrConsReportByMonth: 'الاتجاه الشهري',
-        hrConsReportTopConsumers: 'أعلى المستهلكين',
+        hrConsReportTopConsumers: 'خصوصية بيانات الأفراد',
         hrConsReportYoY: 'مقارنة سنة بسنة',
-        hrConsReportPrivacy: 'العرض هنا تجميعي لتقليل كشف التفاصيل الطبية الحساسة. اسم الموظف يظهر عند الحاجة لسياق HR، لكن تفاصيل الخدمة الطبية الدقيقة لا تُحفظ ضمن سجل التحليل التجميعي.',
+        hrConsReportPrivacy: 'تعرض هذه اللوحة مؤشرات مجمعة فقط. لا تظهر أسماء الموظفين أو قيم استهلاكهم الفردية، ولا تُحفظ صفوف ملف المطالبات الخام ضمن التقرير.',
+        hrConsIndividualDataHidden: 'تم إخفاء بيانات الاستهلاك الفردية. استخدم المؤشرات المجمعة حسب القسم والفئة العمرية والخدمة لحماية الخصوصية.',
         hrConsHistoryTitle: 'سجل التقارير المحفوظة',
         hrConsHistoryEmptyTitle: 'لا توجد تقارير محفوظة',
         hrConsHistoryEmptyText: 'بعد حفظ أول تحليل سيظهر هنا السجل التاريخي للمقارنة سنة بسنة.',
@@ -9807,6 +9805,7 @@ var HR_TRANSLATIONS = {
         hrReqStatusApproved: 'Approved',
         hrReqStatusRejected: 'Rejected',
         hrReqStatusPaid: 'Paid',
+        hrReqStatusCompleted: 'Completed',
         hrReqTimelineSubmitted: 'Submitted',
         hrReqTimelineReview: 'Under Review',
         hrReqTimelineApproved: 'Approved/Rejected',
@@ -9842,9 +9841,10 @@ var HR_TRANSLATIONS = {
         hrConsReportByGender: 'By Gender',
         hrConsReportByService: 'Medical Categories',
         hrConsReportByMonth: 'Monthly Trend',
-        hrConsReportTopConsumers: 'Top Consumers',
+        hrConsReportTopConsumers: 'Individual privacy',
         hrConsReportYoY: 'Year-over-Year Comparison',
-        hrConsReportPrivacy: 'The view here is aggregated to reduce exposure of sensitive medical details. Employee name appears when HR context requires it, but granular medical details are not stored in the aggregated analysis log.',
+        hrConsReportPrivacy: 'This dashboard shows aggregated indicators only. Employee names and individual spend are hidden, and raw claim rows are not saved with the report.',
+        hrConsIndividualDataHidden: 'Individual claim amounts are hidden. Use department, age-group and service summaries to protect privacy.',
         hrConsHistoryTitle: 'Saved Reports Log',
         hrConsHistoryEmptyTitle: 'No saved reports',
         hrConsHistoryEmptyText: 'After saving the first analysis, the historical log for year-over-year comparison will appear here.',
@@ -14070,7 +14070,8 @@ function hrT(key, vars) {
                 review:{label:hrT('hrReqStatusReview'),cls:'review',idx:1},
                 approved:{label:hrT('hrReqStatusApproved'),cls:'approved',idx:2},
                 rejected:{label:hrT('hrReqStatusRejected'),cls:'rejected',idx:2},
-                paid:{label:hrT('hrReqStatusPaid'),cls:'paid',idx:3}
+                paid:{label:hrT('hrReqStatusPaid'),cls:'paid',idx:3},
+                completed:{label:hrT('hrReqStatusCompleted'),cls:'paid',idx:3}
             };
             return map[status] || map.submitted;
         }
@@ -14245,7 +14246,13 @@ function hrT(key, vars) {
                 }
                 for(var start=0;start<batchOps.length;start+=450){
                     var batch=db.batch(), chunk=batchOps.slice(start,start+450);
-                    chunk.forEach(function(payload){var id='emp_'+simpleHash(company.companyId+'|'+(payload.nationalId||payload.name));batch.set(db.collection('corporateEmployees').doc(id),Object.assign({},payload,{createdAt:payload.createdAt||firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});});
+                    chunk.forEach(function(payload){
+                        var id='emp_'+simpleHash(company.companyId+'|'+(payload.nationalId||payload.name));
+                        var writePayload=Object.assign({},payload);
+                        var existing=(STATE.hrEmployees||[]).some(function(employee){return employee.id===id;});
+                        if(!existing)writePayload.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+                        batch.set(db.collection('corporateEmployees').doc(id),writePayload,{merge:true});
+                    });
                     await batch.commit();
                 }
                 await writeHRAudit('import_employees','employee_import',null,{file:file.name,count:count});
@@ -14527,7 +14534,6 @@ function hrT(key, vars) {
             var byService=groupHRSpend(rows,function(x){return x.service;});
             var topService=byService[0]||null;
             return {
-                rows:rows,
                 totalSpend:total,
                 records:rows.length,
                 validRecords:valid,
@@ -14544,7 +14550,6 @@ function hrT(key, vars) {
                 byGender:groupHRSpend(rows,function(x){return x.gender;}),
                 byService:byService,
                 byMonth:Object.keys(months).sort().map(function(k){return {key:k,value:months[k]};}),
-                topConsumers:groupHRSpend(rows,function(x){return x.employee;}).filter(function(x){return x.key&&x.key!=='غير محدد';}).slice(0,10)
             };
         }
 
@@ -14623,7 +14628,8 @@ function hrT(key, vars) {
             renderHRBarList('hrByGender',report.byGender,4);
             renderHRBarList('hrByService',report.byService,7);
             renderHRBarList('hrByMonth',report.byMonth,12);
-            renderHRBarList('hrTopConsumers',report.topConsumers,10);
+            var individualDataNotice = document.getElementById('hrTopConsumers');
+            if (individualDataNotice) individualDataNotice.innerHTML = '<div class="hr-small-note">' + esc(hrT('hrConsIndividualDataHidden')) + '</div>';
             var yoy=document.getElementById('hrYoY');
             var prev=(STATE.hrMedicalReports||[]).find(function(x){return Number(x.year)===Number(report.year)-1;});
             if(yoy)yoy.innerHTML=prev?'<div class="hr-privacy">'+hrT('hrConsYoYCompare',{year:report.year,curr:formatHRMoney(report.totalSpend),prev:prev.year,prevAmt:formatHRMoney(prev.totalSpend),change:(prev.totalSpend?((report.totalSpend-prev.totalSpend)/prev.totalSpend*100):0).toFixed(1)})+'</div>':'<div class="hr-small-note">'+hrT('hrConsNoPrevYear',{year:Number(report.year)-1})+'</div>';
@@ -14725,7 +14731,7 @@ function hrT(key, vars) {
                 var company=await ensureCorporateHRCompany();
                 if(!company || !company.companyId) throw new Error('تعذر تحديد الشركة المرتبطة بحسابك.');
                 var safeReport=JSON.parse(JSON.stringify(report));
-                delete safeReport.rows;
+                safeReport.topConsumers=firebase.firestore.FieldValue.delete();
                 safeReport.companyId=company.companyId;
                 safeReport.createdAt=report.createdAt;
                 safeReport.savedBy=STATE.currentUser.uid;
@@ -14743,7 +14749,7 @@ function hrT(key, vars) {
             var wb=XLSX.utils.book_new();
             function add(name, rows){XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),name);}
             add('Summary',[['البند','القيمة'],['السنة',report.year],['إجمالي الاستهلاك',report.totalSpend],['القسط',report.premium],['Loss Ratio',report.lossRatio===null?'':report.lossRatio/100],['عدد السجلات',report.records],['عدد الموظفين المستفيدين',report.uniqueEmployees],['عدد المؤمن عليهم',report.coveredLives||''],['متوسط قيمة السجل',report.averageClaim||''],['الاستهلاك لكل مؤمّن عليه',report.spendPerLife||''],['معدل الاستخدام',report.utilizationRate==null?'':report.utilizationRate/100]]);
-            [['Department','حسب القسم',report.byDepartment],['Age','حسب العمر',report.byAge],['Gender','حسب النوع',report.byGender],['Service','الخدمة',report.byService],['Month','الشهر',report.byMonth],['Top Consumers','أعلى المستهلكين',report.topConsumers]].forEach(function(s){add(s[0],[['التصنيف','الاستهلاك']].concat((s[2]||[]).map(function(x){return [x.key,x.value];})));});
+            [['Department','حسب القسم',report.byDepartment],['Age','حسب العمر',report.byAge],['Gender','حسب النوع',report.byGender],['Service','الخدمة',report.byService],['Month','الشهر',report.byMonth]].forEach(function(s){add(s[0],[['التصنيف','الاستهلاك']].concat((s[2]||[]).map(function(x){return [x.key,x.value];})));});
             XLSX.writeFile(wb,'iNex-Corporate-Medical-Analysis-'+report.year+'.xlsx');
         }
 
@@ -14758,7 +14764,6 @@ function hrT(key, vars) {
                 pdfSection('حسب النوع',miniTable(r.byGender))+
                 pdfSection('التصنيفات الطبية',miniTable(r.byService))+
                 pdfSection('الاتجاه الشهري',miniTable(r.byMonth))+
-                pdfSection('أعلى المستهلكين',miniTable(r.topConsumers))+
                 '<p style="font-size:10px;color:#718096">ملاحظة: التقرير التجميعي لا يتضمن تفاصيل طبية حساسة أكثر من اللازم، واستخراج PDF يعتمد على النص المستخرج من الملف الأصلي.</p></body></html>';
             var w=window.open('','_blank');if(!w){alert('اسمح بالنوافذ المنبثقة لتصدير التقرير.');return;}w.document.write(html);w.document.close();setTimeout(function(){w.focus();w.print();},350);
         }
@@ -16028,13 +16033,14 @@ function updateHRTexts() {
             if (reqSearch) reqSearch.setAttribute('placeholder', hrT('hrReqSearchPlaceholder'));
 
             var reqFilter = document.getElementById('hrRequestStatusFilter');
-            if (reqFilter && reqFilter.options.length >= 6) {
+            if (reqFilter && reqFilter.options.length >= 7) {
                 reqFilter.options[0].textContent = hrT('hrReqFilterAll');
                 reqFilter.options[1].textContent = hrT('hrReqStatusSubmitted');
                 reqFilter.options[2].textContent = hrT('hrReqStatusReview');
                 reqFilter.options[3].textContent = hrT('hrReqStatusApproved');
                 reqFilter.options[4].textContent = hrT('hrReqStatusRejected');
                 reqFilter.options[5].textContent = hrT('hrReqStatusPaid');
+                reqFilter.options[6].textContent = hrT('hrReqStatusCompleted');
             }
         }
 
