@@ -5714,6 +5714,15 @@ html.dark-mode .hr-screen{
   transition:transform .2s ease,box-shadow .2s ease;
 }
 .hr-report-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(14,42,92,.08)}
+.hr-ai-card{margin-top:10px;border-color:rgba(81,142,211,.32);background:linear-gradient(145deg,var(--card),var(--paper))}
+.hr-ai-consent{display:flex;align-items:flex-start;gap:8px;margin:8px 0;padding:9px 10px;border:1px solid var(--line);border-radius:11px;background:var(--paper);color:var(--muted);font-size:8px;line-height:1.6}
+.hr-ai-consent input{margin:2px 0 0;accent-color:var(--gold);flex:0 0 auto}
+.hr-ai-result{margin-top:10px;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--slate);font-size:9px;line-height:1.75;white-space:normal}
+.hr-ai-result h4{margin:8px 0 3px;color:var(--navy);font-size:9px}
+.hr-ai-result p{margin:0;white-space:pre-wrap}
+.hr-ai-result ul{margin:3px 0 8px;padding-inline-start:19px}
+.hr-ai-legend{margin-top:7px;color:var(--muted);font-size:8px}
+.hr-ai-error{color:#a33030}
 .hr-offer-cta{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
   margin-top:10px;padding:11px;border-radius:15px;
@@ -7954,6 +7963,15 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                     </div>
                 </div>
 
+                <div class="hr-section-card hr-ai-card" id="hrAIAnalysisCard" style="display:none">
+                    <div class="hr-section-head">
+                        <div><h3 class="hr-section-title" data-hr-t="hrAITitle">تقرير ذكي لإدارة الاستهلاكات</h3><p class="hr-section-sub" data-hr-t="hrAISubtitle">تحليل الاتجاهات ومؤشرات التكلفة واقتراح خطوات عملية من الملخص المجمع.</p></div>
+                    </div>
+                    <label class="hr-ai-consent"><input id="hrAIConsent" type="checkbox"><span data-hr-t="hrAIConsent">أوافق على إرسال المؤشرات المجمعة والمجهّلة إلى Google Gemini لإعداد التقرير. لن يُرسل الملف الخام أو أسماء الموظفين أو أرقامهم القومية. قد تستخدم الخدمة المجانية المدخلات لتحسين منتجات Google.</span></label>
+                    <div class="hr-action-row"><button class="btn-gold-small" id="hrAIGenerateBtn" onclick="generateHRConsumptionAIReport()" data-hr-t="hrAIGenerate">إنشاء التقرير الذكي</button><span class="hr-small-note" data-hr-t="hrAIPrivacyNote">الأقسام الحساسة التي تضم أقل من 5 أشخاص تُحجب عن التحليل الخارجي.</span></div>
+                    <div class="hr-ai-result" id="hrAIResult" hidden></div>
+                </div>
+
                 <div class="hr-section-card">
                     <div class="hr-section-head"><h3 class="hr-section-title" data-hr-t="hrConsHistoryTitle">سجل التقارير المحفوظة</h3></div>
                     <div class="hr-history" id="hrMedicalHistory"></div>
@@ -9489,6 +9507,21 @@ var HR_TRANSLATIONS = {
         hrConsReportYoY: 'مقارنة سنة بسنة',
         hrConsReportPrivacy: 'تعرض هذه اللوحة مؤشرات مجمعة فقط. لا تظهر أسماء الموظفين أو قيم استهلاكهم الفردية، ولا تُحفظ صفوف ملف المطالبات الخام ضمن التقرير.',
         hrConsIndividualDataHidden: 'تم إخفاء بيانات الاستهلاك الفردية. استخدم المؤشرات المجمعة حسب القسم والفئة العمرية والخدمة لحماية الخصوصية.',
+        hrAITitle: 'تقرير ذكي لإدارة الاستهلاكات',
+        hrAISubtitle: 'تحليل الاتجاهات ومؤشرات التكلفة واقتراح خطوات عملية من الملخص المجمع.',
+        hrAIConsent: 'أوافق على إرسال المؤشرات المجمعة والمجهّلة إلى Google Gemini لإعداد التقرير. لن يُرسل الملف الخام أو أسماء الموظفين أو أرقامهم القومية. قد تستخدم الخدمة المجانية المدخلات لتحسين منتجات Google.',
+        hrAIPrivacyNote: 'الأقسام الحساسة التي تضم أقل من 5 أشخاص تُحجب عن التحليل الخارجي.',
+        hrAIGenerate: '✦ إنشاء التقرير الذكي',
+        hrAIGenerating: 'جارٍ إعداد التقرير…',
+        hrAISummary: 'الملخص التنفيذي',
+        hrAIFindings: 'أبرز المؤشرات',
+        hrAIActions: 'خطوات مقترحة',
+        hrAICaveats: 'حدود التحليل',
+        hrAIDepartmentLegend: 'رموز الأقسام في هذا التقرير',
+        hrAIConsentRequired: 'وافق على مشاركة الملخص المجهّل أولًا لتشغيل التحليل الذكي.',
+        hrAIReportRequired: 'حمّل ملف الاستهلاك وطابق الأعمدة وشغّل التحليل المحلي أولًا.',
+        hrAIAnalysisFailed: 'تعذر إعداد التقرير الذكي: {msg}',
+        hrAIConfigMissing: 'خدمة التحليل الذكي غير مهيأة بعد. يلزم إعداد مفتاح Gemini في Cloudflare.',
         hrConsHistoryTitle: 'سجل التقارير المحفوظة',
         hrConsHistoryEmptyTitle: 'لا توجد تقارير محفوظة',
         hrConsHistoryEmptyText: 'بعد حفظ أول تحليل سيظهر هنا السجل التاريخي للمقارنة سنة بسنة.',
@@ -9845,6 +9878,21 @@ var HR_TRANSLATIONS = {
         hrConsReportYoY: 'Year-over-Year Comparison',
         hrConsReportPrivacy: 'This dashboard shows aggregated indicators only. Employee names and individual spend are hidden, and raw claim rows are not saved with the report.',
         hrConsIndividualDataHidden: 'Individual claim amounts are hidden. Use department, age-group and service summaries to protect privacy.',
+        hrAITitle: 'AI utilization management report',
+        hrAISubtitle: 'Analyze trends and cost indicators, then suggest practical next steps from the aggregate summary.',
+        hrAIConsent: 'I agree to send de-identified aggregate indicators to Google Gemini to prepare this report. The raw file, employee names, and national IDs will not be sent. The free service may use submitted content to improve Google products.',
+        hrAIPrivacyNote: 'Sensitive groups with fewer than 5 people are excluded from external analysis.',
+        hrAIGenerate: '✦ Generate AI report',
+        hrAIGenerating: 'Preparing report…',
+        hrAISummary: 'Executive summary',
+        hrAIFindings: 'Key findings',
+        hrAIActions: 'Suggested actions',
+        hrAICaveats: 'Analysis limitations',
+        hrAIDepartmentLegend: 'Department codes used in this report',
+        hrAIConsentRequired: 'Please consent to share the de-identified summary before running AI analysis.',
+        hrAIReportRequired: 'Upload the consumption file, map its columns, and run local analysis first.',
+        hrAIAnalysisFailed: 'Could not prepare the AI report: {msg}',
+        hrAIConfigMissing: 'AI analysis is not configured yet. A Gemini key must be set in Cloudflare.',
         hrConsHistoryTitle: 'Saved Reports Log',
         hrConsHistoryEmptyTitle: 'No saved reports',
         hrConsHistoryEmptyText: 'After saving the first analysis, the historical log for year-over-year comparison will appear here.',
@@ -14609,6 +14657,7 @@ function hrT(key, vars) {
         function renderHRMedicalReport(report){
             if(!report)return;
             var card=document.getElementById('hrMedicalReportCard');if(card)card.style.display='block';
+            var aiCard=document.getElementById('hrAIAnalysisCard');if(aiCard)aiCard.style.display='block';
             var meta=document.getElementById('hrReportMeta');if(meta)meta.textContent=(report.sourceName||hrT('hrConsFileFallback'))+' · '+report.year+' · '+report.records+' '+hrT('hrConsRecordsUnit')+(report.periodStart&&report.periodEnd?' · '+report.periodStart+' → '+report.periodEnd:'');
             var metrics=document.getElementById('hrReportMetrics');
             if(metrics)metrics.innerHTML=[
@@ -14651,9 +14700,80 @@ function hrT(key, vars) {
             });}
             else if(c.matrix){ rows=c.matrix.slice(1).map(function(row){return {date:row[mapping.date],amount:row[mapping.amount],employee:row[mapping.employee],service:mapping.service>=0?row[mapping.service]:'',department:mapping.department>=0?row[mapping.department]:'',gender:mapping.gender>=0?row[mapping.gender]:'',age:mapping.age>=0?row[mapping.age]:'',birthDate:mapping.birthDate>=0?row[mapping.birthDate]:'',nationalId:mapping.nationalId>=0?row[mapping.nationalId]:''};});}
             var report=buildHRMedicalReport(rows);
-            c.mapping=mapping;c.report=report;
+            c.mapping=mapping;c.analysisRows=rows;c.report=report;
             renderHRMedicalReport(report);
             var mapCard=document.getElementById('hrMappingCard');if(mapCard)mapCard.classList.remove('show');
+        }
+
+        function buildHRAnonymizedAIInput(report){
+            var source=(STATE.hrConsumption&&STATE.hrConsumption.analysisRows)||[];
+            var suppressed=[],departmentCodes={};
+            function collect(keyFn){
+                var groups={};
+                source.forEach(function(row){
+                    var key=String(keyFn(row)||'Unspecified'), amount=parseHRNumber(row.amount);
+                    var group=groups[key]||(groups[key]={amount:0,people:{},unknownPeople:false});
+                    group.amount+=amount;
+                    var identity=String(row.employeeId||row.nationalId||row.employee||'').trim().toLowerCase();
+                    if(identity&&identity!=='غير محدد'&&identity!=='unspecified')group.people[identity]=1;
+                    else group.unknownPeople=true;
+                });
+                return Object.keys(groups).map(function(key){return {key:key,amount:groups[key].amount,people:Object.keys(groups[key].people).length,unknownPeople:groups[key].unknownPeople};}).sort(function(a,b){return b.amount-a.amount;});
+            }
+            function protectedGroups(name, groups, labelFn){
+                if(!groups.length||groups.some(function(group){return group.people<5||group.unknownPeople;})){suppressed.push(name);return [];}
+                return groups.map(function(group,index){return {label:labelFn(group.key,index),amount:Math.round(group.amount*100)/100,share:report.totalSpend?Math.round(group.amount/report.totalSpend*10000)/100:0};});
+            }
+            var employeeLookup=hrEmployeeLookup();
+            function matchedEmployee(row){return employeeLookup[String(row.employee||'').trim().toLowerCase()]||employeeLookup[String(row.nationalId||'').trim().toLowerCase()]||null;}
+            var deptGroups=collect(function(row){var emp=matchedEmployee(row);return String(row.department||(emp&&emp.department)||'').trim()||'غير محدد';});
+            var safeDepartments=protectedGroups('department',deptGroups,function(name,index){var code='D'+(index+1);departmentCodes[code]=name;return code;});
+            // Add the code after stable sorting, without sending department names externally.
+            safeDepartments=safeDepartments.map(function(group,index){return {code:'D'+(index+1),amount:group.amount,share:group.share};});
+
+            var serviceMap={'أسنان':'Dental','أدوية':'Pharmacy','عمليات':'Surgery','تحاليل':'Laboratory','أشعة':'Radiology','كشف/عيادات':'Clinic','طوارئ':'Emergency','علاج طبيعي':'Physiotherapy','غير محدد':'Unspecified'};
+            var byService=protectedGroups('service',collect(function(row){return serviceMap[inferHRService(row.service)]||'Other';}),function(key){return key;});
+            var ageMap={'أقل من 18':'Under 18','18–25':'18-25','26–35':'26-35','36–45':'36-45','46–55':'46-55','56+':'56+','غير محدد':'Unspecified'};
+            var byAge=protectedGroups('age',collect(function(row){var date=parseHRDate(row.date),emp=matchedEmployee(row),birth=row.birthDate||(emp&&emp.birthDate),age=(row.age!==''&&row.age!=null)?parseHRNumber(row.age):calculateHRAge(birth,date||new Date());return ageMap[inferHRAgeGroup(age)]||'Unspecified';}),function(key){return key;});
+            var byGender=protectedGroups('gender',collect(function(row){var emp=matchedEmployee(row),value=String(row.gender||(emp&&emp.gender)||'').trim().toLowerCase();if(/^(male|ذكر|مذكر|رجل)$/.test(value))return'Male';if(/^(female|أنثى|انثى|مؤنث|امرأة)$/.test(value))return'Female';return'Unspecified';}),function(key){return key;});
+            var byMonth=protectedGroups('month',collect(function(row){var date=parseHRDate(row.date);return date?date.toISOString().slice(0,7):'Unspecified';}),function(key){return key;})
+                .filter(function(item){return /^20\d{2}-(0[1-9]|1[0-2])$/.test(item.label);})
+                .map(function(item){return {month:item.label,amount:item.amount,share:item.share};});
+            return {
+                departmentCodes:departmentCodes,
+                report:{year:report.year,totalSpend:report.totalSpend,premium:report.premium,lossRatio:report.lossRatio,records:report.records,validRecords:report.validRecords,uniqueEmployees:report.uniqueEmployees,coveredLives:report.coveredLives,averageClaim:report.averageClaim,spendPerLife:report.spendPerLife,utilizationRate:report.utilizationRate,byService:byService,byAge:byAge,byGender:byGender,byDepartment:safeDepartments,byMonth:byMonth,suppressedDimensions:Array.from(new Set(suppressed))}
+            };
+        }
+
+        function renderHRConsumptionAIResult(analysis,departmentCodes){
+            var result=document.getElementById('hrAIResult');if(!result)return;
+            function list(title,items){return items&&items.length?'<h4>'+esc(title)+'</h4><ul>'+items.map(function(item){return '<li>'+esc(item)+'</li>';}).join('')+'</ul>':'';}
+            var legend=Object.keys(departmentCodes||{}).map(function(code){return '<li><b>'+esc(code)+'</b>: '+esc(departmentCodes[code])+'</li>';}).join('');
+            result.classList.remove('hr-ai-error');
+            result.innerHTML='<h4>'+esc(hrT('hrAISummary'))+'</h4><p>'+esc(analysis.summary||'')+'</p>'+list(hrT('hrAIFindings'),analysis.findings)+list(hrT('hrAIActions'),analysis.actions)+list(hrT('hrAICaveats'),analysis.caveats)+(legend?'<div class="hr-ai-legend"><b>'+esc(hrT('hrAIDepartmentLegend'))+'</b><ul>'+legend+'</ul></div>':'');
+            result.hidden=false;
+        }
+
+        async function generateHRConsumptionAIReport(){
+            var report=STATE.hrConsumption&&STATE.hrConsumption.report, consent=document.getElementById('hrAIConsent');
+            if(!report){alert(hrT('hrAIReportRequired'));return;}
+            if(!consent||!consent.checked){alert(hrT('hrAIConsentRequired'));return;}
+            var button=document.getElementById('hrAIGenerateBtn'),result=document.getElementById('hrAIResult');
+            if(button){button.disabled=true;button.textContent=hrT('hrAIGenerating');}
+            if(result){result.hidden=true;result.classList.remove('hr-ai-error');}
+            try{
+                var company=await ensureCorporateHRCompany();
+                if(!company||!company.companyId)throw new Error('تعذر تحديد الشركة المرتبطة بحسابك.');
+                var safeInput=buildHRAnonymizedAIInput(report);
+                var response=await securePathApiCall('/v1/hr/medical-analysis',{companyId:company.companyId,language:STATE.language==='en'?'en':'ar',report:safeInput.report});
+                if(!response||!response.analysis)throw new Error('استجابة التحليل غير مكتملة.');
+                renderHRConsumptionAIResult(response.analysis,safeInput.departmentCodes);
+            }catch(error){
+                if(result){result.textContent=hrT('hrAIAnalysisFailed',{msg:error.message||String(error)});result.classList.add('hr-ai-error');result.hidden=false;}
+                else alert(hrT('hrAIAnalysisFailed',{msg:error.message||String(error)}));
+            }finally{
+                if(button){button.disabled=false;button.textContent=hrT('hrAIGenerate');}
+            }
         }
 
         function parsePDFConsumptionData(arrayBuffer){
@@ -14714,6 +14834,8 @@ function hrT(key, vars) {
             var file=document.getElementById('hrConsumptionFile');if(file)file.value='';
             var card=document.getElementById('hrMappingCard');if(card)card.classList.remove('show');
             var report=document.getElementById('hrMedicalReportCard');if(report)report.style.display='none';
+            var aiCard=document.getElementById('hrAIAnalysisCard');if(aiCard)aiCard.style.display='none';
+            var aiResult=document.getElementById('hrAIResult');if(aiResult){aiResult.hidden=true;aiResult.textContent='';}
             ['hrConsumptionPremium','hrConsumptionLives','hrConsumptionStart','hrConsumptionEnd','hrConsumptionNotes'].forEach(function(id){setVal(id,'');});
             setVal('hrConsumptionPremiumType','period');
             var y=document.getElementById('hrConsumptionYear');if(y)y.value=new Date().getFullYear();

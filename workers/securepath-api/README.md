@@ -31,12 +31,25 @@ The Worker creates deterministic `leads/sp_<hash>` and `leadActivities/<lead-id>
 
 Treat the service-account JSON key as a credential: do not commit it, paste it into chat, or include it in screenshots. The receiving service account should not be given broad data-read permissions.
 
+## Optional HR medical-consumption AI report
+
+The HR Hub can request an Arabic or English management report from Gemini 2.5 Flash. The original Excel/PDF file is parsed and analyzed in the browser; the Worker sends only validated aggregate metrics and anonymized category totals to Gemini. It does not send company IDs, source filenames, employee names, national IDs, or claim rows. Department names are replaced with codes, and category breakdowns are omitted when any group has fewer than five identifiable people.
+
+To enable the optional feature:
+
+1. Create a Gemini API key in Google AI Studio.
+2. From this directory, set it as a Cloudflare Worker secret: `npx wrangler secret put GEMINI_API_KEY`.
+3. Deploy the Worker: `npx wrangler deploy`.
+
+Never put the key in browser code or commit it. HR users must explicitly consent in the HR Hub before sending a report. Review the Gemini API terms for unpaid/free usage before enabling this feature; free-tier prompts may be used to improve Google products. The existing in-browser analysis and exports continue to work if the AI key is not configured or its free quota is reached.
+
 ## Endpoints
 
 - `POST /v1/points` — insurance/habit/manual-driving/GPS point issuance.
 - `POST /v1/redeem` — atomic point redemption + lead creation.
 - `POST /v1/cloudinary/sign` — server-owned Cloudinary upload parameters and per-user folder/public ID.
 - `POST /v1/document/verified` — admin-only verified-document point issuance.
+- `POST /v1/hr/medical-analysis` — company-owner-only AI narrative from a de-identified aggregate report (requires `GEMINI_API_KEY`).
 - `POST /v1/client/appointment` — client appointment creation.
 - `POST /v1/client/complaint` — client complaint creation + notification + lead.
 - `POST /v1/client/renewal` — client renewal request after policy ownership validation.
