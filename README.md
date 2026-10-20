@@ -1,21 +1,21 @@
-# SecurePath (Wathiqati) — وثيقتي
+# iNex
 
-![SecurePath logo](https://github.com/eslamshahin1087-lab/securepath-app/raw/main/icon-512.png)
+![iNex logo](https://github.com/eslamshahin1087-lab/iNex/raw/main/inex-logo.png)
 
-**منصة رقمية للوساطة التأمينية — تدير علاقتك بوثائقك التأمينية وتربطك بوسيطك المرخّص في مكان واحد.**
+**منصة iNex الرقمية للوساطة التأمينية — تدير علاقتك بوثائقك التأمينية وتربطك بوسيطك المرخّص في مكان واحد.**
 
 📱 Progressive Web App (PWA) + Android APK ·
 🔒 مرخّص بالهيئة العامة للرقابة المالية — رقم FRA 38062
 
 > ℹ️ **ملاحظة على الاستضافة:** التطبيق مستضاف حاليًا على GitHub Pages بدون دومين مخصص (لا يوجد ملف `CNAME` في المستودع). الرابط الحي هو رابط GitHub Pages الافتراضي:
-> `https://eslamshahin1087-lab.github.io/securepath-app/`
+> `https://eslamshahin1087-lab.github.io/iNex/`
 > دومين `securepath.app` **غير مملوك** لهذا المشروع (يخص جهة أخرى: securepathinsurance.com)، ولا يجب استخدامه أو الإشارة إليه كرابط رسمي للتطبيق حتى يتم شراء وربط دومين مخصص فعليًا.
 
 ---
 
 ## نظرة عامة
 
-**SecurePath (وثيقتي)** هي منصة غير مباشرة لبيع/توليد عملاء التأمين (Indirect-Sale / Lead-Generation)، مُقدَّمة من وسيط تأمين حر مرخّص، **وليست شركة تأمين**. التطبيق يساعد العميل على:
+**iNex (InsurNex)** هي منصة غير مباشرة لبيع/توليد عملاء التأمين (Indirect-Sale / Lead-Generation)، مُقدَّمة من وسيط تأمين حر مرخّص، **وليست شركة تأمين**. التطبيق يساعد العميل على:
 
 - متابعة كل وثائقه التأمينية (سارية، قريبة من التجديد) في مكان واحد
 - رفع وتوثيق مستنداته التأمينية
@@ -47,18 +47,19 @@
 ## 🗂️ هيكل المشروع
 
 ```
-securepath-app/
+iNex/
 ├── wathiqati-app.html               # تطبيق العميل (SPA كامل - HTML/CSS/JS في ملف واحد)
 ├── securepath-admin.html            # لوحة تحكم الوسيط/الأدمن
 ├── index.html                       # صفحة الهبوط التسويقية (landing page)
 ├── manifest.json                    # إعداد الـ PWA (اسم، أيقونات، ألوان)
+├── inex-logo.png                    # شعار iNex للواجهة والتثبيت
 ├── sw.js                            # Service Worker (كاش + عمل أوفلاين)
 ├── securepath-firebase-migration.js # سكربت Node.js لإدارة حسابات اختبار/أدمن عبر Firebase Admin SDK
 ├── firebase.json                    # إعداد Firestore (rules + indexes فقط - الاستضافة عبر GitHub Pages)
 ├── firestore.rules / firestore.indexes.json
 ├── functions/                       # Cloud Functions (مسار ترقية مستقبلي لـ Blaze - غير مُفعّل حاليًا)
 ├── .well-known/                     # ملفات تحقق/ربط (Digital Asset Links لأندرويد، إلخ)
-└── icon-192.png / icon-512.png / icon-512-maskable.png / apple-touch-icon.png
+└── icon-192.png / icon-512.png / icon-512-maskable.png / apple-touch-icon.png  # أيقونات قديمة غير مستخدمة حاليًا
 ```
 
 > ملاحظة: ملفات الـ APK (`SecurePath.apk` / `SecurePath-Production.apk`) غير متتبَّعة في المستودع - يتم توزيعها عبر GitHub Releases بدلاً من ذلك.
@@ -111,8 +112,8 @@ securepath-app/
 هذا المشروع بدون build step — ملفات HTML/JS/CSS مباشرة:
 
 ```
-git clone https://github.com/eslamshahin1087-lab/securepath-app.git
-cd securepath-app
+git clone https://github.com/eslamshahin1087-lab/iNex.git
+cd iNex
 # أي خادم استاتيك بسيط، مثال:
 npx serve .
 # أو
@@ -158,8 +159,8 @@ payments · messages · activity · companies · users
 
 ## 🚀 النشر
 
-- **الويب:** يُنشر تلقائيًا عبر GitHub Pages على الرابط الافتراضي `https://eslamshahin1087-lab.github.io/securepath-app/` — بدون دومين مخصص حاليًا. لوحة الإدارة متاحة على `securepath-admin.html`، وتتطلب حسابًا موثقًا وصلاحية Admin؛ حماية البيانات مفروضة أيضًا بقواعد Firestore.
-- **أندرويد:** يُبنى APK من الـ PWA ويُوزَّع عبر [GitHub Releases](https://github.com/eslamshahin1087-lab/securepath-app/releases) لهذا المستودع (غير متتبَّع كملف داخل الكود)، مع نشر بصمة SHA-256 لكل إصدار مع الـ Release نفسه.
+- **الويب:** يُنشر تلقائيًا عبر GitHub Pages على الرابط الافتراضي `https://eslamshahin1087-lab.github.io/iNex/` — بدون دومين مخصص حاليًا. لوحة الإدارة متاحة على `securepath-admin.html`، وتتطلب حسابًا موثقًا وصلاحية Admin؛ حماية البيانات مفروضة أيضًا بقواعد Firestore.
+- **أندرويد:** يُبنى APK من الـ PWA ويُوزَّع عبر [GitHub Releases](https://github.com/eslamshahin1087-lab/iNex/releases) لهذا المستودع (غير متتبَّع كملف داخل الكود)، مع نشر بصمة SHA-256 لكل إصدار مع الـ Release نفسه.
 
 ---
 

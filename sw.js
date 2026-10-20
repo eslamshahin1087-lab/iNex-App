@@ -1,14 +1,14 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'securepath-v9-reliable-doc-points-flow';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v11-hr-points-brand';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
   './js/securepath-backend.js',
   './js/securepath-flows.js',
+  './inex-logo.png',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  './securepath-admin.html'
 ];
 
 // ============= التثبيت =============

@@ -8,6 +8,9 @@
   window.SECUREPATH_API_URL = SECUREPATH_API_URL;
 
   window.securePathApiCall = async function (path, payload) {
+    if (window.location && window.location.protocol === 'file:') {
+      throw new Error('Open the app from HTTPS or localhost, not from a local file.');
+    }
     if (!window.firebase || !firebase.auth || !firebase.auth().currentUser) {
       throw new Error('يجب تسجيل الدخول أولاً');
     }

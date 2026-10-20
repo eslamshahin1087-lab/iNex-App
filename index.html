@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="description" content="SecurePath - منصة التأمين الذكية. توعية تأمينية، نقاط ولاء، وخصومات حقيقية.">
+    <meta name="description" content="iNex - منصة التأمين والموارد البشرية الذكية للجيل القادم.">
     <meta name="theme-color" content="#0A1833">
     
     <!-- Favicon & App Icons -->
-    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="1254x1254" href="inex-logo.png">
+    <link rel="apple-touch-icon" href="inex-logo.png">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="وثيقتي">
+    <meta name="apple-mobile-web-app-title" content="iNex">
     
-    <title>SecurePath — Insurance Ecosystem | وثيقتي</title>
+    <title>iNex</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -115,24 +114,19 @@
         }
         .nav-logo .icon {
             width: 38px; height: 38px;
-            background: var(--gradient-gold);
-            border-radius: 12px;
-            padding: 8px;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 8px 20px -10px rgba(242, 189, 99, 0.75);
+            box-shadow: none;
             transition: transform 0.35s ease, box-shadow 0.35s ease;
         }
         .nav-logo .icon::after {
-            content: '';
-            position: absolute;
-            inset: -60% 35% -60% -55%;
-            background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,0.6) 50%, transparent 75%);
-            transform: translateX(-40%);
-            animation: logoSheen 5.8s ease-in-out infinite;
+            display: none;
         }
         @keyframes logoSheen {
             0%,56% { transform: translateX(-55%); opacity:0; }
@@ -151,6 +145,9 @@
             stroke-linecap: round;
             stroke-linejoin: round;
         }
+        .nav-logo .icon img { width:100%; height:100%; object-fit:contain; animation: brandPulse 2.4s ease-in-out infinite; }
+        @keyframes brandPulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.045); } }
+        @media (prefers-reduced-motion: reduce) { .nav-logo .icon img { animation:none; } }
         .nav-links {
             display: flex;
             gap: 6px;
@@ -1317,7 +1314,7 @@
             .steps-grid { grid-template-columns: 1fr; gap: 24px; }
             .navbar { padding: 12px 16px; }
             .nav-logo { font-size: 18px; }
-            .nav-logo .icon { width: 32px; height: 32px; padding: 6px; border-radius: 8px; }
+            .nav-logo .icon { width: 44px; height: 44px; padding: 0; border-radius: 0; }
             .lang-toggle { padding: 6px 12px; font-size: 11px; }
             .fra-disclosure { font-size: 11px; padding: 16px; margin: 0 16px; }
         }
@@ -1837,12 +1834,9 @@
         <div class="nav-container">
             <a href="#" class="nav-logo">
                 <div class="icon">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/>
-                        <path d="m8 12 2.5 2.5L16 9"/>
-                    </svg>
+                    <img src="inex-logo.png" alt="">
                 </div>
-                <span>SecurePath</span>
+                <span>iNex</span>
             </a>
             <div class="nav-links">
                 <a href="#features" id="navFeatures">المميزات</a>
@@ -1862,7 +1856,7 @@
             </div>
             <h1 id="headline"></h1>
             <p class="sub-text" id="subText"></p>
-            <div class="hero-trustline" aria-label="SecurePath trust highlights">
+            <div class="hero-trustline" aria-label="iNex trust highlights">
                 <span class="trust-chip"><span class="mini-dot"></span><span id="trustOne">وضوح قبل القرار</span></span>
                 <span class="trust-chip"><span class="mini-dot"></span><span id="trustTwo">متابعة في مكان واحد</span></span>
                 <span class="trust-chip"><span class="mini-dot"></span><span id="trustThree">تجربة رقمية</span></span>
@@ -1940,7 +1934,7 @@
     <!-- FEATURES -->
     <section class="section-container" id="features">
         <div class="section-title">
-            <h2 id="featSectionTitle">لماذا <span class="highlight">SecurePath</span>؟</h2>
+            <h2 id="featSectionTitle">لماذا <span class="highlight">iNex</span>؟</h2>
             <p id="featSectionDesc">كل ما تحتاجه لإدارة تأمينك في مكان واحد</p>
         </div>
         <div class="features-grid">
@@ -2004,10 +1998,10 @@
     <!-- DOWNLOAD SECTION -->
     <section class="section-container" id="download">
         <div class="download-section">
-            <h2 id="downloadTitle">تطبيق <span class="highlight">SecurePath</span></h2>
+            <h2 id="downloadTitle">تطبيق <span class="highlight">iNex</span></h2>
             <p id="downloadDesc">تجربة أندرويد كاملة مع إشعارات فورية وتتبع مباشر لوثائقك</p>
             <div class="download-buttons">
-                <a href="https://github.com/eslamshahin1087-lab/securepath-app/releases/download/v1.0.0/SecurePath.apk" class="btn-primary" id="downloadApkBtn">
+                <a href="https://github.com/eslamshahin1087-lab/iNex/releases/download/v1.0.0/SecurePath.apk" class="btn-primary" id="downloadApkBtn">
                     📥 تحميل APK (أندرويد)
                 </a>
                 <a href="wathiqati-app.html" class="btn-secondary" id="downloadWebBtn">
@@ -2062,7 +2056,7 @@
 
     <!-- FOOTER -->
     <footer class="footer">
-        © 2026 SecurePath <span class="sep">·</span>
+        © 2026 iNex <span class="sep">·</span>
         <span id="footerText">منصة التوعية التأمينية المتكاملة</span>
     </footer>
 
@@ -2075,7 +2069,7 @@
                 badgeText: 'منصة توعوية مرخّصة',
                 headline: 'طريقك نحو <span class="highlight">تأمين</span><br><span>ذكي وآمن</span>',
                 subText: 'منصة متكاملة <span class="hl">للتوعية التأمينية</span>، ومتابعة وثائقك، والحصول على خصومات حقيقية.<br>ابدأ رحلتك الآن واجعل تأمينك أكثر وعياً.',
-                featSectionTitle: 'لماذا <span class="highlight">SecurePath</span>؟',
+                featSectionTitle: 'لماذا <span class="highlight">iNex</span>؟',
                 featSectionDesc: 'كل ما تحتاجه لإدارة تأمينك في مكان واحد',
                 feat1Title: 'توعية تأمينية',
                 feat1Desc: 'محتوى تفاعلي يزيد وعيك التأميني',
@@ -2091,7 +2085,7 @@
                 step2Desc: 'قم برفع وثائقك التأمينية لتتبعها',
                 step3Title: 'احصل على العروض',
                 step3Desc: 'قارن العروض واحصل على خصومات حقيقية',
-                downloadTitle: 'تطبيق <span class="highlight">SecurePath</span>',
+                downloadTitle: 'تطبيق <span class="highlight">iNex</span>',
                 downloadDesc: 'تجربة أندرويد كاملة مع إشعارات فورية وتتبع مباشر لوثائقك',
                 downloadApkBtn: '📥 تحميل APK (أندرويد)',
                 downloadWebBtn: '🌐 تجربة الويب',
@@ -2119,7 +2113,7 @@
                 badgeText: 'Licensed Awareness Platform',
                 headline: 'Your path to <span class="highlight">smart</span><br><span>and safe insurance</span>',
                 subText: 'An integrated <span class="hl">insurance awareness</span> platform. Track your policies and unlock real discounts.<br>Start your journey today and make your insurance smarter.',
-                featSectionTitle: 'Why <span class="highlight">SecurePath</span>?',
+                featSectionTitle: 'Why <span class="highlight">iNex</span>?',
                 featSectionDesc: 'Everything you need to manage your insurance in one place',
                 feat1Title: 'Insurance Awareness',
                 feat1Desc: 'Interactive content that boosts your knowledge',
@@ -2135,7 +2129,7 @@
                 step2Desc: 'Upload your policies to track them',
                 step3Title: 'Get Offers',
                 step3Desc: 'Compare offers and get real discounts',
-                downloadTitle: 'Download <span class="highlight">SecurePath</span> App',
+                downloadTitle: 'Download <span class="highlight">iNex</span> App',
                 downloadDesc: 'Full Android experience with instant notifications and live policy tracking',
                 downloadApkBtn: '📥 Download APK (Android)',
                 downloadWebBtn: '🌐 Try Web Version',
@@ -2377,7 +2371,7 @@
                     var btn = document.getElementById('downloadApkBtn');
                     var info = document.getElementById('downloadChecksumInfo');
                     if (btn && latest.releaseUrl) {
-                        btn.href = 'https://github.com/eslamshahin1087-lab/securepath-app/releases/download/v' + latest.version + '/' + latest.file;
+                        btn.href = 'https://github.com/eslamshahin1087-lab/iNex/releases/download/v' + latest.version + '/' + latest.file;
                     }
                     if (info) {
                         var shortSha = latest.sha256 ? (latest.sha256.slice(0, 12) + '…') : '';

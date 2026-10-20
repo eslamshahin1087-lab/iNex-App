@@ -5,15 +5,15 @@
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover">
-    <title>SecurePath — Insurance Ecosystem</title>
+    <title>iNex</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0E2A5C">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SecurePath">
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-    <link rel="icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-title" content="iNex">
+    <link rel="apple-touch-icon" href="inex-logo.png">
+    <link rel="icon" type="image/png" sizes="1254x1254" href="inex-logo.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -1043,11 +1043,21 @@
 
         .brand-logo-full {
             display: block;
-            width: min(220px, 75%);
-            max-height: 120px;
+            width: min(180px, 70%);
+            max-height: 155px;
             object-fit: contain;
             margin: 0 auto 6px;
             filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+            animation: brandPulse 2.4s ease-in-out infinite;
+        }
+
+        @keyframes brandPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.035); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .brand-logo-full { animation: none; }
         }
 
         .brand-tagline {
@@ -1098,17 +1108,13 @@
             margin: 16px auto 4px;
             max-width: 320px;
             padding: 12px 16px;
-            background: linear-gradient(145deg,
-                        rgba(255, 255, 255, 0.09) 0%,
-                        rgba(255, 255, 255, 0.045) 100%);
-            border: 1px solid rgba(242, 189, 99, 0.25);
+            background: linear-gradient(145deg, rgba(14, 42, 92, 0.98), rgba(7, 29, 64, 0.98));
+            border: 1px solid rgba(242, 189, 99, 0.45);
             border-radius: 16px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 10px 26px rgba(5, 18, 42, 0.2);
             position: relative;
             overflow: hidden;
-            animation: disclosureCardEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) both,
-                       disclosureGlow 4s ease-in-out 1s infinite;
+            animation: disclosureCardEnter 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
 
         .broker-disclosure-card::before {
@@ -1142,11 +1148,11 @@
         }
 
         .broker-disclosure-text {
-            color: rgba(255, 255, 255, 0.88);
+            color: #fff;
             font-family: "Cairo", var(--font-ar);
-            font-size: 9.5px;
-            line-height: 1.75;
-            font-weight: 500;
+            font-size: 10.5px;
+            line-height: 1.9;
+            font-weight: 600;
             text-align: center;
             white-space: pre-line;
             letter-spacing: 0.1px;
@@ -6542,7 +6548,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
 </style>
 
 <style id="hr-account-entry-polish">
-#corporateHRAccountCard{display:none!important;margin:0 14px 14px;padding:13px;border-radius:18px;background:linear-gradient(145deg,#0d2b5f,#173f7a);border:1px solid rgba(242,189,99,.34);box-shadow:0 10px 24px rgba(14,42,92,.14);cursor:pointer}
+#corporateHRAccountCard{margin:0 14px 14px;padding:13px;border-radius:18px;background:linear-gradient(145deg,#0d2b5f,#173f7a);border:1px solid rgba(242,189,99,.34);box-shadow:0 10px 24px rgba(14,42,92,.14);cursor:pointer}
 #corporateHRAccountCard .hr-entry-row{width:100%;gap:10px}
 #corporateHRAccountCard .hr-entry-icon{width:42px;height:42px;border-radius:12px;background:rgba(242,189,99,.12);border-color:rgba(242,189,99,.42)}
 #corporateHRAccountCard .hr-entry-icon svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -6573,7 +6579,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         <div class="onboarding-overlay" id="onboardingOverlay">
             <div class="onboarding-card">
                 <div class="step-icon" id="onboardingIcon">🛡️</div>
-                <h2 id="onboardingTitle">مرحباً بك في SecurePath</h2>
+                <h2 id="onboardingTitle">مرحباً بك في iNex</h2>
                 <p id="onboardingDesc">منصتك الذكية لإدارة وثائق التأمين وحماية مستقبلك المالي</p>
                 <div class="onboarding-dots" id="onboardingDots">
                     <span class="dot active"></span>
@@ -6591,11 +6597,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         <!-- ============================================================ -->
         <div class="screen active" id="login">
             <div class="brand brand-premium">
-                <div class="auth-brand-icon" aria-label="SecurePath">
-                    <svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/><path d="m8 12 2.5 2.5L16 9"/></svg>
-                </div>
-                <img class="brand-logo-full" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 80'><path d='M30,15 L55,25 L55,50 C55,65 30,75 30,75 C30,75 5,65 5,50 L5,25 Z' fill='%23F2BD63'/><path d='M30,22 L47,30 L47,48 C47,58 30,66 30,66 C30,66 13,58 13,48 L13,30 Z' fill='%230E2A5C'/><text x='70' y='42' font-family='Tajawal,sans-serif' font-weight='900' font-size='24' fill='%23FFFFFF'>SecurePath</text><text x='72' y='58' font-family='Cairo,sans-serif' font-size='10' fill='%23FFF2D7' letter-spacing='1'>INSURANCE ECOSYSTEM</text></svg>">
-                <div class="brand-tagline securepath-advisory" id="loginTagline">Insurance Ecosystem</div>
+                <img class="brand-logo-full" src="inex-logo.png" alt="iNex logo">
                 <div class="broker-disclosure-card">
                     <p id="brokerDisclosureFooter" class="broker-disclosure-text"></p>
                 </div>
@@ -6626,10 +6628,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         <!-- ============================================================ -->
         <div class="screen" id="signup">
             <div class="brand brand-premium">
-                <div class="auth-brand-icon" aria-label="SecurePath">
-                    <svg viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3Z"/><path d="m8 12 2.5 2.5L16 9"/></svg>
-                </div>
-                <img class="brand-logo-full" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 80'><path d='M30,15 L55,25 L55,50 C55,65 30,75 30,75 C30,75 5,65 5,50 L5,25 Z' fill='%23F2BD63'/><path d='M30,22 L47,30 L47,48 C47,58 30,66 30,66 C30,66 13,58 13,48 L13,30 Z' fill='%230E2A5C'/><text x='70' y='42' font-family='Tajawal,sans-serif' font-weight='900' font-size='24' fill='%23FFFFFF'>SecurePath</text><text x='72' y='58' font-family='Cairo,sans-serif' font-size='10' fill='%23FFF2D7' letter-spacing='1'>INSURANCE ECOSYSTEM</text></svg>">
+                <img class="brand-logo-full" src="inex-logo.png" alt="iNex logo">
                 <div class="broker-disclosure-card" style="margin-top:14px;">
                     <p id="signupDisclosure" class="broker-disclosure-text" style="text-align:center;"></p>
                 </div>
@@ -6806,16 +6805,6 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 </div>
             </div>
 
-            <div class="next-action-card" id="nextActionCard" role="button" tabindex="0" aria-live="polite">
-                <div class="na-icon icon-gold"><span class="app-icon animated float"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><path d="m17 7 4 5-4 5"/></svg></span></div>
-                <div class="na-copy">
-                    <span class="na-kicker" id="nextActionKicker">WHAT'S NEXT</span>
-                    <span class="na-title" id="nextActionTitle">جاري تحديد الخطوة التالية…</span>
-                    <span class="na-sub" id="nextActionSub">سأقترح عليك أهم إجراء مفيد الآن.</span>
-                </div>
-                <span class="na-cta" id="nextActionCta">ابدأ</span>
-            </div>
-
             <div class="points-widget home-points" id="pointsWidget" onclick="showScreen('pointsHub')">
                 <div class="points-widget-top">
                     <div class="points-widget-title">
@@ -6916,6 +6905,16 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 </div>
             </div>
             <div class="policies home-policies-list" id="homePoliciesList"></div>
+
+            <div class="next-action-card" id="nextActionCard" role="button" tabindex="0" aria-live="polite">
+                <div class="na-icon icon-gold"><span class="app-icon animated float"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><path d="m17 7 4 5-4 5"/></svg></span></div>
+                <div class="na-copy">
+                    <span class="na-kicker" id="nextActionKicker">WHAT'S NEXT</span>
+                    <span class="na-title" id="nextActionTitle">جاري تحديد الخطوة التالية…</span>
+                    <span class="na-sub" id="nextActionSub">سأقترح عليك أهم إجراء مفيد الآن.</span>
+                </div>
+                <span class="na-cta" id="nextActionCta">ابدأ</span>
+            </div>
 
             <div class="robot-tips-container" id="robotTipsContainer">
                 <div class="robot-bubble" id="robotBubble">
@@ -7842,7 +7841,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                             <span class="hr-offer-cta-icon">✦</span>
                             <div>
                                 <strong data-hr-t="hrConsOffersTitle">هل تريد استكشاف حلول أو عروض مناسبة؟</strong>
-                                <p data-hr-t="hrConsOffersSub">اعرض المنتجات والعروض المتاحة من شركائنا، ثم أرسل طلبك من داخل SecurePath.</p>
+                                <p data-hr-t="hrConsOffersSub">اعرض المنتجات والعروض المتاحة من شركائنا، ثم أرسل طلبك من داخل iNex.</p>
                             </div>
                         </div>
                         <button class="hr-more-tips-btn" onclick="openHROffersFromAnalysis()" data-hr-t="hrConsMoreTipsBtn">المزيد من النصائح</button>
@@ -7891,11 +7890,11 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         <!-- ============================================================ -->
         <div class="chat-widget" id="chatWidget">
             <div class="chat-header">
-                <div class="chat-title"><span class="online-dot"></span><span id="chatTitle">💬 وكيل SecurePath</span></div>
+                <div class="chat-title"><span class="online-dot"></span><span id="chatTitle">💬 وكيل iNex</span></div>
                 <button class="close-chat" onclick="toggleChat()">✕</button>
             </div>
             <div class="chat-messages" id="chatMessages">
-                <div class="msg agent">👋 مرحباً بك في SecurePath!<br>كيف يمكنني مساعدتك اليوم؟<span class="msg-time" id="chatNow">الآن</span></div>
+                <div class="msg agent">👋 مرحباً بك في iNex!<br>كيف يمكنني مساعدتك اليوم؟<span class="msg-time" id="chatNow">الآن</span></div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chatInputWidget" placeholder="اكتب رسالتك..." onkeydown="if(event.key==='Enter')sendChatMessage()">
@@ -7962,7 +7961,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                         <b id="redeemDiscountValue" style="color:var(--green);">0%</b>
                     </div>
                     <div class="redeem-disclaimer" id="redeemDisclaimerText">
-                        نظام نقاط الأمان هو برنامج ولاء مقدم من وسيط التأمين عبر منصة SecurePath، وليس خصماً من قسط التأمين الرسمي الصادر عن الشركة. سيتم تفعيل الخصم كجزء من خدمة الوساطة عند تواصل فريقنا معك لإتمام الطلب.
+                        نظام نقاط الأمان هو برنامج ولاء مقدم من وسيط التأمين عبر منصة iNex، وليس خصماً من قسط التأمين الرسمي الصادر عن الشركة. سيتم تفعيل الخصم كجزء من خدمة الوساطة عند تواصل فريقنا معك لإتمام الطلب.
                     </div>
                 </div>
                 <div class="actions"><button class="btn-gold" id="redeemConfirmBtn" onclick="confirmRedeemPoints()"><span class="app-icon animated float"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span> تأكيد ومتابعة طلب العرض</button></div>
@@ -8016,7 +8015,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                     <p><strong id="termsSecondTitle">ثانياً: الموافقة على جمع ومعالجة البيانات الشخصية</strong></p>
                     <p id="termsSecondText">يمنح المستخدم موافقته الصريحة والواضحة على هذه الشروط والأحكام، ويمنح التطبيق الموافقة على جمع بياناته الشخصية ومعالجتها وحفظها واستخدامها بالقدر اللازم لتقديم الخدمات التي يوفرها، وذلك داخل جمهورية مصر العربية، ومشاركة البيانات والمعلومات التي قام بإدخالها مع شركات التأمين المرخص لها أو الجهات أو الوسطاء المرخص لهم قانوناً، وذلك للأغراض التالية: دراسة احتياجات المستخدم لتقديم الحل أو التغطية التأمينية الأنسب لاحتياجاته، المساعدة في اختيار الخدمات أو العروض التي يطلبها المستخدم، التواصل مع المستخدم بشأن الخدمات المقدمة، تحسين جودة الخدمات المقدمة من خلال التطبيق. وذلك بالقدر اللازم فقط لتحقيق الأغراض المشار إليها، وفقاً لأحكام القوانين واللوائح النافذة ذات الصلة، بما في ذلك قانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.</p>
                     <p><strong id="termsThirdTitle">ثالثاً: صفة التطبيق ونطاق عمله</strong></p>
-                    <p id="termsThirdText">(SecurePath - منصة تعريفية و توعوية هدفها خدمة حاملي وثائق التأمين و لا تمثل شركة تأمين بعينها. و يتم عرض منتجات شركات التامين المرخصة من الــFRA و حال الرغبة في الحصول عرض تأمين يتم التعامل بنظام احالة الطلب الي وسيط التأمين المرخص من الهيئة تحت رقم نرخيص - FRA 38062)</p>
+                    <p id="termsThirdText">(iNex - منصة تعريفية و توعوية هدفها خدمة حاملي وثائق التأمين و لا تمثل شركة تأمين بعينها. و يتم عرض منتجات شركات التامين المرخصة من الــFRA و حال الرغبة في الحصول عرض تأمين يتم التعامل بنظام احالة الطلب الي وسيط التأمين المرخص من الهيئة تحت رقم ترخيص - FRA 38062)</p>
                 </div>
                 <div class="actions" style="margin-top:12px;"><button class="btn-gold" onclick="closeModal('termsModal')" id="termsAgreeBtn">تم الاطلاع والموافقة</button></div>
             </div>
@@ -8444,7 +8443,6 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 loginBtn: '🚀 دخول المنصة',
                 loginSwitch: 'ليس لديك حساب؟ ',
                 loginSwitchLink: 'إنشاء حساب جديد',
-                loginTagline: 'Insurance Ecosystem',
                 forgotPasswordLink: 'نسيت كلمة المرور؟',
                 emailVerificationResend: 'لم يصلك رابط التفعيل؟ أعد إرساله',
                 forgotBackToLogin: 'العودة إلى تسجيل الدخول',
@@ -8476,11 +8474,11 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 uploadCatCommercial: 'سجل تجاري',
                 uploadCatPolicy: 'وثيقة تأمين',
                 termsThirdTitle: 'ثالثاً: صفة التطبيق ونطاق عمله',
-                termsThirdText: '(SecurePath - منصة تعريفية و توعوية هدفها خدمة حاملي وثائق التأمين و لا تمثل شركة تأمين بعينها. و يتم عرض منتجات شركات التامين المرخصة من الــFRA و حال الرغبة في الحصول عرض تأمين يتم التعامل بنظام احالة الطلب الي وسيط التأمين المرخص من الهيئة تحت رقم نرخيص - FRA 38062)',
+                termsThirdText: '(iNex - منصة تعريفية و توعوية هدفها خدمة حاملي وثائق التأمين و لا تمثل شركة تأمين بعينها. و يتم عرض منتجات شركات التامين المرخصة من الــFRA و حال الرغبة في الحصول عرض تأمين يتم التعامل بنظام احالة الطلب الي وسيط التأمين المرخص من الهيئة تحت رقم ترخيص - FRA 38062)',
                 termsFirstTitle: 'أولاً: البيانات بصحة الإقرار',
                 termsFirstText: 'بتقديمها أو بإدخالها يقوم المستخدم بتقديم البيانات والمعلومات والمستندات التي تكون صحيحة ودقيقة وكاملة، ويضمن أن جميع البيانات التي يدخلها أو يقدمها هي صحيحة وحديثة، وأنه مخول قانوناً بتقديمها، ويتحمل وحده المسؤولية القانونية الكاملة عن صحة البيانات، وأي تغيير يطرأ عليها، كما يلتزم المستخدم بتحديث بياناته كلما كانت غير محدثة أو غير صحيحة أو مضللة أو منتحلة، وقد تنشأ أضرار أو مسؤوليات نتيجة تقديم بيانات غير صحيحة أو مشاركة البيانات ومعالجتها وجمعها على الموافقة.',
                 termsSecondTitle: 'ثانياً: الموافقة على جمع ومعالجة البيانات الشخصية',
-                termsSecondText: 'يوافق المستخدم صراحةً على جمع بياناته الشخصية ومعالجتها وحفظها واستخدامها بالقدر اللازم لتقديم خدمات التطبيق، ومشاركتها مع الجهات وشركات التأمين والوسطاء المرخص لهم قانوناً للأغراض المرتبطة بالخدمات التي يطلبها. ويشمل ذلك، عند قبول هذه الشروط والأحكام، مزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه تلقائياً مع InsurNex CRM لإنشاء وإدارة العملاء المحتملين ومتابعة الطلبات المتعلقة بخدمات SecurePath. تُعامل البيانات المنقولة بسرية، ويقتصر استخدامها على هذا الغرض، ولا تُرسل كلمة المرور أو رموز الدخول أو بيانات المصادقة أو تاريخ الميلاد أو النوع أو المهنة أو قائمة الوثائق أو الملفات المرفوعة ضمن مزامنة العملاء المحتملين هذه. تتم المشاركة في حدود البيانات اللازمة وللأغراض المعلنة، وفقاً للقوانين واللوائح النافذة ذات الصلة، بما في ذلك قانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.',
+                termsSecondText: 'يوافق المستخدم صراحةً على جمع بياناته الشخصية ومعالجتها وحفظها واستخدامها بالقدر اللازم لتقديم خدمات التطبيق، ومشاركتها مع الجهات وشركات التأمين والوسطاء المرخص لهم قانوناً للأغراض المرتبطة بالخدمات التي يطلبها. ويشمل ذلك، عند قبول هذه الشروط والأحكام، مزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه تلقائياً مع InsurNex CRM لإنشاء وإدارة العملاء المحتملين ومتابعة الطلبات المتعلقة بخدمات iNex. تُعامل البيانات المنقولة بسرية، ويقتصر استخدامها على هذا الغرض، ولا تُرسل كلمة المرور أو رموز الدخول أو بيانات المصادقة أو تاريخ الميلاد أو النوع أو المهنة أو قائمة الوثائق أو الملفات المرفوعة ضمن مزامنة العملاء المحتملين هذه. تتم المشاركة في حدود البيانات اللازمة وللأغراض المعلنة، وفقاً للقوانين واللوائح النافذة ذات الصلة، بما في ذلك قانون حماية البيانات الشخصية المصري رقم 151 لسنة 2020.',
                 appointmentBtn: '📅 حجز الموعد',
                 accAvatarChangeLabel: 'تغيير',
                 profileEditAvatarChangeLabel: 'تغيير',
@@ -8618,7 +8616,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'العودة',
                 referralCodeLabel: 'كود الدعوة الخاص بك',
                 referralShareBtn: '📤 مشاركة رابط الدعوة',
-                signupDisclosure: '(SecurePath منصة توعوية وليست شركة تأمين. عند قبولك الشروط والأحكام، تتم مزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه تلقائيًا إلى InsurNex CRM لإدارة العملاء المحتملين ومتابعة الطلبات. تُعامل هذه البيانات بسرية وتُستخدم لهذا الغرض فقط. لا تُرسل كلمة المرور أو بيانات المصادقة ضمن مزامنة العملاء المحتملين. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
+                signupDisclosure: '(iNex منصة توعوية وليست شركة تأمين. عند قبولك الشروط والأحكام، تتم مزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه تلقائيًا إلى InsurNex CRM لإدارة العملاء المحتملين ومتابعة الطلبات. تُعامل هذه البيانات بسرية وتُستخدم لهذا الغرض فقط. لا تُرسل كلمة المرور أو بيانات المصادقة ضمن مزامنة العملاء المحتملين. المنتجات التأمينية المعروضة تخص شركات مرخصة من FRA، وأي طلب تأمين تتم إحالته إلى الوسيط المرخص تحت رقم FRA 38062.)',
                 crmLeadSyncConsentNotice: 'تتضمن موافقتك على الشروط والأحكام الإذن بمزامنة الاسم والبريد الإلكتروني ورقم الهاتف ونوع العميل واسم المنشأة عند انطباقه إلى InsurNex CRM، للغرض الموضح في بند معالجة البيانات. لا تُرسل كلمات المرور أو بيانات المصادقة.',
                 brokerDisclosure: 'منصة تعريفية وتوعوية هدفها خدمة حاملي وثائق التأمين،\nولا تمثل شركة تأمين بعينها.\n\nيتم عرض الشركات والمنتجات المرخّصة من الهيئة العامة للرقابة المالية (FRA).\nحال الرغبة في الحصول على مزيد من المعلومات،\nيُرجى التواصل مع الوسيط المرخّص الحر بكود FRA 38062.',
                 noOffers: 'لا توجد عروض حالياً',
@@ -8676,9 +8674,9 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 termsAgreeBtn: 'تم الاطلاع والموافقة',
                 wheelTitle: 'جرب حظك',
                 wheelSub: 'جرب حظك واربح جوائز حصرية',
-                chatTitle: 'وكيل SecurePath',
+                chatTitle: 'وكيل iNex',
                 chatNow: 'الآن',
-                chatWelcome: '👋 مرحباً بك في SecurePath!<br>كيف يمكنني مساعدتك اليوم؟',
+                chatWelcome: '👋 مرحباً بك في iNex!<br>كيف يمكنني مساعدتك اليوم؟',
                 badgeActive: 'سارية',
                 badgeExpiring: 'تجديد قريب',
                 badgeExpired: 'منتهية',
@@ -8802,7 +8800,6 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 loginBtn: '🚀 Login',
                 loginSwitch: "Don't have an account? ",
                 loginSwitchLink: 'Create new account',
-                loginTagline: 'Insurance Ecosystem',
                 forgotPasswordLink: 'Forgot password?',
                 emailVerificationResend: 'Didn’t receive the verification email? Resend it',
                 forgotBackToLogin: 'Back to login',
@@ -8834,11 +8831,11 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 uploadCatCommercial: 'Commercial registration',
                 uploadCatPolicy: 'Insurance policy',
                 termsThirdTitle: 'Third: The App\u2019s Role and Scope',
-                termsThirdText: '(SecurePath is an informational and awareness platform that aims to serve insurance policyholders and does not represent any specific insurance company. Products from FRA-licensed insurance companies are displayed, and if you wish to obtain an insurance quote, your request will be handled through referral to the insurance broker licensed by the Authority under license number FRA 38062.)',
+                termsThirdText: '(iNex is an informational and awareness platform that aims to serve insurance policyholders and does not represent any specific insurance company. Products from FRA-licensed insurance companies are displayed, and if you wish to obtain an insurance quote, your request will be handled through referral to the insurance broker licensed by the Authority under license number FRA 38062.)',
                 termsFirstTitle: 'First: Accuracy of Submitted Data',
                 termsFirstText: 'By submitting or entering data, the user provides information and documents that are true, accurate and complete, and guarantees that all data entered or submitted is correct and up to date and that they are legally authorized to provide it. The user bears full legal responsibility for the accuracy of the data and any changes to it, and undertakes to update their data whenever it becomes outdated, incorrect, misleading, or falsified. Damages or liabilities may arise from providing inaccurate data or from sharing, processing and collecting data based on this consent.',
                 termsSecondTitle: 'Second: Consent to Collect and Process Personal Data',
-                termsSecondText: 'The user expressly agrees to the collection, processing, storage and use of personal data to the extent necessary to provide the application services, and to sharing it with legally licensed entities, insurers and brokers for purposes connected with services requested by the user. By accepting these Terms and Conditions, the user agrees that their name, email, phone number, client type and company name when applicable may be automatically synced to InsurNex CRM to create and manage leads and follow up on requests related to SecurePath services. Transferred data is treated as confidential and used only for this purpose. Passwords, login tokens, authentication credentials, date of birth, gender, occupation, policy lists and uploaded files are not sent as part of this lead-sync integration. Sharing is limited to the data necessary for the stated purpose and is subject to applicable laws and regulations, including the Egyptian Personal Data Protection Law No. 151 of 2020.',
+                termsSecondText: 'The user expressly agrees to the collection, processing, storage and use of personal data to the extent necessary to provide the application services, and to sharing it with legally licensed entities, insurers and brokers for purposes connected with services requested by the user. By accepting these Terms and Conditions, the user agrees that their name, email, phone number, client type and company name when applicable may be automatically synced to InsurNex CRM to create and manage leads and follow up on requests related to iNex services. Transferred data is treated as confidential and used only for this purpose. Passwords, login tokens, authentication credentials, date of birth, gender, occupation, policy lists and uploaded files are not sent as part of this lead-sync integration. Sharing is limited to the data necessary for the stated purpose and is subject to applicable laws and regulations, including the Egyptian Personal Data Protection Law No. 151 of 2020.',
                 appointmentBtn: '📅 Book Appointment',
                 accAvatarChangeLabel: 'Change',
                 profileEditAvatarChangeLabel: 'Change',
@@ -8972,7 +8969,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 referralBackBtn: 'Back',
                 referralCodeLabel: 'Your referral code',
                 referralShareBtn: '📤 Share referral link',
-                signupDisclosure: '(SecurePath is an insurance awareness platform, not an insurer. By accepting the Terms and Conditions, your name, email, phone, client type and company name when applicable are automatically synced to InsurNex CRM to manage leads and follow up on requests. This data is treated as confidential and used only for this purpose. Passwords and authentication credentials are not sent as part of lead synchronization. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
+                signupDisclosure: '(iNex is an insurance awareness platform, not an insurer. By accepting the Terms and Conditions, your name, email, phone, client type and company name when applicable are automatically synced to InsurNex CRM to manage leads and follow up on requests. This data is treated as confidential and used only for this purpose. Passwords and authentication credentials are not sent as part of lead synchronization. Products shown belong to FRA-licensed insurers; insurance requests are referred to the independent broker under FRA license 38062.)',
                 crmLeadSyncConsentNotice: 'Accepting the Terms and Conditions includes agreement to sync your name, email, phone, client type and company name when applicable to InsurNex CRM for the purpose described in the data-processing section. Passwords and authentication credentials are not sent.',
                 brokerDisclosure: 'An informational and awareness platform serving insurance policyholders,\nnot representing any single insurance company.\n\nLicensed companies and products approved by the Financial Regulatory Authority (FRA) are displayed.\nFor more information,\nplease contact the licensed independent broker under FRA code 38062.',
                 accountOffers: 'Offers & Discounts',
@@ -9030,9 +9027,9 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 termsAgreeBtn: 'I have read and agree',
                 wheelTitle: 'Try Your Luck',
                 wheelSub: 'Win exclusive prizes',
-                chatTitle: 'SecurePath Agent',
+                chatTitle: 'iNex Agent',
                 chatNow: 'Now',
-                chatWelcome: '👋 Welcome to SecurePath!<br>How can I help you today?',
+                chatWelcome: '👋 Welcome to iNex!<br>How can I help you today?',
                 companiesSliderTitleText: 'Our Partners in Success',
                 companiesCountLabel: 'companies',
                 robotBubbleTitle: 'Insurance Tip',
@@ -9297,7 +9294,7 @@ var HR_TRANSLATIONS = {
         hrConsQualityHint: 'أكمل القسط + عدد المؤمن عليهم + فترة التحليل للحصول على مؤشرات أوسع.',
         hrConsQualityComplete: 'البيانات الأساسية مكتملة — يمكنك رفع الملف وبدء التحليل.',
         hrConsOffersTitle: 'هل تريد استكشاف حلول أو عروض مناسبة؟',
-        hrConsOffersSub: 'اعرض المنتجات والعروض المتاحة من شركائنا، ثم أرسل طلبك من داخل SecurePath.',
+        hrConsOffersSub: 'اعرض المنتجات والعروض المتاحة من شركائنا، ثم أرسل طلبك من داخل iNex.',
         hrConsMoreTipsBtn: 'المزيد من النصائح',
         hrConsMetricCoveredLives: 'عدد المؤمن عليهم',
         hrConsMetricAvgClaim: 'متوسط قيمة السجل',
@@ -9332,7 +9329,7 @@ var HR_TRANSLATIONS = {
         hrConsQualityHint: 'Complete premium + covered lives + analysis period for broader indicators.',
         hrConsQualityComplete: 'Core inputs are complete — upload the file and start the analysis.',
         hrConsOffersTitle: 'Want to explore relevant solutions or offers?',
-        hrConsOffersSub: 'Browse available products and partner offers, then submit your request from SecurePath.',
+        hrConsOffersSub: 'Browse available products and partner offers, then submit your request from iNex.',
         hrConsMoreTipsBtn: 'More Tips',
         hrConsMetricCoveredLives: 'Covered Lives',
         hrConsMetricAvgClaim: 'Average Record Value',
@@ -10289,7 +10286,7 @@ function hrT(key, vars) {
             var data = window.__shareOfferData;
             if (!data) return;
             var lang = STATE.language || 'ar';
-            var text = lang === 'ar' ? '🎁 عرض مميز من SecurePath: ' + data.name + (data.company ? ' (' + data.company + ')' : '') + '\n' + (lang === 'ar' ? 'سجّل الآن للاستفادة من هذا العرض!' : 'Sign up now to benefit from this offer!') : '🎁 Special offer from SecurePath: ' + data.name + (data.company ? ' (' + data.company + ')' : '') + '\nSign up now to benefit from this offer!';
+            var text = lang === 'ar' ? '🎁 عرض مميز من iNex: ' + data.name + (data.company ? ' (' + data.company + ')' : '') + '\n' + (lang === 'ar' ? 'سجّل الآن للاستفادة من هذا العرض!' : 'Sign up now to benefit from this offer!') : '🎁 Special offer from iNex: ' + data.name + (data.company ? ' (' + data.company + ')' : '') + '\nSign up now to benefit from this offer!';
             var url = data.link;
 
             if (method === 'whatsapp') {
@@ -10990,7 +10987,7 @@ function hrT(key, vars) {
         // ONBOARDING                                                    //
         // ============================================================ //
         var onboardingSteps = [
-            { icon: '🛡️', title: 'مرحباً بك في SecurePath', desc: 'منصتك الذكية لإدارة وثائق التأمين وحماية مستقبلك المالي' },
+            { icon: '🛡️', title: 'مرحباً بك في iNex', desc: 'منصتك الذكية لإدارة وثائق التأمين وحماية مستقبلك المالي' },
             { icon: '📊', title: 'تقييم الحماية الذكي', desc: 'احصل على تقييم شامل لحالتك التأمينية مع توصيات مخصصة' },
             { icon: '📄', title: 'إدارة وثائقك بسهولة', desc: 'رفع ومراجعة وتجديد وثائق التأمين الخاصة بك في مكان واحد' },
             { icon: '💬', title: 'تواصل مع وكلائنا', desc: 'احصل على استشارات فورية عبر المحادثة المباشرة أو واتساب' }
@@ -11231,6 +11228,7 @@ function hrT(key, vars) {
                 succ.style.display = 'block';
                 setTimeout(function() { succ.style.display = 'none'; }, 3000);
                 renderAll();
+                maybeAwardProfileCompletionPoints();
             }).catch(function(e) {
                 hideLoading('profileSaveBtn');
                 err.textContent = (STATE.language === 'ar' ? 'فشل تحديث الملف: ' : 'Failed to update profile: ') + friendlyFirebaseError(e);
@@ -11437,7 +11435,7 @@ function hrT(key, vars) {
             };
             var blob, filename;
             if (format === 'pdf') {
-                var txt = 'SecurePath Export\n';
+                var txt = 'iNex Export\n';
                 txt += '==================\n\n';
                 txt += 'User: ' + (data.user.fullName || '') + '\n';
                 txt += 'Email: ' + (data.user.email || '') + '\n';
@@ -11451,7 +11449,7 @@ function hrT(key, vars) {
                     txt += '  - ' + (d.fileName || '') + ' | ' + (d.category || '') + ' | ' + (d.verificationStatus || '') + '\n';
                 });
                 blob = new Blob([txt], { type: 'application/pdf' });
-                filename = 'SecurePath_Export_' + new Date().toISOString().slice(0, 10) + '.txt';
+                filename = 'iNex_Export_' + new Date().toISOString().slice(0, 10) + '.txt';
                 alert(STATE.language === 'ar' ? '📄 سيتم تصدير البيانات كملف نصي (PDF محاكى)' : '📄 Data will be exported as text file (simulated PDF)');
             } else if (format === 'excel' || format === 'csv') {
                 var csv = 'Type,Title,Status,Date\n';
@@ -11462,10 +11460,10 @@ function hrT(key, vars) {
                     csv += 'Document,' + (d.fileName || '') + ',' + (d.verificationStatus || '') + ',' + (d.uploadDate || '') + '\n';
                 });
                 blob = new Blob([csv], { type: 'text/csv' });
-                filename = 'SecurePath_Export_' + new Date().toISOString().slice(0, 10) + '.csv';
+                filename = 'iNex_Export_' + new Date().toISOString().slice(0, 10) + '.csv';
             } else {
                 blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                filename = 'SecurePath_Export_' + new Date().toISOString().slice(0, 10) + '.json';
+                filename = 'iNex_Export_' + new Date().toISOString().slice(0, 10) + '.json';
             }
             var url = URL.createObjectURL(blob);
             var a = document.createElement('a');
@@ -11623,8 +11621,8 @@ function hrT(key, vars) {
                 if (outcome.rewardError) {
                     console.warn('Assessment points reward is pending retry:', outcome.rewardError);
                     alert(STATE.language === 'ar'
-                        ? 'تم حفظ التقييم. تعذر تسجيل النقاط مؤقتاً؛ سنعيد المحاولة عند عودة الاتصال.'
-                        : 'Assessment saved. Points could not be recorded yet; we will retry when the connection returns.');
+                        ? 'تم حفظ التقييم. ' + pointsFailureMessage(outcome.rewardError, true)
+                        : 'Assessment saved. ' + pointsFailureMessage(outcome.rewardError, true));
                 }
             } catch (e) {
                 console.warn('Assessment save failed:', e);
@@ -11818,10 +11816,26 @@ function hrT(key, vars) {
 
         function reportPointsError(error) {
             console.warn('SecurePath points backend error:', error);
+            alert(pointsFailureMessage(error, false));
+        }
+
+        function pointsFailureMessage(error, assessmentSaved) {
             var lang = STATE.language || 'ar';
-            alert(lang === 'ar'
-                ? 'تعذر تسجيل النقاط الآن. تأكد من الاتصال ثم حاول مرة أخرى.'
-                : 'Points could not be recorded now. Check your connection and try again.');
+            if (window.location && window.location.protocol === 'file:') {
+                if (lang === 'ar') {
+                    return (assessmentSaved ? 'تعذر تسجيل المكافأة لأن التطبيق مفتوح كملف محلي. ' : 'تعذر تسجيل النقاط لأن التطبيق مفتوح كملف محلي. ')
+                        + 'افتح iNex من رابط HTTPS أو عبر localhost؛ لا تفتحه مباشرةً من القرص. نتيجة التقييم محفوظة.';
+                }
+                return (assessmentSaved ? 'The reward could not be recorded because the app is open as a local file. ' : 'Points could not be recorded because the app is open as a local file. ')
+                    + 'Open iNex over HTTPS or localhost, not directly from disk. Your assessment remains saved.';
+            }
+            var detail = error && error.message ? String(error.message) : '';
+            if (lang === 'ar') {
+                return (assessmentSaved ? 'تعذر تسجيل مكافأة النقاط مؤقتاً. ' : 'تعذر تسجيل النقاط الآن. ')
+                    + 'تحقق من الاتصال ثم حاول مرة أخرى.' + (detail ? '\n\nالتفاصيل: ' + detail : '');
+            }
+            return (assessmentSaved ? 'The points reward could not be recorded yet. ' : 'Points could not be recorded. ')
+                + 'Check your connection and try again.' + (detail ? '\n\nDetails: ' + detail : '');
         }
 
         // Kept as a compatibility shim so legacy callers cannot directly mutate points.
@@ -11925,9 +11939,13 @@ function hrT(key, vars) {
 
         function maybeAwardProfileCompletionPoints() {
             if (!STATE.currentUser) return;
+            var user = STATE.userData || {};
+            var required = ['fullName', 'birthDate', 'gender', 'phone', 'occupation', 'clientType'];
+            if (!required.every(function(key) { return String(user[key] || '').trim() !== ''; })) return;
+            if (user.pointsFlags && user.pointsFlags.profileCompleteAwarded) return;
             callSecurePoints({ event: 'profileComplete' },
                 'استكمال بيانات الملف الشخصي', 'Completed profile information')
-                .catch(function() {});
+                .catch(reportPointsError);
         }
 
         function maybeAwardReferralSharePoints() {
@@ -12147,7 +12165,7 @@ function hrT(key, vars) {
             setText('redeemDiscountLabel', lang === 'ar' ? 'قيمة الخصم' : 'Discount value');
             setText('redeemConfirmBtn', '');
             document.getElementById('redeemConfirmBtn').innerHTML = '<span class="app-icon animated float"><svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg></span> ' + (lang === 'ar' ? 'تأكيد ومتابعة طلب العرض' : 'Confirm & continue to quote');
-            setText('redeemDisclaimerText', lang === 'ar' ? 'نظام نقاط الأمان هو برنامج ولاء مقدم من وسيط التأمين عبر منصة SecurePath، وليس خصماً من قسط التأمين الرسمي الصادر عن الشركة. سيتم تفعيل الخصم كجزء من خدمة الوساطة عند تواصل فريقنا معك لإتمام الطلب.' : 'InsuraPoints is a loyalty program offered by your broker via the SecurePath platform, not a discount on the insurer\'s official premium. It is applied as part of the brokerage service once our team follows up on your request.');
+            setText('redeemDisclaimerText', lang === 'ar' ? 'نظام نقاط الأمان هو برنامج ولاء مقدم من وسيط التأمين عبر منصة iNex، وليس خصماً من قسط التأمين الرسمي الصادر عن الشركة. سيتم تفعيل الخصم كجزء من خدمة الوساطة عند تواصل فريقنا معك لإتمام الطلب.' : 'InsuraPoints is a loyalty program offered by your broker via the iNex platform, not a discount on the insurer\'s official premium. It is applied as part of the brokerage service once our team follows up on your request.');
             updateRedeemPreview();
             openModal('redeemPointsModal');
         }
@@ -12386,7 +12404,7 @@ function hrT(key, vars) {
             } else if (!pol.length) {
                 action = {
                     title: lang === 'ar' ? 'أضف وثائقك الحالية' : 'Add your current policies',
-                    sub: lang === 'ar' ? 'ابدأ ببناء ملف تأميني موحد داخل SecurePath.' : 'Build your unified insurance profile in SecurePath.',
+                    sub: lang === 'ar' ? 'ابدأ ببناء ملف تأميني موحد داخل iNex.' : 'Build your unified insurance profile in iNex.',
                     cta: lang === 'ar' ? 'ابدأ الآن' : 'Get started',
                     run: function(){ openUploadDocModal(); }
                 };
@@ -12676,8 +12694,8 @@ function hrT(key, vars) {
             var code = myReferralCode();
             if (!code) return;
             var link = window.location.origin + window.location.pathname + '?ref=' + code;
-            var msg = lang === 'ar' ? 'بستخدم تطبيق SecurePath لإدارة تأميناتي بسهولة، جرّبه من الرابط ده: ' + link :
-                'I use the SecurePath app to manage my insurance easily, try it here: ' + link;
+            var msg = lang === 'ar' ? 'بستخدم تطبيق iNex لإدارة تأميناتي بسهولة، جرّبه من الرابط ده: ' + link :
+                'I use the iNex app to manage my insurance easily, try it here: ' + link;
             if (navigator.share) {
                 navigator.share({ text: msg }).catch(function() {});
             } else {
@@ -12756,8 +12774,6 @@ function hrT(key, vars) {
             if (footer) footer.textContent = disclosure;
             var signup = document.getElementById('signupDisclosure');
             if (signup) signup.textContent = signupDisclosure;
-            var tagline = document.getElementById('loginTagline');
-            if (tagline) tagline.textContent = getText('loginTagline');
         }
 
         function logLead(source, details) {
@@ -13322,13 +13338,24 @@ function hrT(key, vars) {
 
         function isCorporateHRUser() {
             var u = STATE.userData || {};
-            var type = String(u.clientType || u.accountType || u.customerType || '').trim().toLowerCase();
-            var role = String(u.role || u.userRole || u.accessRole || '').trim().toLowerCase();
-            var corporateType = /^(corporate|company|business|group)$/.test(type);
-            var hrRole = /(^|[^a-z])(hr|human.?resources|corporate.?admin)([^a-z]|$)/i.test(role);
-            var hasBusinessProfile = !!String(u.businessName || '').trim()
-                && (!!String(u.businessActivity || '').trim() || Number(u.employees) > 0);
-            return corporateType || !!String(u.companyId || '').trim() || hrRole || hasBusinessProfile;
+            var accountTypes = [u.clientType, u.accountType, u.customerType, u.companyType, u.accountKind]
+                .map(function(value) { return String(value || '').trim().toLowerCase(); });
+            var roles = [u.role, u.userRole, u.accessRole, u.businessRole]
+                .map(function(value) { return String(value || '').trim().toLowerCase(); });
+            var corporateType = accountTypes.some(function(type) {
+                return /^(corporate|company|business|group|organization|company_account|corporate_account|شركة|مؤسسة|جماعي)$/.test(type);
+            });
+            var hrRole = roles.some(function(role) {
+                return /(^|[^a-z])(hr|human.?resources|corporate.?admin)([^a-z]|$)/i.test(role);
+            });
+            var businessName = String(u.businessName || u.companyName || u.organizationName || '').trim();
+            var hasBusinessProfile = !!businessName && (
+                !!String(u.businessActivity || u.businessType || u.industry || '').trim()
+                || Number(u.employees || u.employeeCount) > 0
+                || corporateType
+            );
+            var explicitCompanyFlag = u.isCorporate === true || u.isCompanyAccount === true;
+            return corporateType || explicitCompanyFlag || !!String(u.companyId || '').trim() || hrRole || hasBusinessProfile;
         }
 
         function simpleHash(value) {
@@ -13420,7 +13447,9 @@ function hrT(key, vars) {
             var homeCard = document.getElementById('homeHRHubCard');
             if (homeCard) homeCard.style.display = corporate ? 'flex' : 'none';
             var accountCard = document.getElementById('corporateHRAccountCard');
-            if (accountCard) accountCard.style.display = 'none';
+            if (accountCard) accountCard.style.display = corporate ? 'block' : 'none';
+            if (homeCard) homeCard.setAttribute('aria-hidden', corporate ? 'false' : 'true');
+            if (accountCard) accountCard.setAttribute('aria-hidden', corporate ? 'false' : 'true');
         }
 
         function switchHRTab(tab) {
@@ -13831,7 +13860,7 @@ function hrT(key, vars) {
             var rows=[['الاسم','الرقم القومي','القسم','تاريخ التعيين','حالة التأمين','النوع','تاريخ الميلاد','عدد المعالين','ملاحظات']];
             (STATE.hrEmployees||[]).forEach(function(e){rows.push([e.name||'',e.nationalId||'',e.department||'',hrDateOnly(e.hireDate),String(e.insuranceStatus)==='insured'?'مؤمن عليه':'غير مؤمن',e.gender||'',hrDateOnly(e.birthDate),e.dependentsCount||0,e.notes||'']);});
             var ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Employees');
-            XLSX.writeFile(wb,'SecurePath-Corporate-Employees.xlsx');
+            XLSX.writeFile(wb,'iNex-Corporate-Employees.xlsx');
         }
 
         function openHRDocumentModal(){
@@ -14302,14 +14331,14 @@ function hrT(key, vars) {
             function add(name, rows){XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),name);}
             add('Summary',[['البند','القيمة'],['السنة',report.year],['إجمالي الاستهلاك',report.totalSpend],['القسط',report.premium],['Loss Ratio',report.lossRatio===null?'':report.lossRatio/100],['عدد السجلات',report.records],['عدد الموظفين المستفيدين',report.uniqueEmployees],['عدد المؤمن عليهم',report.coveredLives||''],['متوسط قيمة السجل',report.averageClaim||''],['الاستهلاك لكل مؤمّن عليه',report.spendPerLife||''],['معدل الاستخدام',report.utilizationRate==null?'':report.utilizationRate/100]]);
             [['Department','حسب القسم',report.byDepartment],['Age','حسب العمر',report.byAge],['Gender','حسب النوع',report.byGender],['Service','الخدمة',report.byService],['Month','الشهر',report.byMonth],['Top Consumers','أعلى المستهلكين',report.topConsumers]].forEach(function(s){add(s[0],[['التصنيف','الاستهلاك']].concat((s[2]||[]).map(function(x){return [x.key,x.value];})));});
-            XLSX.writeFile(wb,'SecurePath-Corporate-Medical-Analysis-'+report.year+'.xlsx');
+            XLSX.writeFile(wb,'iNex-Corporate-Medical-Analysis-'+report.year+'.xlsx');
         }
 
         function pdfSection(title,html){return '<section style="margin:14px 0"><h2 style="font-size:15px;color:#0E2A5C;margin:0 0 7px">'+title+'</h2>'+html+'</section>';}
         function exportHRMedicalPDF(){
             var r=STATE.hrConsumption&&STATE.hrConsumption.report;if(!r){alert('أنشئ التقرير أولًا.');return;}
-            var html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>SecurePath — Medical Analysis</title><style>body{font-family:Arial,Tahoma,sans-serif;padding:28px;color:#25324A}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{border:1px solid #ddd;padding:7px;font-size:11px;text-align:right}th{background:#f4f6fa}h1{color:#0E2A5C;font-size:22px}small{color:#718096}</style></head><body>'+
-                '<h1>SecurePath — تقرير الاستهلاكات الطبية الجماعية</h1><small>'+esc(r.sourceName||'ملف الاستهلاك')+' · سنة '+esc(r.year)+'</small>'+
+            var html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>iNex — Medical Analysis</title><style>body{font-family:Arial,Tahoma,sans-serif;padding:28px;color:#25324A}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{border:1px solid #ddd;padding:7px;font-size:11px;text-align:right}th{background:#f4f6fa}h1{color:#0E2A5C;font-size:22px}small{color:#718096}</style></head><body>'+
+                '<h1>iNex — تقرير الاستهلاكات الطبية الجماعية</h1><small>'+esc(r.sourceName||'ملف الاستهلاك')+' · سنة '+esc(r.year)+'</small>'+
                 pdfSection('المؤشرات الأساسية','<table><tr><th>إجمالي الاستهلاك</th><th>القسط</th><th>Loss Ratio</th><th>الموظفون المستفيدون</th></tr><tr><td>'+formatHRMoney(r.totalSpend)+'</td><td>'+formatHRMoney(r.premium)+'</td><td>'+(r.lossRatio===null?'—':r.lossRatio.toFixed(1)+'%')+'</td><td>'+r.uniqueEmployees+'</td></tr></table>')+
                 pdfSection('حسب القسم',miniTable(r.byDepartment))+
                 pdfSection('حسب الفئة العمرية',miniTable(r.byAge))+
@@ -14522,7 +14551,7 @@ function hrT(key, vars) {
 
         function openWhatsApp() {
             var number = getBrokerWhatsappNumber(),
-                msg = STATE.language === 'ar' ? 'مرحباً، أريد الحصول على استشارة تأمينية من SecurePath' : 'Hello, I want to get insurance advice from SecurePath';
+                msg = STATE.language === 'ar' ? 'مرحباً، أريد الحصول على استشارة تأمينية من iNex' : 'Hello, I want to get insurance advice from iNex';
             window.open('https://api.whatsapp.com/send?phone=' + number + '&text=' + encodeURIComponent(msg), '_blank');
             if (STATE.currentUser) db.collection('activity').add({ clientId: STATE.currentUser.uid, action: 'whatsapp_click', description: msg, timestamp: firebase.firestore.FieldValue.serverTimestamp() }).catch(function() {});
             logLead('consultation', { message: msg });
@@ -14786,9 +14815,9 @@ function hrT(key, vars) {
         // ============================================================ //
         function shareAppLink() {
             var url = window.location.href.split('#')[0].split('?')[0];
-            var text = STATE.language === 'ar' ? 'حمّل تطبيق SecurePath لإدارة وثائقك التأمينية بسهولة' : 'Get the SecurePath app to manage your insurance policies easily';
+            var text = STATE.language === 'ar' ? 'حمّل تطبيق iNex لإدارة وثائقك التأمينية بسهولة' : 'Get the iNex app to manage your insurance policies easily';
             if (navigator.share) {
-                navigator.share({ title: 'SecurePath', text: text, url: url }).catch(function() {});
+                navigator.share({ title: 'iNex', text: text, url: url }).catch(function() {});
             } else if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(url).then(function() {
                     alert(STATE.language === 'ar' ? '✅ تم نسخ رابط التطبيق' : '✅ App link copied');
@@ -14962,7 +14991,6 @@ function hrT(key, vars) {
             loginTitle: 'loginTitle',
             loginEmailLabel: 'loginEmailLabel',
             loginPassLabel: 'loginPassLabel',
-            loginTagline: 'loginTagline',
             loginBtn: 'loginBtn',
             signupTitle: 'signupTitle',
             signupLangLabel: 'signupLangLabel',
@@ -17163,7 +17191,6 @@ html[dir="rtl"] .hr-screen .hr-back-btn svg{transform:rotate(180deg)}
 /* ============================================================
    HR HUB v3 — Executive Insurance Cockpit & visual cleanup
    ============================================================ */
-#home .corporate-hr-entry{display:none!important}
 #home .hr-home-quick{position:relative;overflow:hidden;justify-content:center;min-height:82px;border-radius:15px!important;background:linear-gradient(145deg,#092752 0%,#123f7f 72%,#0d315f 100%)!important;border:1px solid rgba(242,189,99,.55)!important;box-shadow:0 9px 22px rgba(9,39,82,.18)!important}
 #home .hr-home-quick::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(242,189,99,.12),transparent 42%);pointer-events:none}
 #home .hr-home-quick .qicon.hr-home-icon{position:relative;z-index:1;width:39px;height:39px;border-radius:12px;background:rgba(242,189,99,.14);border:1px solid rgba(242,189,99,.5);color:#f2bd63}
@@ -17234,7 +17261,6 @@ html.dark-mode .hr-intel-score{color:var(--gold)}
 /* ============================================================
    HR HUB v3 — Executive Insurance Cockpit & visual cleanup
    ============================================================ */
-#home .corporate-hr-entry{display:none!important}
 #home .hr-home-quick{position:relative;overflow:hidden;justify-content:center;min-height:82px;border-radius:15px!important;background:linear-gradient(145deg,#092752 0%,#123f7f 72%,#0d315f 100%)!important;border:1px solid rgba(242,189,99,.55)!important;box-shadow:0 9px 22px rgba(9,39,82,.18)!important}
 #home .hr-home-quick::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(242,189,99,.12),transparent 42%);pointer-events:none}
 #home .hr-home-quick .qicon.hr-home-icon{position:relative;z-index:1;width:39px;height:39px;border-radius:12px;background:rgba(242,189,99,.14);border:1px solid rgba(242,189,99,.5);color:#f2bd63}
@@ -17582,10 +17608,10 @@ html.dark-mode .navbar .nav-item.on .nav-icon .app-icon,html.dark-mode .navbar .
         var rows=[['Insurance Portfolio Audit'],['Metric','Value'],['Total Policies',m.policies.length],['Active Policies',m.active],['Expired Policies',m.expired],['Renewal <=30d',m.r30],['Renewal 31-60d',m.r60],['Renewal 61-90d',m.r90],['Premium',m.premium],['Loss Ratio',m.lossRatio===null?'':m.lossRatio],['Data Quality %',m.quality],['Document Completeness %',m.docCompleteness],['Protection Score %',m.protection],[],['Policy Type','Insurer','Policy Number','Start','End','Days Left','Premium','Data Quality %','Risk Score']];
         m.policies.forEach(function(p){rows.push([getPolicyType(p),getInsurer(p),getPolicyNo(p),dateOnly(getStart(p)),dateOnly(getEnd(p)),daysLeft(getEnd(p))===null?'':daysLeft(getEnd(p)),getPremium(p)===null?'':getPremium(p),policyDataQuality(p),policyRisk(p)]);});
         if(typeof XLSX!=='undefined'){
-            var ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Insurance Audit');XLSX.writeFile(wb,'SecurePath-HR-Insurance-Audit.xlsx');
+            var ws=XLSX.utils.aoa_to_sheet(rows), wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Insurance Audit');XLSX.writeFile(wb,'iNex-HR-Insurance-Audit.xlsx');
         }else{
             var csv=rows.map(function(r){return r.map(function(v){var x=String(v==null?'':v).replace(/"/g,'""');return '"'+x+'"';}).join(',');}).join('\n');
-            var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}), url=URL.createObjectURL(blob), a=document.createElement('a');a.href=url;a.download='SecurePath-HR-Insurance-Audit.csv';a.click();setTimeout(function(){URL.revokeObjectURL(url);},500);
+            var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}), url=URL.createObjectURL(blob), a=document.createElement('a');a.href=url;a.download='iNex-HR-Insurance-Audit.csv';a.click();setTimeout(function(){URL.revokeObjectURL(url);},500);
         }
     }
     window.renderHRInsuranceAnalytics=renderHRInsuranceAnalytics;
