@@ -1299,6 +1299,7 @@ async function handleHRMedicalAIAnalysis(env, uid, data) {
   const language = data?.language === 'en' ? 'en' : 'ar';
   const safeReport = {
     year: Math.min(2200, Math.max(2000, Math.trunc(hrAiNumber(input.year, 2200) || new Date().getFullYear()))),
+    insuranceType: ['medical', 'motor', 'life'].includes(input.insuranceType) ? input.insuranceType : 'unknown',
     totalSpend: hrAiNumber(input.totalSpend),
     premium: hrAiNumber(input.premium),
     lossRatio: input.lossRatio == null ? null : hrAiNumber(input.lossRatio, 10000),
@@ -1322,8 +1323,8 @@ async function handleHRMedicalAIAnalysis(env, uid, data) {
   enforceHRAnalysisLimit(uid);
 
   const prompt = language === 'en'
-    ? 'Analyze this de-identified, aggregate employer health-benefit utilization summary. Return JSON only with keys summary (string), findings (array of 3-5 concise strings), actions (array of 3-5 practical HR/benefit-management actions), and caveats (array of up to 3 strings). Explain loss ratio and trends, distinguish evidence from hypotheses, never infer an individual diagnosis, and do not give medical, insurance-coverage, or legal advice. Departments are anonymous codes; refer to codes exactly. Do not invent missing data. Input: '
-    : 'حلّل ملخص الاستهلاك التأميني المجمع والمجهّل. أعد JSON فقط بالمفاتيح summary (نص)، findings (مصفوفة من 3 إلى 5 ملاحظات موجزة)، actions (مصفوفة من 3 إلى 5 إجراءات عملية لإدارة الموارد البشرية والمزايا)، وcaveats (مصفوفة حتى 3 تنبيهات عن حدود البيانات). فسّر نسبة الاستهلاك والاتجاهات، وميّز الحقائق عن الفرضيات. لا تستنتج تشخيصًا لأي فرد، ولا تقدم نصيحة طبية أو قانونية أو حكمًا نهائيًا بشأن التغطية. الأقسام رموز مجهولة؛ استخدم الرموز كما هي. لا تخترع بيانات ناقصة. الملخص: ';
+    ? 'Analyze this de-identified, aggregate insurance utilization summary. The insurance type is explicitly classified as medical, motor, life, or unknown; tailor the interpretation to that type and do not treat non-medical claims as health diagnoses. Return JSON only with keys summary (string), findings (array of 3-5 concise strings), actions (array of 3-5 practical HR/benefit-management actions), and caveats (array of up to 3 strings). Explain ratios and trends, distinguish evidence from hypotheses, never infer an individual diagnosis, and do not give medical, insurance-coverage, or legal advice. Only categories passing the minimum-group threshold are included. Do not invent missing data. Input: '
+    : 'حلّل ملخص الاستهلاك التأميني المجمع والمجهّل. نوع التأمين مصنف صراحةً إلى طبي أو مركبات أو حياة أو غير محدد؛ خصّص قراءة المؤشرات لهذا النوع ولا تفسر مطالبات غير طبية على أنها تشخيصات صحية. أعد JSON فقط بالمفاتيح summary (نص)، findings (مصفوفة من 3 إلى 5 ملاحظات موجزة)، actions (مصفوفة من 3 إلى 5 إجراءات عملية لإدارة الموارد البشرية والمزايا)، وcaveats (مصفوفة حتى 3 تنبيهات عن حدود البيانات). فسّر النسب والاتجاهات، وميّز الحقائق عن الفرضيات. لا تستنتج تشخيصًا لأي فرد، ولا تقدم نصيحة طبية أو قانونية أو حكمًا نهائيًا بشأن التغطية. لا تُدرج إلا التصنيفات التي اجتازت حد تجميع الخصوصية. لا تخترع بيانات ناقصة. الملخص: ';
 
   const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', {
     method: 'POST',

@@ -7965,10 +7965,10 @@ html.dark-mode .hr-control-value{color:var(--gold)}
 
                 <div class="hr-section-card hr-ai-card" id="hrAIAnalysisCard" style="display:none">
                     <div class="hr-section-head">
-                        <div><h3 class="hr-section-title" data-hr-t="hrAITitle">تقرير ذكي لإدارة الاستهلاكات</h3><p class="hr-section-sub" data-hr-t="hrAISubtitle">تحليل الاتجاهات ومؤشرات التكلفة واقتراح خطوات عملية من الملخص المجمع.</p></div>
+                        <div><h3 class="hr-section-title" data-hr-t="hrAITitle">تحليل تلقائي لإدارة الاستهلاكات</h3><p class="hr-section-sub" data-hr-t="hrAISubtitle">يُنشأ التقرير فور قراءة الملف ومطابقة أعمدته، دون إرسال بياناته إلى خدمة خارجية.</p></div>
                     </div>
-                    <label class="hr-ai-consent"><input id="hrAIConsent" type="checkbox"><span data-hr-t="hrAIConsent">أوافق على إرسال المؤشرات المجمعة والمجهّلة إلى Google Gemini لإعداد التقرير. لن يُرسل الملف الخام أو أسماء الموظفين أو أرقامهم القومية. قد تستخدم الخدمة المجانية المدخلات لتحسين منتجات Google.</span></label>
-                    <div class="hr-action-row"><button class="btn-gold-small" id="hrAIGenerateBtn" onclick="generateHRConsumptionAIReport()" data-hr-t="hrAIGenerate">إنشاء التقرير الذكي</button><span class="hr-small-note" data-hr-t="hrAIPrivacyNote">الأقسام الحساسة التي تضم أقل من 5 أشخاص تُحجب عن التحليل الخارجي.</span></div>
+                    <div class="hr-privacy" data-hr-t="hrAIOptInDisclosure">لإنشاء تقارير Gemini تلقائيًا، فعّل الميزة مرة واحدة للشركة. يرسل التطبيق مؤشرات مجمعة فقط؛ لا يرسل الملف الخام أو أسماء الموظفين أو أرقامهم القومية. قد تنطبق شروط استخدام Google على البيانات المرسلة.</div>
+                    <div class="hr-action-row"><button class="btn-gold-small" id="hrAIEnableBtn" onclick="enableHRAutomaticAI()" data-hr-t="hrAIEnable">تفعيل التقارير الذكية التلقائية للشركة</button><span class="hr-small-note" id="hrAIStatus" role="status" aria-live="polite"></span></div>
                     <div class="hr-ai-result" id="hrAIResult" hidden></div>
                 </div>
 
@@ -9507,21 +9507,22 @@ var HR_TRANSLATIONS = {
         hrConsReportYoY: 'مقارنة سنة بسنة',
         hrConsReportPrivacy: 'تعرض هذه اللوحة مؤشرات مجمعة فقط. لا تظهر أسماء الموظفين أو قيم استهلاكهم الفردية، ولا تُحفظ صفوف ملف المطالبات الخام ضمن التقرير.',
         hrConsIndividualDataHidden: 'تم إخفاء بيانات الاستهلاك الفردية. استخدم المؤشرات المجمعة حسب القسم والفئة العمرية والخدمة لحماية الخصوصية.',
-        hrAITitle: 'تقرير ذكي لإدارة الاستهلاكات',
-        hrAISubtitle: 'تحليل الاتجاهات ومؤشرات التكلفة واقتراح خطوات عملية من الملخص المجمع.',
-        hrAIConsent: 'أوافق على إرسال المؤشرات المجمعة والمجهّلة إلى Google Gemini لإعداد التقرير. لن يُرسل الملف الخام أو أسماء الموظفين أو أرقامهم القومية. قد تستخدم الخدمة المجانية المدخلات لتحسين منتجات Google.',
-        hrAIPrivacyNote: 'الأقسام الحساسة التي تضم أقل من 5 أشخاص تُحجب عن التحليل الخارجي.',
-        hrAIGenerate: '✦ إنشاء التقرير الذكي',
-        hrAIGenerating: 'جارٍ إعداد التقرير…',
+        hrAITitle: 'تحليل تلقائي لإدارة الاستهلاكات',
+        hrAISubtitle: 'يُنشأ التقرير تلقائيًا بواسطة Gemini بعد تحليل الملف، عند تفعيل الخدمة للشركة.',
+        hrAIOptInDisclosure: 'لإنشاء تقارير Gemini تلقائيًا، فعّل الميزة مرة واحدة للشركة. يرسل التطبيق مؤشرات مجمعة فقط؛ لا يرسل الملف الخام أو أسماء الموظفين أو أرقامهم القومية. قد تنطبق شروط استخدام Google على البيانات المرسلة.',
+        hrAIEnable: 'تفعيل التقارير الذكية التلقائية للشركة',
+        hrAlertCompanyMissing: 'تعذر تحديد الشركة المرتبطة بحسابك.',
+        hrAIEnabled: 'التقارير الذكية مفعلة. سيُنشأ التقرير تلقائيًا بعد تحليل كل ملف.',
+        hrAIMinimumData: 'لا تتوفر بيانات مجمعة كافية لتحليل Gemini؛ يلزم خمسة مستفيدين معروفين على الأقل. يعرض التقرير التحليل المحلي.',
+        hrAIGenerating: 'جارٍ إعداد التقرير الذكي…',
+        hrAIRetry: 'إعادة محاولة إنشاء التقرير',
+        hrAIEnableFailed: 'تعذر تفعيل التقارير الذكية: {msg}',
+        hrAIGenerationFailed: 'تعذر إنشاء التقرير بواسطة Gemini؛ يعرض التقرير التحليل المحلي. {msg}',
         hrAISummary: 'الملخص التنفيذي',
         hrAIFindings: 'أبرز المؤشرات',
         hrAIActions: 'خطوات مقترحة',
         hrAICaveats: 'حدود التحليل',
         hrAIDepartmentLegend: 'رموز الأقسام في هذا التقرير',
-        hrAIConsentRequired: 'وافق على مشاركة الملخص المجهّل أولًا لتشغيل التحليل الذكي.',
-        hrAIReportRequired: 'حمّل ملف الاستهلاك وطابق الأعمدة وشغّل التحليل المحلي أولًا.',
-        hrAIAnalysisFailed: 'تعذر إعداد التقرير الذكي: {msg}',
-        hrAIConfigMissing: 'خدمة التحليل الذكي غير مهيأة بعد. يلزم إعداد مفتاح Gemini في Cloudflare.',
         hrConsHistoryTitle: 'سجل التقارير المحفوظة',
         hrConsHistoryEmptyTitle: 'لا توجد تقارير محفوظة',
         hrConsHistoryEmptyText: 'بعد حفظ أول تحليل سيظهر هنا السجل التاريخي للمقارنة سنة بسنة.',
@@ -9711,6 +9712,8 @@ var HR_TRANSLATIONS = {
         hrMapFieldAge: 'العمر',
         hrMapFieldBirthDate: 'تاريخ الميلاد',
         hrMapFieldNationalId: 'الرقم القومي',
+        hrMapFieldInsurer: 'شركة التأمين',
+        hrMapFieldPlan: 'اسم الخطة/الفئة',
         hrMapUnused: 'غير مستخدم',
         hrMapColumn: 'عمود {n}',
         hrMapNote: 'تم العثور على <b>{cols}</b> أعمدة و<b>{rows}</b> صفوف تقريبًا. راجع المطابقة قبل التحليل. سيتم حفظ القالب محليًا لهذا الحساب.',
@@ -9878,21 +9881,22 @@ var HR_TRANSLATIONS = {
         hrConsReportYoY: 'Year-over-Year Comparison',
         hrConsReportPrivacy: 'This dashboard shows aggregated indicators only. Employee names and individual spend are hidden, and raw claim rows are not saved with the report.',
         hrConsIndividualDataHidden: 'Individual claim amounts are hidden. Use department, age-group and service summaries to protect privacy.',
-        hrAITitle: 'AI utilization management report',
-        hrAISubtitle: 'Analyze trends and cost indicators, then suggest practical next steps from the aggregate summary.',
-        hrAIConsent: 'I agree to send de-identified aggregate indicators to Google Gemini to prepare this report. The raw file, employee names, and national IDs will not be sent. The free service may use submitted content to improve Google products.',
-        hrAIPrivacyNote: 'Sensitive groups with fewer than 5 people are excluded from external analysis.',
-        hrAIGenerate: '✦ Generate AI report',
-        hrAIGenerating: 'Preparing report…',
+        hrAITitle: 'Automatic utilization analysis',
+        hrAISubtitle: 'Gemini automatically generates the report after file analysis when the service is enabled for the company.',
+        hrAIOptInDisclosure: 'Enable automatic Gemini reports once for the company. Only aggregate indicators are sent; the raw file, employee names, and national IDs are not. Google terms may apply to submitted data.',
+        hrAIEnable: 'Enable automatic AI reports for this company',
+        hrAlertCompanyMissing: 'Could not identify the company linked to your account.',
+        hrAIEnabled: 'AI reports are enabled. A report will be generated automatically after each file analysis.',
+        hrAIMinimumData: 'There is not enough aggregate data for Gemini analysis. At least five identifiable members are required. The local report is shown.',
+        hrAIGenerating: 'Generating AI report…',
+        hrAIRetry: 'Retry AI report',
+        hrAIEnableFailed: 'Could not enable AI reports: {msg}',
+        hrAIGenerationFailed: 'Gemini could not generate the report; the local analysis remains visible. {msg}',
         hrAISummary: 'Executive summary',
         hrAIFindings: 'Key findings',
         hrAIActions: 'Suggested actions',
         hrAICaveats: 'Analysis limitations',
         hrAIDepartmentLegend: 'Department codes used in this report',
-        hrAIConsentRequired: 'Please consent to share the de-identified summary before running AI analysis.',
-        hrAIReportRequired: 'Upload the consumption file, map its columns, and run local analysis first.',
-        hrAIAnalysisFailed: 'Could not prepare the AI report: {msg}',
-        hrAIConfigMissing: 'AI analysis is not configured yet. A Gemini key must be set in Cloudflare.',
         hrConsHistoryTitle: 'Saved Reports Log',
         hrConsHistoryEmptyTitle: 'No saved reports',
         hrConsHistoryEmptyText: 'After saving the first analysis, the historical log for year-over-year comparison will appear here.',
@@ -10082,6 +10086,8 @@ var HR_TRANSLATIONS = {
         hrMapFieldAge: 'Age',
         hrMapFieldBirthDate: 'Date of Birth',
         hrMapFieldNationalId: 'National ID',
+        hrMapFieldInsurer: 'Insurance Company',
+        hrMapFieldPlan: 'Plan / Class',
         hrMapUnused: 'Unused',
         hrMapColumn: 'Column {n}',
         hrMapNote: 'Found <b>{cols}</b> columns and approximately <b>{rows}</b> rows. Review the mapping before analysis. Template will be saved locally for this account.',
@@ -14531,26 +14537,46 @@ function hrT(key, vars) {
                 gender:['النوع','gender','sex'],
                 age:['العمر','age'],
                 birthDate:['تاريخ الميلاد','birth date','dob','date of birth'],
-                nationalId:['الرقم القومي','national id','member id','employee id']
+                nationalId:['الرقم القومي','national id','member id','employee id'],
+                insurer:['شركة التأمين','اسم شركة التأمين','insurance company','insurer','carrier'],
+                plan:['اسم الخطة','الفئة التأمينية','الخطة','plan name','plan','class','policy type']
             };
             var out={};
             Object.keys(aliases).forEach(function(k){out[k]=findHeader(headers,aliases[k]);});
             return out;
         }
 
+        function detectHRInsuranceProfile(fileName,headers,rows){
+            function valuesAt(index){
+                if(index<0||index==null)return [];
+                return Array.from(new Set((rows||[]).slice(0,200).map(function(row){return String(row&&row[index]||'').trim();}).filter(function(value){return value&&value.length<100;}))).slice(0,3);
+            }
+            var typeIndex=findHeader(headers,['نوع التأمين','نوع الوثيقة','insurance type','coverage type','line of business']);
+            var typeValues=valuesAt(typeIndex);
+            var corpus=[fileName].concat(headers||[],typeValues).join(' ').toLowerCase();
+            var type=/تأمين سيارات|سيارات|\bmotor\b|\bvehicle\b|\bauto\b|\bcar insurance\b/.test(corpus)?'motor':
+                (/تأمين حياة|حياة|\blife insurance\b|\blife policy\b/.test(corpus)?'life':
+                (/تأمين طبي|طبي جماعي|مطالبات طبية|خدمات طبية|medical|health|hospital|clinic|pharmacy|doctor|مستشفى|صيدلية/.test(corpus)?'medical':'unknown'));
+            var insurerIndex=findHeader(headers,['شركة التأمين','اسم شركة التأمين','insurance company','insurer','carrier']);
+            var planIndex=findHeader(headers,['اسم الخطة','الفئة التأمينية','الخطة','plan name','plan','class','policy type']);
+            return {type:type,insurers:valuesAt(insurerIndex),plans:valuesAt(planIndex),typeValues:typeValues};
+        }
+
         function renderHRMappingUI(){
             var grid=document.getElementById('hrMappingGrid'), note=document.getElementById('hrMappingNote');
             if(!grid)return;
-            var h=STATE.hrConsumption&&STATE.hrConsumption.headers||[], detected=STATE.hrConsumption&&STATE.hrConsumption.detected||{}, labels={date:hrT('hrMapFieldDate'),amount:hrT('hrMapFieldAmount'),employee:hrT('hrMapFieldEmployee'),service:hrT('hrMapFieldService'),department:hrT('hrMapFieldDepartment'),gender:hrT('hrMapFieldGender'),age:hrT('hrMapFieldAge'),birthDate:hrT('hrMapFieldBirthDate'),nationalId:hrT('hrMapFieldNationalId')};
+            var h=STATE.hrConsumption&&STATE.hrConsumption.headers||[], detected=STATE.hrConsumption&&STATE.hrConsumption.detected||{}, labels={date:hrT('hrMapFieldDate'),amount:hrT('hrMapFieldAmount'),employee:hrT('hrMapFieldEmployee'),service:hrT('hrMapFieldService'),department:hrT('hrMapFieldDepartment'),gender:hrT('hrMapFieldGender'),age:hrT('hrMapFieldAge'),birthDate:hrT('hrMapFieldBirthDate'),nationalId:hrT('hrMapFieldNationalId'),insurer:hrT('hrMapFieldInsurer'),plan:hrT('hrMapFieldPlan')};
             grid.innerHTML=Object.keys(labels).map(function(k){
                 var opts='<option value="-1">'+hrT('hrMapUnused')+'</option>'+h.map(function(x,i){return '<option value="'+i+'" '+(String(detected[k])===String(i)?'selected':'')+'>'+esc(String(x||(hrT('hrMapColumn',{n:i+1}))))+'</option>';}).join('');
-                return '<div class="field"><label>'+labels[k]+(k==='date'||k==='amount'||k==='employee'?' *':'')+'</label><select data-hr-map="'+k+'">'+opts+'</select></div>';
+                return '<div class="field"><label>'+labels[k]+(k==='amount'?' *':'')+'</label><select data-hr-map="'+k+'">'+opts+'</select></div>';
             }).join('');
             var saved=loadSavedHRMapping();
-            if(saved)Object.keys(saved).forEach(function(k){var el=grid.querySelector('[data-hr-map="'+k+'"]');if(el&&h[saved[k]]!==undefined)el.value=saved[k];});
+            if(saved&&saved.headerSignature===hrConsumptionHeaderSignature(h))Object.keys(saved).forEach(function(k){var el=grid.querySelector('[data-hr-map="'+k+'"]');if(el&&h[saved[k]]!==undefined)el.value=saved[k];});
             if(note)note.innerHTML='تم العثور على <b>'+h.length+'</b> أعمدة و<b> '+((STATE.hrConsumption&&STATE.hrConsumption.matrix||[]).length)+'</b> صفوف تقريبًا. راجع المطابقة قبل التحليل. سيتم حفظ القالب محليًا لهذا الحساب.';
             var card=document.getElementById('hrMappingCard');if(card)card.classList.add('show');
         }
+
+        function hrConsumptionHeaderSignature(headers){return (headers||[]).map(function(x){return String(x||'').trim().toLowerCase();}).join('|');}
 
         function groupHRSpend(items,keyFn){
             var map={};
@@ -14635,8 +14661,17 @@ function hrT(key, vars) {
 
         function buildHRMedicalReport(rows){
             var agg=aggregateHRRows(rows), premium=parseHRNumber((document.getElementById('hrConsumptionPremium')||{}).value);
-            var year=parseInt((document.getElementById('hrConsumptionYear')||{}).value||new Date().getFullYear(),10)||new Date().getFullYear();
+            var datedRows=rows.map(function(row){return parseHRDate(row.date);}).filter(Boolean).sort(function(a,b){return a-b;});
+            var inferredYear=datedRows.length?datedRows[datedRows.length-1].getFullYear():new Date().getFullYear();
+            var year=datedRows.length?inferredYear:(parseInt((document.getElementById('hrConsumptionYear')||{}).value||inferredYear,10)||inferredYear);
             var threshold=parseHRNumber((document.getElementById('hrLossThreshold')||{}).value)||HR_LOSS_RATIO_ALERT_DEFAULT;
+            var profile=STATE.hrConsumption&&STATE.hrConsumption.profile||{type:'unknown',insurers:[],plans:[]};
+            if(datedRows.length){
+                var start=document.getElementById('hrConsumptionStart'),end=document.getElementById('hrConsumptionEnd');
+                if(start)start.value=datedRows[0].toISOString().slice(0,10);
+                if(end)end.value=datedRows[datedRows.length-1].toISOString().slice(0,10);
+                var yearInput=document.getElementById('hrConsumptionYear');if(yearInput)yearInput.value=inferredYear;
+            }
             var report=Object.assign({
                 year:year,
                 premium:premium,
@@ -14647,6 +14682,7 @@ function hrT(key, vars) {
                 threshold:threshold,
                 sourceType:STATE.hrConsumption&&STATE.hrConsumption.sourceType||'unknown',
                 sourceName:STATE.hrConsumption&&STATE.hrConsumption.sourceName||'',
+                insuranceType:profile.type||'unknown',insuranceTypeDetails:profile.typeValues||[],insurers:profile.insurers||[],plans:profile.plans||[],
                 notes:String((document.getElementById('hrConsumptionNotes')||{}).value||'').trim(),
                 createdAt:new Date().toISOString()
             },agg);
@@ -14658,7 +14694,9 @@ function hrT(key, vars) {
             if(!report)return;
             var card=document.getElementById('hrMedicalReportCard');if(card)card.style.display='block';
             var aiCard=document.getElementById('hrAIAnalysisCard');if(aiCard)aiCard.style.display='block';
-            var meta=document.getElementById('hrReportMeta');if(meta)meta.textContent=(report.sourceName||hrT('hrConsFileFallback'))+' · '+report.year+' · '+report.records+' '+hrT('hrConsRecordsUnit')+(report.periodStart&&report.periodEnd?' · '+report.periodStart+' → '+report.periodEnd:'');
+            var insuranceLabel=report.insuranceType==='medical'?(STATE.language==='en'?'Group medical':'تأمين طبي جماعي'):report.insuranceType==='motor'?(STATE.language==='en'?'Motor insurance':'تأمين مركبات'):report.insuranceType==='life'?(STATE.language==='en'?'Life insurance':'تأمين حياة'):(STATE.language==='en'?'Type not identified':'النوع غير محدد');
+            var insurerLabel=(report.insurers||[]).join(STATE.language==='en'?', ':'، '),planLabel=(report.plans||[]).join(STATE.language==='en'?', ':'، '),typeDetail=(report.insuranceTypeDetails||[]).join(STATE.language==='en'?', ':'، ');
+            var meta=document.getElementById('hrReportMeta');if(meta)meta.textContent=(report.sourceName||hrT('hrConsFileFallback'))+' · '+(typeDetail||insuranceLabel)+(insurerLabel?' · '+insurerLabel:'')+(planLabel?' · '+planLabel:'')+' · '+report.year+' · '+report.records+' '+hrT('hrConsRecordsUnit')+(report.periodStart&&report.periodEnd?' · '+report.periodStart+' → '+report.periodEnd:'');
             var metrics=document.getElementById('hrReportMetrics');
             if(metrics)metrics.innerHTML=[
                 [hrT('hrConsMetricTotalSpend'),formatHRMoney(report.totalSpend)],
@@ -14683,96 +14721,162 @@ function hrT(key, vars) {
             var prev=(STATE.hrMedicalReports||[]).find(function(x){return Number(x.year)===Number(report.year)-1;});
             if(yoy)yoy.innerHTML=prev?'<div class="hr-privacy">'+hrT('hrConsYoYCompare',{year:report.year,curr:formatHRMoney(report.totalSpend),prev:prev.year,prevAmt:formatHRMoney(prev.totalSpend),change:(prev.totalSpend?((report.totalSpend-prev.totalSpend)/prev.totalSpend*100):0).toFixed(1)})+'</div>':'<div class="hr-small-note">'+hrT('hrConsNoPrevYear',{year:Number(report.year)-1})+'</div>';
             updateHRMedicalHeadline();
+            generateHRLocalConsumptionReport(report);
+            maybeGenerateHRGeminiReport(report);
         }
 
         async function applyHRConsumptionMapping(){
             var c=STATE.hrConsumption;if(!c)return;
             var selects=document.querySelectorAll('[data-hr-map]'), mapping={};
             selects.forEach(function(s){mapping[s.getAttribute('data-hr-map')]=parseInt(s.value,10);});
-            ['date','amount'].forEach(function(k){if(mapping[k]===undefined||mapping[k]<0)throw new Error(hrT('hrAlertMappingRequired',{field:hrT('hrMapField'+k.charAt(0).toUpperCase()+k.slice(1))}));});
-            saveHRMappingLocal(mapping);
+            ['amount'].forEach(function(k){if(mapping[k]===undefined||mapping[k]<0)throw new Error(hrT('hrAlertMappingRequired',{field:hrT('hrMapField'+k.charAt(0).toUpperCase()+k.slice(1))}));});
+            saveHRMappingLocal(Object.assign({},mapping,{headerSignature:hrConsumptionHeaderSignature(c.headers)}));
             if(STATE.hrCompany){
                 db.collection('corporateCompanies').doc(STATE.hrCompany.companyId).set({consumptionMapping:mapping,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true}).catch(function(e){console.warn('mapping template save failed',e);});
             }
             var rows=[];
             if(c.rowsObjects){ rows=c.rowsObjects.map(function(row){
-                return {date:row[mapping.date],amount:row[mapping.amount],employee:row[mapping.employee],service:mapping.service>=0?row[mapping.service]:'',department:mapping.department>=0?row[mapping.department]:'',gender:mapping.gender>=0?row[mapping.gender]:'',age:mapping.age>=0?row[mapping.age]:'',birthDate:mapping.birthDate>=0?row[mapping.birthDate]:'',nationalId:mapping.nationalId>=0?row[mapping.nationalId]:''};
+                return {date:mapping.date>=0?row[mapping.date]:'',amount:row[mapping.amount],employee:mapping.employee>=0?row[mapping.employee]:'',service:mapping.service>=0?row[mapping.service]:'',department:mapping.department>=0?row[mapping.department]:'',gender:mapping.gender>=0?row[mapping.gender]:'',age:mapping.age>=0?row[mapping.age]:'',birthDate:mapping.birthDate>=0?row[mapping.birthDate]:'',nationalId:mapping.nationalId>=0?row[mapping.nationalId]:'',insurer:mapping.insurer>=0?row[mapping.insurer]:'',plan:mapping.plan>=0?row[mapping.plan]:''};
             });}
-            else if(c.matrix){ rows=c.matrix.slice(1).map(function(row){return {date:row[mapping.date],amount:row[mapping.amount],employee:row[mapping.employee],service:mapping.service>=0?row[mapping.service]:'',department:mapping.department>=0?row[mapping.department]:'',gender:mapping.gender>=0?row[mapping.gender]:'',age:mapping.age>=0?row[mapping.age]:'',birthDate:mapping.birthDate>=0?row[mapping.birthDate]:'',nationalId:mapping.nationalId>=0?row[mapping.nationalId]:''};});}
+            else if(c.matrix){ rows=c.matrix.slice(1).map(function(row){return {date:mapping.date>=0?row[mapping.date]:'',amount:row[mapping.amount],employee:mapping.employee>=0?row[mapping.employee]:'',service:mapping.service>=0?row[mapping.service]:'',department:mapping.department>=0?row[mapping.department]:'',gender:mapping.gender>=0?row[mapping.gender]:'',age:mapping.age>=0?row[mapping.age]:'',birthDate:mapping.birthDate>=0?row[mapping.birthDate]:'',nationalId:mapping.nationalId>=0?row[mapping.nationalId]:'',insurer:mapping.insurer>=0?row[mapping.insurer]:'',plan:mapping.plan>=0?row[mapping.plan]:''};});}
             var report=buildHRMedicalReport(rows);
             c.mapping=mapping;c.analysisRows=rows;c.report=report;
             renderHRMedicalReport(report);
             var mapCard=document.getElementById('hrMappingCard');if(mapCard)mapCard.classList.remove('show');
         }
 
-        function buildHRAnonymizedAIInput(report){
-            var source=(STATE.hrConsumption&&STATE.hrConsumption.analysisRows)||[];
-            var suppressed=[],departmentCodes={};
-            function collect(keyFn){
-                var groups={};
-                source.forEach(function(row){
-                    var key=String(keyFn(row)||'Unspecified'), amount=parseHRNumber(row.amount);
-                    var group=groups[key]||(groups[key]={amount:0,people:{},unknownPeople:false});
-                    group.amount+=amount;
-                    var identity=String(row.employeeId||row.nationalId||row.employee||'').trim().toLowerCase();
-                    if(identity&&identity!=='غير محدد'&&identity!=='unspecified')group.people[identity]=1;
-                    else group.unknownPeople=true;
-                });
-                return Object.keys(groups).map(function(key){return {key:key,amount:groups[key].amount,people:Object.keys(groups[key].people).length,unknownPeople:groups[key].unknownPeople};}).sort(function(a,b){return b.amount-a.amount;});
-            }
-            function protectedGroups(name, groups, labelFn){
-                if(!groups.length||groups.some(function(group){return group.people<5||group.unknownPeople;})){suppressed.push(name);return [];}
-                return groups.map(function(group,index){return {label:labelFn(group.key,index),amount:Math.round(group.amount*100)/100,share:report.totalSpend?Math.round(group.amount/report.totalSpend*10000)/100:0};});
-            }
-            var employeeLookup=hrEmployeeLookup();
-            function matchedEmployee(row){return employeeLookup[String(row.employee||'').trim().toLowerCase()]||employeeLookup[String(row.nationalId||'').trim().toLowerCase()]||null;}
-            var deptGroups=collect(function(row){var emp=matchedEmployee(row);return String(row.department||(emp&&emp.department)||'').trim()||'غير محدد';});
-            var safeDepartments=protectedGroups('department',deptGroups,function(name,index){var code='D'+(index+1);departmentCodes[code]=name;return code;});
-            // Add the code after stable sorting, without sending department names externally.
-            safeDepartments=safeDepartments.map(function(group,index){return {code:'D'+(index+1),amount:group.amount,share:group.share};});
-
-            var serviceMap={'أسنان':'Dental','أدوية':'Pharmacy','عمليات':'Surgery','تحاليل':'Laboratory','أشعة':'Radiology','كشف/عيادات':'Clinic','طوارئ':'Emergency','علاج طبيعي':'Physiotherapy','غير محدد':'Unspecified'};
-            var byService=protectedGroups('service',collect(function(row){return serviceMap[inferHRService(row.service)]||'Other';}),function(key){return key;});
-            var ageMap={'أقل من 18':'Under 18','18–25':'18-25','26–35':'26-35','36–45':'36-45','46–55':'46-55','56+':'56+','غير محدد':'Unspecified'};
-            var byAge=protectedGroups('age',collect(function(row){var date=parseHRDate(row.date),emp=matchedEmployee(row),birth=row.birthDate||(emp&&emp.birthDate),age=(row.age!==''&&row.age!=null)?parseHRNumber(row.age):calculateHRAge(birth,date||new Date());return ageMap[inferHRAgeGroup(age)]||'Unspecified';}),function(key){return key;});
-            var byGender=protectedGroups('gender',collect(function(row){var emp=matchedEmployee(row),value=String(row.gender||(emp&&emp.gender)||'').trim().toLowerCase();if(/^(male|ذكر|مذكر|رجل)$/.test(value))return'Male';if(/^(female|أنثى|انثى|مؤنث|امرأة)$/.test(value))return'Female';return'Unspecified';}),function(key){return key;});
-            var byMonth=protectedGroups('month',collect(function(row){var date=parseHRDate(row.date);return date?date.toISOString().slice(0,7):'Unspecified';}),function(key){return key;})
-                .filter(function(item){return /^20\d{2}-(0[1-9]|1[0-2])$/.test(item.label);})
-                .map(function(item){return {month:item.label,amount:item.amount,share:item.share};});
-            return {
-                departmentCodes:departmentCodes,
-                report:{year:report.year,totalSpend:report.totalSpend,premium:report.premium,lossRatio:report.lossRatio,records:report.records,validRecords:report.validRecords,uniqueEmployees:report.uniqueEmployees,coveredLives:report.coveredLives,averageClaim:report.averageClaim,spendPerLife:report.spendPerLife,utilizationRate:report.utilizationRate,byService:byService,byAge:byAge,byGender:byGender,byDepartment:safeDepartments,byMonth:byMonth,suppressedDimensions:Array.from(new Set(suppressed))}
-            };
-        }
-
-        function renderHRConsumptionAIResult(analysis,departmentCodes){
+        function renderHRLocalAnalysisResult(analysis){
             var result=document.getElementById('hrAIResult');if(!result)return;
             function list(title,items){return items&&items.length?'<h4>'+esc(title)+'</h4><ul>'+items.map(function(item){return '<li>'+esc(item)+'</li>';}).join('')+'</ul>':'';}
-            var legend=Object.keys(departmentCodes||{}).map(function(code){return '<li><b>'+esc(code)+'</b>: '+esc(departmentCodes[code])+'</li>';}).join('');
             result.classList.remove('hr-ai-error');
-            result.innerHTML='<h4>'+esc(hrT('hrAISummary'))+'</h4><p>'+esc(analysis.summary||'')+'</p>'+list(hrT('hrAIFindings'),analysis.findings)+list(hrT('hrAIActions'),analysis.actions)+list(hrT('hrAICaveats'),analysis.caveats)+(legend?'<div class="hr-ai-legend"><b>'+esc(hrT('hrAIDepartmentLegend'))+'</b><ul>'+legend+'</ul></div>':'');
+            result.innerHTML='<h4>'+esc(hrT('hrAISummary'))+'</h4><p>'+esc(analysis.summary||'')+'</p>'+list(hrT('hrAIFindings'),analysis.findings)+list(hrT('hrAIActions'),analysis.actions)+list(hrT('hrAICaveats'),analysis.caveats);
             result.hidden=false;
         }
 
-        async function generateHRConsumptionAIReport(){
-            var report=STATE.hrConsumption&&STATE.hrConsumption.report, consent=document.getElementById('hrAIConsent');
-            if(!report){alert(hrT('hrAIReportRequired'));return;}
-            if(!consent||!consent.checked){alert(hrT('hrAIConsentRequired'));return;}
-            var button=document.getElementById('hrAIGenerateBtn'),result=document.getElementById('hrAIResult');
-            if(button){button.disabled=true;button.textContent=hrT('hrAIGenerating');}
-            if(result){result.hidden=true;result.classList.remove('hr-ai-error');}
+        function generateHRLocalConsumptionReport(report){
+            report=report||STATE.hrConsumption&&STATE.hrConsumption.report;
+            if(!report)return;
+            var ar=STATE.language!=='en', findings=[], actions=[], caveats=[];
+            var threshold=parseHRNumber((document.getElementById('hrLossThreshold')||{}).value)||HR_LOSS_RATIO_ALERT_DEFAULT;
+            var top=(report.byService||[]).slice().sort(function(a,b){return (Number(b.value)||0)-(Number(a.value)||0);})[0];
+            var first=(report.byMonth||[])[0], last=(report.byMonth||[]).slice(-1)[0];
+            var coverageName=(report.insuranceTypeDetails||[]).join(ar?'، ':', ')|| (report.insuranceType==='medical'?(ar?'تأمين طبي جماعي':'Group medical'):
+                report.insuranceType==='motor'?(ar?'تأمين مركبات':'Motor insurance'):
+                report.insuranceType==='life'?(ar?'تأمين حياة':'Life insurance'):(ar?'غير محسوم من محتوى الملف':'Not identified from file content'));
+            var insurerText=(report.insurers||[]).join(ar?'، ':', '), planText=(report.plans||[]).join(ar?'، ':', ');
+            var summary=ar
+                ?'تم تصنيف الملف: '+coverageName+'. بلغ إجمالي السجلات '+Number(report.records||0).toLocaleString('ar-EG')+' وإجمالي الاستهلاك '+formatHRMoney(report.totalSpend)+'.'+(insurerText?' شركة التأمين المكتشفة: '+insurerText+'.':'')+(planText?' الخطة/الفئة: '+planText+'.':'')
+                :'File classification: '+coverageName+'. The file contains '+Number(report.records||0).toLocaleString('en-US')+' records and total utilization of '+formatHRMoney(report.totalSpend)+'.'+(insurerText?' Detected insurer: '+insurerText+'.':'')+(planText?' Plan/class: '+planText+'.':'');
+            if(top&&report.totalSpend>0){
+                findings.push(ar?'أعلى بند استهلاك هو «'+top.key+'» بقيمة '+formatHRMoney(top.value)+' ('+(top.value/report.totalSpend*100).toFixed(1)+'% من الإجمالي).':'The largest service category is “'+top.key+'” at '+formatHRMoney(top.value)+' ('+(top.value/report.totalSpend*100).toFixed(1)+'% of total).');
+                actions.push(ar?'راجع تغير هذا البند عبر الأشهر وتحقق من اكتمال ترميز الخدمة ومطابقة المبالغ.':'Review this category month by month and verify service coding and amount reconciliation.');
+            }
+            if(report.lossRatio!==null&&report.lossRatio!==undefined){
+                findings.push(ar?'نسبة الاستهلاك إلى القسط '+Number(report.lossRatio).toFixed(1)+'%.':'Utilization-to-premium ratio is '+Number(report.lossRatio).toFixed(1)+'%.');
+                if(report.lossRatio>=100){actions.push(ar?'قارن إجمالي المطالبات بالقسط والفترة المشمولة، وراجع أسباب الفروقات مع الجهة المختصة.':'Reconcile claims against the premium and covered period, then review variances with the relevant insurer.');}
+                else if(report.lossRatio>=threshold){actions.push(ar?'النسبة تجاوزت حد الإنذار المحدد ('+threshold+'%). راجع الاتجاهات وجودة بيانات الفترة قبل اتخاذ قرار.':'The ratio exceeded the alert threshold ('+threshold+'%). Check trends and period data quality before making decisions.');}
+                else findings.push(ar?'النسبة أقل من حد الإنذار الحالي ('+threshold+'%).':'The ratio is below the current alert threshold ('+threshold+'%).');
+            } else caveats.push(ar?'أدخل القسط والفترة المشمولة لحساب نسبة الاستهلاك إلى القسط.':'Enter the premium and covered period to calculate the utilization-to-premium ratio.');
+            if(report.utilizationRate!==null&&report.utilizationRate!==undefined)findings.push(ar?'معدل الاستفادة من المؤمن عليهم المسجلين '+Number(report.utilizationRate).toFixed(1)+'%.':'Utilization among the entered covered lives is '+Number(report.utilizationRate).toFixed(1)+'%.');
+            if(first&&last&&first!==last){
+                var change=Number(first.value)?((Number(last.value)-Number(first.value))/Number(first.value))*100:0;
+                findings.push(ar?'التغير بين أول وآخر شهر متاح: '+(change>0?'+':'')+change.toFixed(1)+'%.':'Change from the first to last available month: '+(change>0?'+':'')+change.toFixed(1)+'%.');
+            }
+            if(report.insuranceType==='unknown')caveats.push(ar?'لم يظهر نوع التأمين بوضوح في اسم الملف أو عناوين الأعمدة؛ تم تحليله كسجل استهلاك طبي لأن الملف رُفع من هذه الوحدة.':'The file name and headers did not identify the insurance type; it was treated as medical utilization because it was uploaded in this section.');
+            if(!report.uniqueEmployees)caveats.push(ar?'لم يُكتشف عمود موثوق للمؤمن عليه؛ لذلك لا يتوفر عدد مستفيدين فريد أو معدل استفادة.':'No reliable member column was detected, so unique beneficiaries and utilization rate are unavailable.');
+            if(!findings.length)findings.push(ar?'تم تجميع القيم المتاحة محليًا. أضف أعمدة الخدمة والتاريخ والقسط للحصول على مؤشرات أوسع.':'Available values were aggregated locally. Include service, date, and premium fields for more indicators.');
+            if(!actions.length)actions.push(ar?'استخدم التقرير للمراجعة التشغيلية فقط، وطابق الأرقام مع كشف شركة التأمين قبل اتخاذ قرارات إدارية.':'Use this for operational review and reconcile figures with the insurer statement before administrative decisions.');
+            renderHRLocalAnalysisResult({summary:summary,findings:findings,actions:actions,caveats:caveats});
+        }
+
+        function hrAIServiceLabel(value){
+            var text=String(value||'').trim().toLowerCase();
+            if(/أسنان|اسنان|dent/.test(text))return 'Dental';
+            if(/صيدل|دواء|pharm|drug|medication/.test(text))return 'Pharmacy';
+            if(/جراح|surg/.test(text))return 'Surgery';
+            if(/معمل|مختبر|تحاليل|laborat|lab/.test(text))return 'Laboratory';
+            if(/أشع|اشع|radiol|x.?ray|تصوير/.test(text))return 'Radiology';
+            if(/طوارئ|emerg/.test(text))return 'Emergency';
+            if(/علاج طبيعي|physio/.test(text))return 'Physiotherapy';
+            if(/عياد|كشف|clinic|consult/.test(text))return 'Clinic';
+            return text?'Other':'Unspecified';
+        }
+
+        function buildHRAnonymizedAIInput(report){
+            var c=STATE.hrConsumption||{}, rows=Array.isArray(c.analysisRows)?c.analysisRows:[], minMembers=5;
+            var identity=function(row){return String(row.employeeId||row.nationalId||row.employee||'').trim().toLowerCase();};
+            var serviceGroups={}, monthGroups={};
+            rows.forEach(function(row){
+                var id=identity(row), amount=parseHRNumber(row.amount); if(!id||!amount)return;
+                var service=hrAIServiceLabel(row.service), sg=serviceGroups[service]||(serviceGroups[service]={amount:0,members:new Set()});
+                sg.amount+=amount;sg.members.add(id);
+                var date=parseHRDate(row.date);
+                if(date){var month=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0'),mg=monthGroups[month]||(monthGroups[month]={amount:0,members:new Set()});mg.amount+=amount;mg.members.add(id);}
+            });
+            var suppressed=[];
+            function safeGroups(groups,makeItem,dimension){
+                var all=Object.keys(groups), kept=all.filter(function(key){return groups[key].members.size>=minMembers;});
+                if(kept.length!==all.length)suppressed.push(dimension);
+                return kept.map(function(key){return makeItem(key,groups[key]);});
+            }
+            var byService=safeGroups(serviceGroups,function(label,g){return {label:label,amount:g.amount,share:report.totalSpend?g.amount/report.totalSpend*100:0};},'service');
+            var byMonth=safeGroups(monthGroups,function(month,g){return {month:month,amount:g.amount,share:report.totalSpend?g.amount/report.totalSpend*100:0};},'month');
+            if(!rows.some(function(row){return !!identity(row);}))suppressed.push('department','age','gender','service','month');
+            return {report:{year:report.year,insuranceType:['medical','motor','life'].includes(report.insuranceType)?report.insuranceType:'unknown',totalSpend:report.totalSpend,premium:report.premium||0,lossRatio:report.lossRatio,
+                records:report.records,validRecords:report.validRecords,uniqueEmployees:report.uniqueEmployees||0,
+                coveredLives:report.coveredLives||0,averageClaim:report.averageClaim||0,spendPerLife:report.spendPerLife||0,
+                utilizationRate:report.utilizationRate,byService:byService,byAge:[],byGender:[],byDepartment:[],byMonth:byMonth,
+                suppressedDimensions:Array.from(new Set(suppressed))}};
+        }
+
+        function updateHRAIOptInUI(enabled){
+            var button=document.getElementById('hrAIEnableBtn');
+            if(button)button.hidden=!!enabled;
+            var status=document.getElementById('hrAIStatus');
+            if(status&&enabled)status.textContent=hrT('hrAIEnabled');
+        }
+
+        async function enableHRAutomaticAI(){
+            var button=document.getElementById('hrAIEnableBtn'),status=document.getElementById('hrAIStatus');
+            if(button)button.disabled=true;
             try{
                 var company=await ensureCorporateHRCompany();
-                if(!company||!company.companyId)throw new Error('تعذر تحديد الشركة المرتبطة بحسابك.');
-                var safeInput=buildHRAnonymizedAIInput(report);
-                var response=await securePathApiCall('/v1/hr/medical-analysis',{companyId:company.companyId,language:STATE.language==='en'?'en':'ar',report:safeInput.report});
-                if(!response||!response.analysis)throw new Error('استجابة التحليل غير مكتملة.');
-                renderHRConsumptionAIResult(response.analysis,safeInput.departmentCodes);
+                if(!company||!company.companyId)throw new Error(hrT('hrAlertCompanyMissing'));
+                await db.collection('corporateCompanies').doc(company.companyId).set({
+                    aiAnalysisEnabled:true,
+                    aiAnalysisConsentAt:firebase.firestore.FieldValue.serverTimestamp(),
+                    aiAnalysisConsentVersion:1
+                },{merge:true});
+                STATE.hrCompany=Object.assign({},company,{aiAnalysisEnabled:true,aiAnalysisConsentVersion:1});
+                updateHRAIOptInUI(true);
+                if(STATE.hrConsumption&&STATE.hrConsumption.report)await maybeGenerateHRGeminiReport(STATE.hrConsumption.report);
             }catch(error){
-                if(result){result.textContent=hrT('hrAIAnalysisFailed',{msg:error.message||String(error)});result.classList.add('hr-ai-error');result.hidden=false;}
-                else alert(hrT('hrAIAnalysisFailed',{msg:error.message||String(error)}));
-            }finally{
-                if(button){button.disabled=false;button.textContent=hrT('hrAIGenerate');}
+                if(button){button.disabled=false;button.hidden=false;}
+                if(status)status.textContent=hrT('hrAIEnableFailed',{msg:String(error&&error.message||error||'').slice(0,180)});
+            }
+        }
+
+        async function maybeGenerateHRGeminiReport(report){
+            var status=document.getElementById('hrAIStatus');
+            try{
+                var company=await ensureCorporateHRCompany();
+                if(!company||company.aiAnalysisEnabled!==true){updateHRAIOptInUI(false);return;}
+                updateHRAIOptInUI(true);
+                var safe=buildHRAnonymizedAIInput(report);
+                if(Number(safe.report.uniqueEmployees)<5){if(status)status.textContent=hrT('hrAIMinimumData');return;}
+                var lang=STATE.language==='en'?'en':'ar', fingerprint=JSON.stringify({report:safe.report,language:lang});
+                if(STATE.hrGeminiRequestKey===fingerprint)return;
+                STATE.hrGeminiRequestKey=fingerprint;
+                if(status)status.textContent=hrT('hrAIGenerating');
+                var response=await securePathApiCall('/v1/hr/medical-analysis',{companyId:company.companyId,language:lang,report:safe.report});
+                if(!response||!response.analysis)throw new Error(hrT('hrAIGenerationFailed',{msg:''}));
+                renderHRLocalAnalysisResult(response.analysis);
+                if(status)status.textContent=hrT('hrAIEnabled');
+            }catch(error){
+                STATE.hrGeminiRequestKey='';
+                var retryButton=document.getElementById('hrAIEnableBtn');
+                if(retryButton){retryButton.hidden=false;retryButton.disabled=false;retryButton.textContent=hrT('hrAIRetry');}
+                if(status)status.textContent=hrT('hrAIGenerationFailed',{msg:String(error&&error.message||error||'').slice(0,180)});
             }
         }
 
@@ -14807,7 +14911,7 @@ function hrT(key, vars) {
                 if(ext==='pdf'){
                     var rows=await parsePDFConsumptionData(await file.arrayBuffer());
                     if(!rows.length)throw new Error('لم يتم استخراج نص من PDF.');
-                    var header=rows[0];c.headers=header;c.matrix=rows.slice(1);c.detected=detectHRConsumptionColumns(header);
+                    var header=rows[0];c.headers=header;c.matrix=rows.slice(1);c.rowsObjects=c.matrix;c.detected=detectHRConsumptionColumns(header);
                 }else{
                     if(typeof XLSX==='undefined')throw new Error('SheetJS غير متاحة.');
                     var wb=XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:true});
@@ -14816,16 +14920,21 @@ function hrT(key, vars) {
                     var hdr=0;for(var r=0;r<Math.min(8,matrix.length);r++){if(matrix[r].filter(function(x){return String(x).trim();}).length>=2){hdr=r;break;}}
                     c.headers=matrix[hdr];c.matrix=matrix.slice(hdr+1);c.rowsObjects=c.matrix;c.detected=detectHRConsumptionColumns(c.headers);
                 }
+                c.profile=detectHRInsuranceProfile(file.name,c.headers,c.matrix);
                 STATE.hrConsumption=c;
                 renderHRMappingUI();
                 var saved=loadSavedHRMapping();
-                if(saved){
-                    var ok=saved.date>=0&&saved.amount>=0&&saved.employee>=0;
-                    if(ok){
-                        document.querySelectorAll('[data-hr-map]').forEach(function(s){var k=s.getAttribute('data-hr-map');if(saved[k]!==undefined)s.value=saved[k];});
-                    }
+                if(saved&&saved.headerSignature===hrConsumptionHeaderSignature(c.headers)){
+                    document.querySelectorAll('[data-hr-map]').forEach(function(s){var k=s.getAttribute('data-hr-map');if(saved[k]!==undefined)s.value=saved[k];});
                 }
-                alert(ext==='pdf'?'تم استخراج النص من PDF. راجع مطابقة الأعمدة بعناية قبل التحليل.':'تم تحميل ملف Excel. راجع مطابقة الأعمدة ثم ابدأ التحليل.');
+                if(c.detected&&c.detected.amount>=0){
+                    await applyHRConsumptionMapping();
+                    var note=document.getElementById('hrMappingNote');
+                    if(note)note.textContent=STATE.language==='en'?'Columns and insurance type were identified automatically. Aggregate indicators are prepared locally; Gemini writes the report when AI is enabled for this company.':'تم التعرف تلقائيًا على الأعمدة ونوع التأمين. تُجهز المؤشرات داخل المتصفح ويكتب Gemini التقرير عند تفعيل الذكاء الاصطناعي للشركة.';
+                }else{
+                    var note=document.getElementById('hrMappingNote');
+                    if(note)note.textContent=STATE.language==='en'?'The file was read locally, but the amount column was not identified. Match the amount column to continue.':'تمت قراءة الملف محليًا، لكن لم يتم التعرف على عمود المبلغ. طابق عمود المبلغ للمتابعة.';
+                }
             }catch(e){console.error(e);alert('تعذر قراءة ملف الاستهلاك: '+(e.message||e));}
         }
 
@@ -14870,7 +14979,7 @@ function hrT(key, vars) {
             if(!report||typeof XLSX==='undefined'){alert('أنشئ التقرير أولًا.');return;}
             var wb=XLSX.utils.book_new();
             function add(name, rows){XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),name);}
-            add('Summary',[['البند','القيمة'],['السنة',report.year],['إجمالي الاستهلاك',report.totalSpend],['القسط',report.premium],['Loss Ratio',report.lossRatio===null?'':report.lossRatio/100],['عدد السجلات',report.records],['عدد الموظفين المستفيدين',report.uniqueEmployees],['عدد المؤمن عليهم',report.coveredLives||''],['متوسط قيمة السجل',report.averageClaim||''],['الاستهلاك لكل مؤمّن عليه',report.spendPerLife||''],['معدل الاستخدام',report.utilizationRate==null?'':report.utilizationRate/100]]);
+            add('Summary',[['البند','القيمة'],['نوع التأمين',(report.insuranceTypeDetails||[]).join('، ')||report.insuranceType||'غير محدد'],['شركة التأمين',(report.insurers||[]).join('، ')],['الخطة/الفئة',(report.plans||[]).join('، ')],['السنة',report.year],['إجمالي الاستهلاك',report.totalSpend],['القسط',report.premium],['Loss Ratio',report.lossRatio===null?'':report.lossRatio/100],['عدد السجلات',report.records],['عدد الموظفين المستفيدين',report.uniqueEmployees],['عدد المؤمن عليهم',report.coveredLives||''],['متوسط قيمة السجل',report.averageClaim||''],['الاستهلاك لكل مؤمّن عليه',report.spendPerLife||''],['معدل الاستخدام',report.utilizationRate==null?'':report.utilizationRate/100]]);
             [['Department','حسب القسم',report.byDepartment],['Age','حسب العمر',report.byAge],['Gender','حسب النوع',report.byGender],['Service','الخدمة',report.byService],['Month','الشهر',report.byMonth]].forEach(function(s){add(s[0],[['التصنيف','الاستهلاك']].concat((s[2]||[]).map(function(x){return [x.key,x.value];})));});
             XLSX.writeFile(wb,'iNex-Corporate-Medical-Analysis-'+report.year+'.xlsx');
         }
@@ -14879,7 +14988,7 @@ function hrT(key, vars) {
         function exportHRMedicalPDF(){
             var r=STATE.hrConsumption&&STATE.hrConsumption.report;if(!r){alert('أنشئ التقرير أولًا.');return;}
             var html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>iNex — Medical Analysis</title><style>body{font-family:Arial,Tahoma,sans-serif;padding:28px;color:#25324A}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{border:1px solid #ddd;padding:7px;font-size:11px;text-align:right}th{background:#f4f6fa}h1{color:#0E2A5C;font-size:22px}small{color:#718096}</style></head><body>'+
-                '<h1>iNex — تقرير الاستهلاكات الطبية الجماعية</h1><small>'+esc(r.sourceName||'ملف الاستهلاك')+' · سنة '+esc(r.year)+'</small>'+
+                '<h1>iNex — تقرير الاستهلاكات الطبية الجماعية</h1><small>'+esc(r.sourceName||'ملف الاستهلاك')+' · '+esc((r.insuranceTypeDetails||[]).join('، ')||r.insuranceType||'النوع غير محدد')+(r.insurers&&r.insurers.length?' · '+esc(r.insurers.join('، ')):'')+(r.plans&&r.plans.length?' · '+esc(r.plans.join('، ')):'')+' · سنة '+esc(r.year)+'</small>'+
                 pdfSection('المؤشرات الأساسية','<table><tr><th>إجمالي الاستهلاك</th><th>القسط</th><th>Loss Ratio</th><th>الموظفون المستفيدون</th></tr><tr><td>'+formatHRMoney(r.totalSpend)+'</td><td>'+formatHRMoney(r.premium)+'</td><td>'+(r.lossRatio===null?'—':r.lossRatio.toFixed(1)+'%')+'</td><td>'+r.uniqueEmployees+'</td></tr></table>')+
                 pdfSection('حسب القسم',miniTable(r.byDepartment))+
                 pdfSection('حسب الفئة العمرية',miniTable(r.byAge))+

@@ -31,17 +31,11 @@ The Worker creates deterministic `leads/sp_<hash>` and `leadActivities/<lead-id>
 
 Treat the service-account JSON key as a credential: do not commit it, paste it into chat, or include it in screenshots. The receiving service account should not be given broad data-read permissions.
 
-## Optional HR medical-consumption AI report
+## HR insurance-consumption AI analysis
 
-The HR Hub can request an Arabic or English management report from Gemini 2.5 Flash. The original Excel/PDF file is parsed and analyzed in the browser; the Worker sends only validated aggregate metrics and anonymized category totals to Gemini. It does not send company IDs, source filenames, employee names, national IDs, or claim rows. Department names are replaced with codes, and category breakdowns are omitted when any group has fewer than five identifiable people.
+The HR Hub reads the uploaded file and computes aggregate indicators in the browser. After a company owner enables AI reports once for the company, each new analysis is sent automatically to `POST /v1/hr/medical-analysis`; the Worker checks company ownership, validates the fields, and sends only aggregate figures to Gemini 2.5 Flash. The raw file, source filename, company ID, employee names, national IDs, and claim rows are not sent to Gemini. Service/month breakdowns are omitted unless every included group contains at least five identifiable members. Reports with fewer than five identifiable members stay local. Gemini output is an operational aid, not medical, legal, or coverage advice.
 
-To enable the optional feature:
-
-1. Create a Gemini API key in Google AI Studio.
-2. From this directory, set it as a Cloudflare Worker secret: `npx wrangler secret put GEMINI_API_KEY`.
-3. Deploy the Worker: `npx wrangler deploy`.
-
-Never put the key in browser code or commit it. HR users must explicitly consent in the HR Hub before sending a report. Review the Gemini API terms for unpaid/free usage before enabling this feature; free-tier prompts may be used to improve Google products. The existing in-browser analysis and exports continue to work if the AI key is not configured or its free quota is reached.
+Configure `GEMINI_API_KEY` as a Cloudflare Worker secret (never in browser code or Git), then deploy the Worker while preserving dashboard variables with `npx wrangler deploy --keep-vars`. Company owners see the AI data-use notice before enabling this company-level setting. Google API terms and retention policies apply to submitted aggregates.
 
 ## Endpoints
 
@@ -49,7 +43,7 @@ Never put the key in browser code or commit it. HR users must explicitly consent
 - `POST /v1/redeem` — atomic point redemption + lead creation.
 - `POST /v1/cloudinary/sign` — server-owned Cloudinary upload parameters and per-user folder/public ID.
 - `POST /v1/document/verified` — admin-only verified-document point issuance.
-- `POST /v1/hr/medical-analysis` — company-owner-only AI narrative from a de-identified aggregate report (requires `GEMINI_API_KEY`).
+- `POST /v1/hr/medical-analysis` — company-owner-only AI report from a validated, de-identified aggregate (requires `GEMINI_API_KEY`).
 - `POST /v1/client/appointment` — client appointment creation.
 - `POST /v1/client/complaint` — client complaint creation + notification + lead.
 - `POST /v1/client/renewal` — client renewal request after policy ownership validation.

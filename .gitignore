@@ -44,4 +44,5 @@ published-rules.txt
 # ===== Cloudflare Worker local secrets =====
 workers/securepath-api/.dev.vars*
 workers/securepath-api/.env*
+workers/securepath-api/.wrangler/
 *service-account*.json
