@@ -1467,10 +1467,16 @@
       messagingSenderId: '616651183121',
       appId: '1:616651183121:web:ba7f3cdec65a9df8014db0'
     };
-    if (typeof firebase !== 'undefined' && !firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    if (typeof firebase !== 'undefined' && !firebase.apps.some(app => app.name === '[DEFAULT]')) firebase.initializeApp(firebaseConfig);
 
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+    // Keep the admin login in its own Firebase Auth persistence namespace.
+    // The default app is shared by the client UI; signing out an unauthorized
+    // account here must never end the client's session in another tab.
+    let adminAuthApp;
+    try { adminAuthApp = firebase.app('inex-admin-auth'); }
+    catch (e) { adminAuthApp = firebase.initializeApp(firebaseConfig, 'inex-admin-auth'); }
+    const auth = adminAuthApp.auth();
+    const db = adminAuthApp.firestore();
     const SECUREPATH_ADMIN_CLAIM = 'securepathAdmin';
 
     // حساب ثانوي لإنشاء العملاء
