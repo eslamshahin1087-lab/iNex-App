@@ -5519,7 +5519,7 @@
                 transition-duration: .01ms !important;
             }
         }
-    
+
 /* ============================================================
    CORPORATE HR HUB
    ============================================================ */
@@ -5676,6 +5676,8 @@ html.dark-mode .hr-screen{
   box-shadow:0 8px 24px rgba(14,42,92,.06);
 }
 .hr-section-head{align-items:flex-start}
+.hr-policy-head-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:7px}
+.hr-policy-edit-btn{font-size:9px;white-space:nowrap}
 .hr-head-action{transition:all .2s ease}
 .hr-head-action:hover{border-color:var(--gold);transform:translateY(-1px)}
 .hr-analysis-intro{
@@ -5703,6 +5705,17 @@ html.dark-mode .hr-screen{
 #hrConsumptionPremium:focus{
   border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(242,189,99,.14)!important;
 }
+html[dir="ltr"] .hr-analysis-fields input,html[dir="ltr"] .hr-analysis-fields select,html[dir="ltr"] .hr-analysis-fields textarea,
+html[dir="ltr"] #hrConsumptionPremium{direction:ltr;text-align:left}
+html[dir="rtl"] .hr-analysis-fields input,html[dir="rtl"] .hr-analysis-fields select,html[dir="rtl"] .hr-analysis-fields textarea,
+html[dir="rtl"] #hrConsumptionPremium{direction:rtl;text-align:right}
+.hr-analysis-fields .field label{font-size:10px!important;line-height:1.5}
+.hr-analysis-fields input,.hr-analysis-fields select,.hr-analysis-fields textarea,#hrConsumptionPremium{font-size:11px!important}
+.hr-screen .hr-small-note{font-size:9px;line-height:1.7}
+.hr-screen .hr-report-card h4{font-size:11px}
+.hr-screen .hr-ai-result{font-size:11px;line-height:1.8}
+.hr-screen .hr-ai-result h4{font-size:12px}
+@media(max-width:480px){.hr-policy-head-actions{align-items:stretch;flex-direction:column}.hr-policy-edit-btn{width:100%}}
 .hr-input-quality{
   display:flex;align-items:center;gap:7px;margin-top:8px;padding:8px 9px;
   border-radius:10px;background:var(--paper);border:1px dashed var(--line);
@@ -6860,6 +6873,25 @@ html.dark-mode .hr-control-value{color:var(--gold)}
             </div>
         </div>
 
+        <div class="overlay" id="hrPolicyProfileModal" role="dialog" aria-modal="true" aria-labelledby="hrPolicyModalTitle">
+            <div class="sheet">
+                <div class="grabber"></div><div class="close-x" onclick="closeModal('hrPolicyProfileModal')">✕</div>
+                <h2 id="hrPolicyModalTitle" data-hr-t="hrPolicyModalTitle">بيانات وثيقة الشركة</h2>
+                <div class="sub" data-hr-t="hrPolicyModalSub">احفظ بيانات الوثيقة لتظهر في لوحة المتابعة وتُستخدم كقيم افتراضية لتحليل الاستهلاك.</div>
+                <div class="hr-form-grid">
+                    <div class="field"><label data-hr-t="hrPolicyInsurer">شركة التأمين</label><input id="hrPolicyInsurerInput" maxlength="120"></div>
+                    <div class="field"><label data-hr-t="hrPolicyNumber">رقم الوثيقة</label><input id="hrPolicyNumberInput" maxlength="80"></div>
+                    <div class="field"><label data-hr-t="hrPolicyType">نوع التأمين</label><select id="hrPolicyTypeInput"><option value="medical" data-hr-t="hrPolicyTypeMedical">طبي جماعي</option><option value="motor" data-hr-t="hrPolicyTypeMotor">مركبات</option><option value="life" data-hr-t="hrPolicyTypeLife">حياة</option><option value="other" data-hr-t="hrPolicyTypeOther">أخرى</option></select></div>
+                    <div class="field"><label data-hr-t="hrPolicyPlan">الخطة / الشبكة</label><input id="hrPolicyPlanInput" maxlength="120"></div>
+                    <div class="field"><label data-hr-t="hrPolicyStart">بداية التغطية</label><input id="hrPolicyStartInput" type="date"></div>
+                    <div class="field"><label data-hr-t="hrPolicyEnd">نهاية التغطية</label><input id="hrPolicyEndInput" type="date"></div>
+                    <div class="field"><label data-hr-t="hrPolicyPremium">القسط السنوي (جنيه)</label><input id="hrPolicyPremiumInput" type="number" min="0" step="0.01" inputmode="decimal"></div>
+                    <div class="field"><label data-hr-t="hrPolicyLives">عدد المؤمن عليهم</label><input id="hrPolicyLivesInput" type="number" min="0" step="1" inputmode="numeric"></div>
+                </div>
+                <button class="btn-primary" id="hrPolicySaveBtn" onclick="saveHRPolicyProfile()" data-hr-t="hrPolicySave">حفظ بيانات الوثيقة</button>
+            </div>
+        </div>
+
         <div class="overlay" id="forgotPasswordModal">
             <div class="sheet">
                 <div class="grabber"></div>
@@ -6959,7 +6991,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 <span class="offers-banner-count" id="offersBannerCount">0</span>
             </div>
 
-            
+
             <div class="corporate-hr-entry" id="corporateHRQuickCard" aria-hidden="true" style="display:none!important;"></div>
 
 <div class="quick-section home-quick">
@@ -7447,7 +7479,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                     </div>
                 </div>
 
-                
+
                 <div class="corporate-hr-entry" id="corporateHRAccountCard" onclick="openCorporateHRHub()">
                     <div class="hr-entry-row">
                         <div class="hr-entry-icon"><span class="app-icon app-icon-lg"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h4"/></svg></span></div>
@@ -7658,7 +7690,10 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                 <h3 class="hr-section-title" id="hrFileOverviewTitle">الصورة الكاملة لملف الشركة</h3>
                 <p class="hr-section-sub">ملخص تشغيلي يجمع بيانات الوثيقة، التغطية، الموظفين، الطلبات، الوثائق، والتجديد في شاشة واحدة.</p>
             </div>
-            <span class="hr-file-status" id="hrPolicyStatusBadge">لم يتم التحقق بعد</span>
+            <div class="hr-policy-head-actions">
+                <button type="button" class="hr-head-action hr-policy-edit-btn" onclick="openHRPolicyProfileModal()" data-hr-t="hrPolicyEditBtn">إدارة بيانات الوثيقة</button>
+                <span class="hr-file-status" id="hrPolicyStatusBadge">لم يتم التحقق بعد</span>
+            </div>
         </div>
         <div class="hr-policy-grid" id="hrPolicySnapshot"></div>
     </section>
@@ -7873,40 +7908,40 @@ html.dark-mode .hr-control-value{color:var(--gold)}
                         </div>
                         <div class="hr-premium-box">
                             <div class="hr-premium-label" data-hr-t="hrConsPremiumLabel">القسط المستخدم للتحليل</div>
-                            <input id="hrConsumptionPremium" type="number" min="0" step="0.01" inputmode="decimal" data-hr-placeholder="hrConsPremiumPlaceholder" placeholder="مثال: 2500000" onchange="updateHRMedicalHeadline()">
+                            <input id="hrConsumptionPremium" type="number" min="0" step="0.01" inputmode="decimal" data-hr-placeholder="hrConsPremiumPlaceholder" placeholder="مثال: 2500000" onchange="refreshHRConsumptionMetrics()">
                         </div>
                     </div>
                     <div class="hr-form-grid hr-analysis-fields">
                         <div class="field">
                             <label data-hr-t="hrConsYearLabel">سنة التحليل</label>
-                            <input id="hrConsumptionYear" type="number" min="2000" max="2200" inputmode="numeric">
+                            <input id="hrConsumptionYear" type="number" min="2000" max="2200" inputmode="numeric" onchange="refreshHRConsumptionMetrics()">
                         </div>
                         <div class="field">
                             <label data-hr-t="hrConsLivesLabel">عدد المؤمن عليهم خلال الفترة</label>
-                            <input id="hrConsumptionLives" type="number" min="0" step="1" inputmode="numeric" data-hr-placeholder="hrConsLivesPlaceholder" placeholder="مثال: 320">
+                            <input id="hrConsumptionLives" type="number" min="0" step="1" inputmode="numeric" data-hr-placeholder="hrConsLivesPlaceholder" placeholder="مثال: 320" onchange="refreshHRConsumptionMetrics()">
                         </div>
                         <div class="field">
                             <label data-hr-t="hrConsStartLabel">بداية فترة التحليل</label>
-                            <input id="hrConsumptionStart" type="date">
+                            <input id="hrConsumptionStart" type="date" onchange="refreshHRConsumptionMetrics()">
                         </div>
                         <div class="field">
                             <label data-hr-t="hrConsEndLabel">نهاية فترة التحليل</label>
-                            <input id="hrConsumptionEnd" type="date">
+                            <input id="hrConsumptionEnd" type="date" onchange="refreshHRConsumptionMetrics()">
                         </div>
                         <div class="field">
                             <label data-hr-t="hrConsThresholdLabel">نسبة الإنذار المبكر</label>
-                            <input id="hrLossThreshold" type="number" min="1" max="300" value="75" step="0.5" inputmode="decimal" onchange="updateHRMedicalHeadline()">
+                            <input id="hrLossThreshold" type="number" min="1" max="300" value="75" step="0.5" inputmode="decimal" onchange="refreshHRConsumptionMetrics()">
                         </div>
                         <div class="field">
                             <label data-hr-t="hrConsDataTypeLabel">طبيعة القسط</label>
-                            <select id="hrConsumptionPremiumType">
+                            <select id="hrConsumptionPremiumType" onchange="refreshHRConsumptionMetrics()">
                                 <option value="period" data-hr-t="hrConsPremiumTypePeriod">قسط الفترة محل التحليل</option>
                                 <option value="annual" data-hr-t="hrConsPremiumTypeAnnual">القسط السنوي الكامل</option>
                             </select>
                         </div>
                         <div class="field full">
                             <label data-hr-t="hrConsNotesLabel">ملاحظة/مصدر البيانات</label>
-                            <textarea id="hrConsumptionNotes" data-hr-placeholder="hrConsNotesPlaceholder" placeholder="اسم شركة التأمين، فترة البيانات، ملاحظات المطابقة..."></textarea>
+                            <textarea id="hrConsumptionNotes" data-hr-placeholder="hrConsNotesPlaceholder" placeholder="اسم شركة التأمين، فترة البيانات، ملاحظات المطابقة..." onchange="refreshHRConsumptionMetrics()"></textarea>
                         </div>
                     </div>
                     <div class="hr-input-quality" id="hrConsumptionQuality">
@@ -8301,7 +8336,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         <!-- ============================================================ -->
         <!-- SMART ASSESSMENT — التحليل الذكي (Smart Matching Engine)     -->
         <!-- ============================================================ -->
-        
+
 <div class="screen smart-assessment-screen" id="smartAssessment">
   <div class="page-top">
     <div class="page-left">
@@ -9286,6 +9321,26 @@ var HR_TRANSLATIONS = {
         hrHeroLabel: 'INSURANCE · HR CONTROL CENTER',
         hrHeroTitle: 'لوحة الموارد البشرية',
         hrHeroSub: 'إدارة ملف التأمين الجماعي للشركة من مكان واحد',
+        hrPolicyEditBtn: 'إدارة بيانات الوثيقة',
+        hrPolicyModalTitle: 'بيانات وثيقة الشركة',
+        hrPolicyModalSub: 'احفظ بيانات الوثيقة لتظهر في لوحة المتابعة وتُستخدم كقيم افتراضية لتحليل الاستهلاك.',
+        hrPolicyInsurer: 'شركة التأمين',
+        hrPolicyNumber: 'رقم الوثيقة',
+        hrPolicyType: 'نوع التأمين',
+        hrPolicyTypeMedical: 'طبي جماعي',
+        hrPolicyTypeMotor: 'مركبات',
+        hrPolicyTypeLife: 'حياة',
+        hrPolicyTypeOther: 'أخرى',
+        hrPolicyPlan: 'الخطة / الشبكة',
+        hrPolicyStart: 'بداية التغطية',
+        hrPolicyEnd: 'نهاية التغطية',
+        hrPolicyPremium: 'القسط السنوي (جنيه)',
+        hrPolicyLives: 'عدد المؤمن عليهم',
+        hrPolicySave: 'حفظ بيانات الوثيقة',
+        hrPolicySaved: 'تم حفظ بيانات الوثيقة.',
+        hrPolicySaveFailed: 'تعذر حفظ بيانات الوثيقة: {msg}',
+        hrPolicyInvalidDates: 'تاريخ نهاية التغطية يجب أن يكون بعد تاريخ بدايتها.',
+        hrPolicyInvalidNumbers: 'أدخل قيمًا صحيحة للقسط وعدد المؤمن عليهم.',
         hrMetaInsurance: 'ملف التأمين',
         hrMetaCrm: 'HR CRM',
         hrMetaGovernance: 'حوكمة البيانات',
@@ -9379,6 +9434,8 @@ var HR_TRANSLATIONS = {
         hrDocsExpiresToday: 'تنتهي اليوم',
         hrDocsExpiresTomorrow: 'تنتهي غدًا',
         hrDocsDaysLeft: 'متبقي {days} يوم',
+        hrDocAlertExpired: 'وثيقة شركة منتهية',
+        hrDocAlertExpiring: 'اقتراب انتهاء وثيقة شركة',
 
         // Requests
         hrReqTitle: 'Unified Request Timeline',
@@ -9392,6 +9449,7 @@ var HR_TRANSLATIONS = {
         hrReqTypeRenewal: 'تجديد',
         hrReqTypeReimbursement: 'تعويض',
         hrReqTypeLabel: 'نوع الطلب',
+        hrReqTimelineDecision: 'معتمد / مرفوض',
         hrReqStatusSubmitted: 'مُقدَّم',
         hrReqStatusReview: 'قيد المراجعة',
         hrReqStatusApproved: 'مُعتمد',
@@ -9483,6 +9541,9 @@ var HR_TRANSLATIONS = {
         hrConsLossRatioLabel: 'Loss Ratio — الاستهلاك مقابل القسط',
         hrConsLossRatioDefault: 'ارفع البيانات وأدخل القسط السنوي/الفترة.',
         hrConsPremiumLabel: 'القسط المستخدم للتحليل',
+        hrConsPremiumBasis: 'القسط المقابل للفترة',
+        hrConsEnterPremiumHint: 'أدخل القسط وشغّل التحليل لحساب نسبة الاستهلاك إلى القسط.',
+        hrConsInvalidPeriod: 'تاريخ نهاية فترة التحليل يجب أن يكون بعد تاريخ بدايتها.',
         hrConsPremiumPlaceholder: 'مثال: 2500000',
         hrConsYearLabel: 'سنة التحليل',
         hrConsThresholdLabel: 'نسبة الإنذار المبكر',
@@ -9513,6 +9574,8 @@ var HR_TRANSLATIONS = {
         hrAIEnable: 'تفعيل التقارير الذكية التلقائية للشركة',
         hrAlertCompanyMissing: 'تعذر تحديد الشركة المرتبطة بحسابك.',
         hrAIEnabled: 'التقارير الذكية مفعلة. سيُنشأ التقرير تلقائيًا بعد تحليل كل ملف.',
+        hrAIAutoSaved: 'اكتمل تقرير Gemini وحُفظت المؤشرات المجمعة تلقائيًا. لم يُحفظ ملف المطالبات الخام.',
+        hrAIAutoSaveFailed: 'اكتمل تقرير Gemini، لكن تعذر حفظ نسخة المؤشرات تلقائيًا. يمكنك حفظها يدويًا.',
         hrAIMinimumData: 'لا تتوفر بيانات مجمعة كافية لتحليل Gemini؛ يلزم خمسة مستفيدين معروفين على الأقل. يعرض التقرير التحليل المحلي.',
         hrAIGenerating: 'جارٍ إعداد التقرير الذكي…',
         hrAIRetry: 'إعادة محاولة إنشاء التقرير',
@@ -9730,6 +9793,26 @@ var HR_TRANSLATIONS = {
         hrHeroLabel: 'INSURANCE · HR CONTROL CENTER',
         hrHeroTitle: 'Corporate HR Hub',
         hrHeroSub: 'Manage your company group insurance file in one place',
+        hrPolicyEditBtn: 'Manage policy details',
+        hrPolicyModalTitle: 'Company policy details',
+        hrPolicyModalSub: 'Save the policy details for the dashboard and use them as defaults for consumption analysis.',
+        hrPolicyInsurer: 'Insurance company',
+        hrPolicyNumber: 'Policy number',
+        hrPolicyType: 'Insurance type',
+        hrPolicyTypeMedical: 'Group medical',
+        hrPolicyTypeMotor: 'Motor',
+        hrPolicyTypeLife: 'Life',
+        hrPolicyTypeOther: 'Other',
+        hrPolicyPlan: 'Plan / network',
+        hrPolicyStart: 'Coverage starts',
+        hrPolicyEnd: 'Coverage ends',
+        hrPolicyPremium: 'Annual premium (EGP)',
+        hrPolicyLives: 'Covered employees',
+        hrPolicySave: 'Save policy details',
+        hrPolicySaved: 'Policy details saved.',
+        hrPolicySaveFailed: 'Could not save policy details: {msg}',
+        hrPolicyInvalidDates: 'The coverage end date must be after its start date.',
+        hrPolicyInvalidNumbers: 'Enter valid values for premium and covered employees.',
         hrMetaInsurance: 'Insurance File',
         hrMetaCrm: 'HR CRM',
         hrMetaGovernance: 'Data Governance',
@@ -9823,6 +9906,8 @@ var HR_TRANSLATIONS = {
         hrDocsExpiresToday: 'Expires today',
         hrDocsExpiresTomorrow: 'Expires tomorrow',
         hrDocsDaysLeft: '{days} days left',
+        hrDocAlertExpired: 'Company document expired',
+        hrDocAlertExpiring: 'Company document expiring soon',
 
         // Requests
         hrReqTitle: 'Unified Request Timeline',
@@ -9836,6 +9921,7 @@ var HR_TRANSLATIONS = {
         hrReqTypeRenewal: 'Renewal',
         hrReqTypeReimbursement: 'Reimbursement',
         hrReqTypeLabel: 'Request Type',
+        hrReqTimelineDecision: 'Approved / Rejected',
         hrReqStatusSubmitted: 'Submitted',
         hrReqStatusReview: 'Under Review',
         hrReqStatusApproved: 'Approved',
@@ -9857,6 +9943,9 @@ var HR_TRANSLATIONS = {
         hrConsLossRatioLabel: 'Loss Ratio — Spend vs Premium',
         hrConsLossRatioDefault: 'Upload data and enter the annual/period premium.',
         hrConsPremiumLabel: 'Premium Used for Analysis',
+        hrConsPremiumBasis: 'Premium for this period',
+        hrConsEnterPremiumHint: 'Enter the premium and analyze a file to calculate the utilization ratio.',
+        hrConsInvalidPeriod: 'The analysis period end date must be after its start date.',
         hrConsPremiumPlaceholder: 'e.g. 2500000',
         hrConsYearLabel: 'Analysis Year',
         hrConsThresholdLabel: 'Early Warning Threshold',
@@ -9887,6 +9976,8 @@ var HR_TRANSLATIONS = {
         hrAIEnable: 'Enable automatic AI reports for this company',
         hrAlertCompanyMissing: 'Could not identify the company linked to your account.',
         hrAIEnabled: 'AI reports are enabled. A report will be generated automatically after each file analysis.',
+        hrAIAutoSaved: 'Gemini report is ready and the aggregate metrics were saved automatically. The raw claims file was not saved.',
+        hrAIAutoSaveFailed: 'Gemini report is ready, but the aggregate copy could not be saved. You can save it manually.',
         hrAIMinimumData: 'There is not enough aggregate data for Gemini analysis. At least five identifiable members are required. The local report is shown.',
         hrAIGenerating: 'Generating AI report…',
         hrAIRetry: 'Retry AI report',
@@ -10113,7 +10204,7 @@ function hrT(key, vars) {
     }
     return str;
 }
-        
+
         function getText(key) {
             var lang = STATE.language || 'ar';
             return (TRANSLATIONS[lang] && TRANSLATIONS[lang][key] !== undefined) ? TRANSLATIONS[lang][key] :
@@ -13955,6 +14046,7 @@ function hrT(key, vars) {
                 STATE.hrMedicalReports = results[3].docs.map(function(s){ return Object.assign({id:s.id},s.data()); }).sort(function(a,b){ return dateMillis(b.createdAt)-dateMillis(a.createdAt); });
                 STATE.hrConsumption = STATE.hrConsumption || {};
                 STATE.hrConsumption.report = STATE.hrMedicalReports[0] || STATE.hrConsumption.report || null;
+                applyHRPolicyProfileDefaults();
                 renderCorporateHRDashboard();
                 renderHREmployees();
                 renderHRCompanyDocuments();
@@ -13963,9 +14055,9 @@ function hrT(key, vars) {
                 updateCorporateHRAccessVisibility();
             } catch(e) {
                 console.warn('Corporate HR load failed:', e);
-                var msg = STATE.language === 'ar' ? 'تعذر تحميل بيانات لوحة الموارد البشرية. تأكد من صلاحيات Firestore.' : 'Corporate HR data could not be loaded. Check Firestore permissions.';
+                var msg = hrT('hrAlertLoadErrorBody');
                 var list = document.getElementById('hrDashboardRequests');
-                if (list) list.innerHTML = '<div class="hr-empty"><strong>حدث خطأ أثناء التحميل</strong>' + esc(msg) + '</div>';
+                if (list) list.innerHTML = '<div class="hr-empty"><strong>'+esc(hrT('hrAlertLoadError'))+'</strong>' + esc(msg) + '</div>';
             }
         }
 
@@ -13994,8 +14086,12 @@ function hrT(key, vars) {
             return '';
         }
         function getHRPolicySnapshot(){
-            var uid=STATE.currentUser&&STATE.currentUser.uid, cid=STATE.hrCompany&&STATE.hrCompany.companyId;
-            var list=(STATE.policies||[]).filter(function(p){return (p.clientId===uid)||(cid&&p.companyId===cid);});
+            var cid=STATE.hrCompany&&STATE.hrCompany.companyId, profile=STATE.hrCompany&&STATE.hrCompany.policyProfile;
+            if(profile&&(profile.insurer||profile.policyNumber||profile.startDate||profile.endDate)){
+                return Object.assign({},profile,{company:profile.insurer,planName:profile.planName,startDate:profile.startDate,endDate:profile.endDate,premium:profile.premium,coveredLives:profile.coveredLives,policyNumber:profile.policyNumber,type:profile.type});
+            }
+            // Do not treat the business owner's personal policy as the company's group policy.
+            var list=(STATE.policies||[]).filter(function(p){return !!cid&&p.companyId===cid;});
             if(!list.length) return null;
             var medical=list.filter(function(p){return /طب|medical|health/i.test(String(p.type||p.typeName||''));});
             var pool=medical.length?medical:list;
@@ -14003,7 +14099,14 @@ function hrT(key, vars) {
             return pool[0]||null;
         }
         function hrPolicyField(label,value,sub,wide){
-            return '<div class="hr-policy-cell'+(wide?' wide':'')+'"><div class="hr-policy-label">'+esc(label)+'</div><div class="hr-policy-value">'+esc(value||'غير مسجل')+'</div>'+(sub?'<div class="hr-policy-sub">'+esc(sub)+'</div>':'')+'</div>';
+            return '<div class="hr-policy-cell'+(wide?' wide':'')+'"><div class="hr-policy-label">'+esc(label)+'</div><div class="hr-policy-value">'+esc(value||hrT('hrSnapNotRecorded'))+'</div>'+(sub?'<div class="hr-policy-sub">'+esc(sub)+'</div>':'')+'</div>';
+        }
+        function hrPolicyStatus(p){
+            if(!p)return hrT('hrBadgeNoPolicy');
+            var end=p.endDate||p.expiryDate, days=end?daysUntil(end):null;
+            if(days!==null&&days<0)return hrT('hrSnapStatusExpired');
+            if(days!==null&&days<=45)return hrT('hrSnapStatusExpiring');
+            return hrT('hrSnapStatusActive');
         }
         function renderHRInsuranceSnapshot(){
             var el=document.getElementById('hrPolicySnapshot'), badge=document.getElementById('hrPolicyStatusBadge'); if(!el)return;
@@ -14015,21 +14118,71 @@ function hrT(key, vars) {
             var end=p&&hrFirstValue(p,['endDate','expiryDate','toDate']);
             var plan=p&&hrFirstValue(p,['planName','className','network','category','type','typeName']);
             var status=p&&hrFirstValue(p,['status','policyStatus']);
-            if(!status && p){var d=end?daysUntil(end):9999;status=d<0?'منتهية':(d<=45?'تقترب من الانتهاء':'سارية');}
-            if(badge)badge.textContent=p?(status||'سارية'):'لا توجد وثيقة مرتبطة بعد';
+            if(badge)badge.textContent=p?hrPolicyStatus(p):hrT('hrBadgeNoPolicy');
             var totalDependents=(STATE.hrEmployees||[]).reduce(function(n,e){return n+(parseInt(e.dependentsCount,10)||0)},0);
-            var employeeText=k.employees+' موظف';
+            var employeeText=hrT('hrEmpCountBadge',{count:k.employees});
             el.innerHTML=''+
               hrPolicyField(hrT('hrSnapInsurer'),insurer||hrT('hrSnapNotLinked'),hrT('hrSnapInsurerSub'))+
               hrPolicyField(hrT('hrSnapPolicyNumber'),p&&p.policyNumber||'',p?hrT('hrSnapPolicyNumberSub'):hrT('hrSnapEnterLink'))+
               hrPolicyField(hrT('hrSnapPlan'),plan||hrT('hrSnapNotRecorded'),p?hrT('hrSnapPlanSub'):hrT('hrSnapInsurerSub'))+
               hrPolicyField(hrT('hrSnapPeriod'),start&&end?(hrDateOnly(start)+' → '+hrDateOnly(end)):(end?hrT('hrSnapUntil')+' '+hrDateOnly(end):hrT('hrSnapNotRecorded')),hrT('hrSnapPeriodSub'))+
               hrPolicyField(hrT('hrSnapPremium'),premium?hrMoney(premium):(report&&report.premium?hrMoney(report.premium):''),hrT('hrSnapPremiumSub'))+
-              hrPolicyField(hrT('hrSnapStatus'),status||'',p?hrT('hrSnapStatusSub'):hrT('hrSnapDocNotLinked'))+
+              hrPolicyField(hrT('hrSnapStatus'),p?hrPolicyStatus(p):'',p?hrT('hrSnapStatusSub'):hrT('hrSnapDocNotLinked'))+
               hrPolicyField(hrT('hrSnapEmployees'),employeeText,hrT('hrSnapEmployeesSub'))+
               hrPolicyField(hrT('hrSnapDependents'),String(totalDependents),hrT('hrSnapDependentsSub'))+
               hrPolicyField(hrT('hrSnapClaims'),report&&report.records?String(report.records):hrT('hrSnapNotAvailable'),hrT('hrSnapClaimsSub'))+
               hrPolicyField(hrT('hrSnapLastAnalysis'),report&&report.year?String(report.year):hrT('hrSnapNotStarted'),hrT('hrSnapLastAnalysisSub'));
+        }
+
+        function openHRPolicyProfileModal(){
+            var p=STATE.hrCompany&&STATE.hrCompany.policyProfile||{};
+            setVal('hrPolicyInsurerInput',p.insurer||'');
+            setVal('hrPolicyNumberInput',p.policyNumber||'');
+            setVal('hrPolicyTypeInput',p.type||'medical');
+            setVal('hrPolicyPlanInput',p.planName||'');
+            setVal('hrPolicyStartInput',inputDateValue(p.startDate));
+            setVal('hrPolicyEndInput',inputDateValue(p.endDate));
+            setVal('hrPolicyPremiumInput',p.premium==null?'':p.premium);
+            setVal('hrPolicyLivesInput',p.coveredLives==null?'':p.coveredLives);
+            updateHRModalTexts();
+            openModal('hrPolicyProfileModal');
+        }
+
+        async function saveHRPolicyProfile(){
+            var start=String((document.getElementById('hrPolicyStartInput')||{}).value||''), end=String((document.getElementById('hrPolicyEndInput')||{}).value||'');
+            var premiumRaw=String((document.getElementById('hrPolicyPremiumInput')||{}).value||''), livesRaw=String((document.getElementById('hrPolicyLivesInput')||{}).value||'');
+            var premium=premiumRaw===''?null:parseHRNumber(premiumRaw), lives=livesRaw===''?null:parseInt(livesRaw,10);
+            if(start&&end&&end<=start){alert(hrT('hrPolicyInvalidDates'));return;}
+            if((premiumRaw!==''&&(!isFinite(premium)||premium<0))||(livesRaw!==''&&(!isFinite(lives)||lives<0))){alert(hrT('hrPolicyInvalidNumbers'));return;}
+            var button=document.getElementById('hrPolicySaveBtn');if(button)button.disabled=true;
+            try{
+                var company=await ensureCorporateHRCompany();
+                if(!company||!company.companyId)throw new Error(hrT('hrAlertCompanyMissing'));
+                var profile={
+                    insurer:String((document.getElementById('hrPolicyInsurerInput')||{}).value||'').trim().slice(0,120),
+                    policyNumber:String((document.getElementById('hrPolicyNumberInput')||{}).value||'').trim().slice(0,80),
+                    type:(document.getElementById('hrPolicyTypeInput')||{}).value||'medical',
+                    planName:String((document.getElementById('hrPolicyPlanInput')||{}).value||'').trim().slice(0,120),
+                    startDate:start||null,endDate:end||null,premium:premium,coveredLives:lives,
+                    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+                };
+                await db.collection('corporateCompanies').doc(company.companyId).set({policyProfile:profile,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+                STATE.hrCompany=Object.assign({},company,{policyProfile:Object.assign({},profile,{updatedAt:new Date().toISOString()})});
+                applyHRPolicyProfileDefaults();
+                renderCorporateHRDashboard();
+                closeModal('hrPolicyProfileModal');
+                await writeHRAudit('update_policy_profile','company_policy',company.companyId,{type:profile.type,hasDates:!!(start&&end)});
+                alert(hrT('hrPolicySaved'));
+            }catch(error){console.error('HR policy profile save failed:',error);alert(hrT('hrPolicySaveFailed',{msg:error.message||error}));}
+            finally{if(button)button.disabled=false;}
+        }
+
+        function applyHRPolicyProfileDefaults(){
+            var profile=STATE.hrCompany&&STATE.hrCompany.policyProfile;if(!profile)return;
+            var pairs=[['hrConsumptionPremium',profile.premium],['hrConsumptionLives',profile.coveredLives]];
+            pairs.forEach(function(pair){var el=document.getElementById(pair[0]);if(el&&String(el.value||'').trim()===''&&pair[1]!=null&&pair[1]!=='')el.value=pair[1];});
+            var premiumType=document.getElementById('hrConsumptionPremiumType');if(premiumType&&premiumType.value==='period'&&profile.premium!=null)premiumType.value='annual';
+            updateHRConsumptionQuality();
         }
         function renderHRManagementIndicators(){
             var el=document.getElementById('hrManagementIndicators');if(!el)return;
@@ -14039,14 +14192,14 @@ function hrT(key, vars) {
             var insuredRate=k.employees?Math.round((k.insured/k.employees)*100):0;
             var report=STATE.hrConsumption&&STATE.hrConsumption.report;
             var items=[
-              ['hr-m-blue','موظف','hrManagementEmployees',String(k.employees),'من سجل الموظفين','👥'],
-              ['hr-m-green','نسبة التغطية',null,insuredRate+'%','مؤمن عليهم من إجمالي السجل','✓'],
-              ['hr-m-gold','طلبات مفتوحة',null,String(k.openRequests),'إصدار / تجديد / تعويض','⏳'],
-              ['hr-m-purple','وثائق تحتاج متابعة',null,String(soon+expired),expired+' منتهية · '+soon+' قريبة','▣'],
-              ['hr-m-red','Loss Ratio',null,k.loss===null?'—':k.loss.toFixed(1)+'%','من آخر تحليل محفوظ','↗'],
-              ['hr-m-blue','سجلات الاستهلاك',null,report&&report.records?String(report.records):'—','آخر ملف تم تحليله','▤']
+              ['hr-m-blue',hrT('hrMgmtEmployees'),String(k.employees),hrT('hrMgmtEmployeesSub'),'👥'],
+              ['hr-m-green',hrT('hrMgmtInsuredRate'),insuredRate+'%',hrT('hrMgmtInsuredRateSub'),'✓'],
+              ['hr-m-gold',hrT('hrMgmtOpenReqs'),String(k.openRequests),hrT('hrMgmtOpenReqsSub'),'⏳'],
+              ['hr-m-purple',hrT('hrMgmtDocsFollowup'),String(soon+expired),hrT('hrMgmtDocsFollowupSub',{exp:expired,soon:soon}),'▣'],
+              ['hr-m-red',hrT('hrMgmtLossRatio'),k.loss===null?'—':k.loss.toFixed(1)+'%',hrT('hrMgmtLossRatioSub'),'↗'],
+              ['hr-m-blue',hrT('hrMgmtRecords'),report&&report.records?String(report.records):'—',hrT('hrMgmtRecordsSub'),'▤']
             ];
-            el.innerHTML=items.map(function(x){return '<div class="hr-management-card"><div class="hr-management-top"><div class="hr-management-icon '+x[0]+'">'+x[5]+'</div><div class="hr-management-value">'+x[3]+'</div></div><div class="hr-management-label">'+x[1]+'</div><div class="hr-management-sub">'+x[4]+'</div></div>';}).join('');
+            el.innerHTML=items.map(function(x){return '<div class="hr-management-card"><div class="hr-management-top"><div class="hr-management-icon '+x[0]+'">'+x[4]+'</div><div class="hr-management-value">'+x[2]+'</div></div><div class="hr-management-label">'+x[1]+'</div><div class="hr-management-sub">'+x[3]+'</div></div>';}).join('');
         }
         function renderHRRenewalReadiness(){
             var el=document.getElementById('hrRenewalReadiness');if(!el)return;
@@ -14056,12 +14209,12 @@ function hrT(key, vars) {
             var have=required.filter(function(t){return docs.some(function(d){return d.documentType===t;});}).length;
             var reqReady=required.length?Math.round((have/required.length)*100):0;
             var checks=[
-              {t:'الوثيقة الحالية',n:p?(policyDays===null?'موعد الانتهاء مسجل':(policyDays<0?'الوثيقة منتهية':policyDays<=45?'موعد التجديد قريب':'الفترة الحالية سارية')):'لم يتم ربط وثيقة',s:p?(policyDays===null?'':(policyDays+' يوم متبقي')):'أضف/اربط الوثيقة',ok:!!p&&policyDays>45},
-              {t:'مستندات الشركة الأساسية',n:have+'/3 مستندات رئيسية موجودة',s:'السجل التجاري · البطاقة الضريبية · وثيقة الطبي',ok:reqReady===100},
-              {t:'سجل الموظفين',n:k.employees+' موظف مسجل',s:k.employees?'السجل متاح للتحليل والطلبات':'ابدأ بإضافة أو استيراد الموظفين',ok:k.employees>0},
-              {t:'تحليل الاستهلاكات',n:report?'آخر تحليل محفوظ لعام '+report.year:'لم يتم إنشاء تقرير بعد',s:report&&report.lossRatio!==null?'Loss Ratio '+Number(report.lossRatio).toFixed(1)+'%':'ارفع Excel أو PDF وأدخل القسط',ok:!!report}
+              {t:hrT('hrReadyCurrentPolicy'),n:!p?hrT('hrReadyPolicyNotLinked'):policyDays===null?hrT('hrReadyPolicyNoEnd'):policyDays<0?hrT('hrReadyPolicyExpired'):policyDays<=45?hrT('hrReadyPolicySoon'):hrT('hrReadyPolicyOk'),s:!p?hrT('hrReadyPolicyAdd'):policyDays===null?'':hrT('hrReadyPolicyDaysLeft',{days:policyDays}),ok:!!p&&policyDays>45},
+              {t:hrT('hrReadyDocs'),n:hrT('hrReadyDocsText',{have:have}),s:hrT('hrReadyDocsSub'),ok:reqReady===100},
+              {t:hrT('hrReadyEmployees'),n:hrT('hrReadyEmployeesText',{count:k.employees}),s:k.employees?hrT('hrReadyEmployeesSubOk'):hrT('hrReadyEmployeesSubNo'),ok:k.employees>0},
+              {t:hrT('hrReadyAnalysis'),n:report?hrT('hrReadyAnalysisOk',{year:report.year}):hrT('hrReadyAnalysisNo'),s:report&&report.lossRatio!==null?hrT('hrReadyAnalysisRatio',{ratio:Number(report.lossRatio).toFixed(1)}):hrT('hrReadyAnalysisSub'),ok:!!report}
             ];
-            el.innerHTML=checks.map(function(x){return '<div class="hr-readiness-item"><div class="hr-readiness-icon">'+(x.ok?'<svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>':'<svg viewBox="0 0 24 24"><path d="M12 4v9"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>')+'</div><div><div class="hr-readiness-title">'+x.t+'</div><div class="hr-readiness-note">'+x.n+(x.s?' · '+x.s:'')+'</div></div><span class="hr-readiness-state '+(x.ok?'hr-state-ok':'hr-state-warn')+'">'+(x.ok?'جاهز':'يحتاج متابعة')+'</span></div>';}).join('');
+            el.innerHTML=checks.map(function(x){return '<div class="hr-readiness-item"><div class="hr-readiness-icon">'+(x.ok?'<svg viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></svg>':'<svg viewBox="0 0 24 24"><path d="M12 4v9"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="9"/></svg>')+'</div><div><div class="hr-readiness-title">'+x.t+'</div><div class="hr-readiness-note">'+x.n+(x.s?' · '+x.s:'')+'</div></div><span class="hr-readiness-state '+(x.ok?'hr-state-ok':'hr-state-warn')+'">'+(x.ok?hrT('hrReadyStateReady'):hrT('hrReadyStateNeedsFollowup'))+'</span></div>';}).join('');
         }
         function renderHRControlCenter(){
             var el=document.getElementById('hrControlCenter');if(!el)return;
@@ -14070,10 +14223,10 @@ function hrT(key, vars) {
             var soon=docs.filter(function(d){var n=daysUntil(d.expiryDate);return n>=0&&n<=45;}).length;
             var exp=docs.filter(function(d){return daysUntil(d.expiryDate)<0;}).length;
             var cards=[
-              ['👥','الموظفون',String(emps.length),'آخر رصيد مسجل في السجل'],
-              ['⏱','طلبات قيد المتابعة',String(open),open?'طلبات تحتاج متابعة الآن':'لا توجد طلبات مفتوحة'],
-              ['📄','وثائق مهددة بالانتهاء',String(soon+exp),exp+' منتهية · '+soon+' خلال 45 يوم'],
-              ['📊','آخر تحليل طبي',report?(report.year+' · '+(report.lossRatio===null?'—':Number(report.lossRatio).toFixed(1)+'%')):'غير متاح',report?'تم حفظ التقرير التجميعي':'ارفع ملف الاستهلاك للبدء']
+              ['👥',hrT('hrCtlEmployees'),String(emps.length),hrT('hrCtlEmployeesSub')],
+              ['⏱',hrT('hrCtlOpenRequests'),String(open),open?hrT('hrCtlOpenRequestsSub'):hrT('hrCtlNoOpenRequests')],
+              ['📄',hrT('hrCtlExpiringDocs'),String(soon+exp),hrT('hrCtlExpiringDocsSub',{exp:exp,soon:soon})],
+              ['📊',hrT('hrCtlLastMedical'),report?(report.year+' · '+(report.lossRatio===null?'—':Number(report.lossRatio).toFixed(1)+'%')):hrT('hrCtlLastMedicalNo'),report?hrT('hrCtlLastMedicalSub'):hrT('hrCtlLastMedicalSubNo')]
             ];
             el.innerHTML=cards.map(function(x){return '<div class="hr-control-card"><div class="hr-control-head"><span>'+x[0]+'</span><span class="hr-control-title">'+x[1]+'</span></div><div class="hr-control-value">'+x[2]+'</div><div class="hr-control-note">'+x[3]+'</div></div>';}).join('');
         }
@@ -14094,7 +14247,7 @@ function hrT(key, vars) {
                 [hrT('hrKpiOpenRequests'), k.openRequests, hrT('hrKpiNeedsFollowup')],
                 [hrT('hrKpiExpiringDocs'), k.docsSoon, hrT('hrKpiWithin45')],
                 ['Loss Ratio', k.loss === null ? '—' : k.loss.toFixed(1)+'%', hrT('hrKpiLastAnalysis')],
-                ['ملف الشركة', esc((STATE.hrCompany && STATE.hrCompany.name) || (STATE.userData && STATE.userData.businessName) || 'غير مرتبط'), hrT('hrKpiCorporateHR')]
+                [hrT('hrKpiCorporateHR'), esc((STATE.hrCompany && STATE.hrCompany.name) || (STATE.userData && STATE.userData.businessName) || hrT('hrSnapNotLinked')), hrT('hrKpiCorporateHR')]
             ];
             c.innerHTML = items.map(function(x){
                 return '<div class="hr-kpi"><div class="hr-kpi-label">'+x[0]+'</div><div class="hr-kpi-value">'+x[1]+'</div><div class="hr-kpi-sub">'+x[2]+'</div></div>';
@@ -14120,7 +14273,7 @@ function hrT(key, vars) {
 
         function requestStatusInfo(status) {
             var map = {
-                submitted:{label:'مُقدَّم',cls:'submitted',idx:0},
+                submitted:{label:hrT('hrReqStatusSubmitted'),cls:'submitted',idx:0},
                 review:{label:hrT('hrReqStatusReview'),cls:'review',idx:1},
                 approved:{label:hrT('hrReqStatusApproved'),cls:'approved',idx:2},
                 rejected:{label:hrT('hrReqStatusRejected'),cls:'rejected',idx:2},
@@ -14133,14 +14286,15 @@ function hrT(key, vars) {
         function requestTimelineHtml(status) {
             var info = requestStatusInfo(status), current = info.idx;
             var steps = [
-                ['submitted','مُقدَّم'],['review','قيد المراجعة'],['approved','مُعتمد/مرفوض'],['paid','مدفوع']
+                ['submitted',hrT('hrReqStatusSubmitted')],['review',hrT('hrReqStatusReview')],['approved',hrT('hrReqTimelineDecision')],['paid',hrT('hrReqStatusPaid')]
             ];
             return '<div class="hr-timeline">'+steps.map(function(s,i){
                 var done = i < current || (i === current);
                 var isRejected = status === 'rejected' && i === 2;
                 var cl = done ? 'done' : '';
                 if (i === current) cl += ' current';
-                return '<div class="hr-step '+cl+'"><div class="hr-step-dot">'+(isRejected?'×':(done?'✓':''))+'</div><div class="hr-step-label">'+s[1]+'</div></div>';
+                var stepLabel=(status==='completed'&&i===3)?hrT('hrReqStatusCompleted'):(status==='rejected'&&i===2?hrT('hrReqStatusRejected'):s[1]);
+                return '<div class="hr-step '+cl+'"><div class="hr-step-dot">'+(isRejected?'×':(done?'✓':''))+'</div><div class="hr-step-label">'+stepLabel+'</div></div>';
             }).join('')+'</div>';
         }
 
@@ -14148,7 +14302,7 @@ function hrT(key, vars) {
             var el = document.getElementById('hrDashboardRequests');
             if (!el) return;
             var rows = (STATE.hrRequests||[]).slice(0,3);
-            if (!rows.length) { el.innerHTML = '<div class="hr-empty"><strong>لا توجد طلبات بعد</strong>سيظهر هنا أحدث إصدار/تجديد/تعويض.</div>'; return; }
+            if (!rows.length) { el.innerHTML = '<div class="hr-empty"><strong>'+esc(hrT('hrEmptyNoRequests'))+'</strong>'+esc(hrT('hrEmptyNoRequestsSub'))+'</div>'; return; }
             el.innerHTML = rows.map(renderHRRequestCard).join('');
         }
 
@@ -14161,17 +14315,19 @@ function hrT(key, vars) {
                 var hay=[e.name,e.nationalId,e.department].join(' ').toLowerCase();
                 return (!search || hay.indexOf(search)>=0) && (!status || String(e.insuranceStatus||'insured')===status);
             });
-            setText('hrEmployeeCountBadge', (STATE.hrEmployees||[]).length + ' موظف');
-            if (!list.length) { tbody.innerHTML='<tr><td colspan="7"><div class="hr-empty"><strong>لا توجد نتائج</strong>أضف موظفًا أو استورد قائمة Excel.</div></td></tr>'; return; }
+            setText('hrEmployeeCountBadge', hrT('hrEmpCountBadge',{count:(STATE.hrEmployees||[]).length}));
+            if (!list.length) { tbody.innerHTML='<tr><td colspan="7"><div class="hr-empty"><strong>'+esc(hrT('hrEmpEmptyTitle'))+'</strong>'+esc(hrT('hrEmpEmptyText'))+'</div></td></tr>'; return; }
             tbody.innerHTML=list.map(function(e){
+                var insured=String(e.insuranceStatus||'insured')==='insured',gender=String(e.gender||'');
+                if(/^(male|ذكر)$/i.test(gender))gender=hrT('hrModalEmpGenderMale');else if(/^(female|أنثى)$/i.test(gender))gender=hrT('hrModalEmpGenderFemale');else if(!gender)gender=hrT('hrEmpGenderUnspecified');
                 return '<tr>'+
-                    '<td><div class="hr-td-main">'+esc(e.name||'—')+'</div><div class="hr-td-muted">'+esc(e.gender||'غير محدد')+'</div></td>'+
+                    '<td><div class="hr-td-main">'+esc(e.name||'—')+'</div><div class="hr-td-muted">'+esc(gender)+'</div></td>'+
                     '<td>'+esc(e.nationalId||'—')+'</td>'+
                     '<td>'+esc(e.department||'—')+'</td>'+
                     '<td>'+esc(hrDateOnly(e.hireDate))+'</td>'+
-                    '<td><span class="badge '+(String(e.insuranceStatus||'insured')==='insured'?'ok':'warn')+'">'+(String(e.insuranceStatus||'insured')==='insured'?'مؤمن عليه':'غير مؤمن')+'</span></td>'+
+                    '<td><span class="badge '+(insured?'ok':'warn')+'">'+(insured?hrT('hrEmpBadgeInsured'):hrT('hrEmpBadgeUninsured'))+'</span></td>'+
                     '<td>'+esc(e.dependentsCount||0)+'</td>'+
-                    '<td><button class="hr-mini-btn" onclick="openHREmployeeModal('+JSON.stringify(e.id)+')">تعديل</button> <button class="hr-mini-btn danger" onclick="deleteHREmployee('+JSON.stringify(e.id)+')">حذف</button></td>'+
+                    '<td><button class="hr-mini-btn" onclick="openHREmployeeModal('+JSON.stringify(e.id)+')">'+hrT('hrEmpBtnEdit')+'</button> <button class="hr-mini-btn danger" onclick="deleteHREmployee('+JSON.stringify(e.id)+')">'+hrT('hrEmpBtnDelete')+'</button></td>'+
                     '</tr>';
             }).join('');
         }
@@ -14194,9 +14350,9 @@ function hrT(key, vars) {
                 setVal('hrEmpHireDate',inputDateValue(e.hireDate));setVal('hrEmpBirthDate',inputDateValue(e.birthDate));setVal('hrEmpGender',e.gender||'');
                 setVal('hrEmpDependents',e.dependentsCount||0);setVal('hrEmpNotes',e.notes||'');
                 if(s) s.value=e.insuranceStatus||'insured';
-                var h=modal.querySelector('h2'); if(h) h.textContent='تعديل موظف';
+                var h=modal.querySelector('h2'); if(h) h.textContent=hrT('hrModalEditEmployee');
             } else {
-                if(modal){var hh=modal.querySelector('h2');if(hh)hh.textContent='إضافة موظف';}
+                if(modal){var hh=modal.querySelector('h2');if(hh)hh.textContent=hrT('hrModalAddEmployee');}
                 setVal('hrEmpDependents',0);
             }
             openModal('hrEmployeeModal');
@@ -14211,7 +14367,7 @@ function hrT(key, vars) {
 
         async function saveHREmployee() {
             var name=String((document.getElementById('hrEmpName')||{}).value||'').trim();
-            if(!name){alert('اكتب اسم الموظف.');return;}
+            if(!name){alert(hrT('hrAlertPleaseName'));return;}
             try{
                 var company=await ensureCorporateHRCompany(); if(!company || !company.companyId) throw new Error('تعذر تحديد الشركة المرتبطة بحسابك.'); var modal=document.getElementById('hrEmployeeModal'), id=modal&&modal.dataset.editId;
                 var payload={
@@ -14230,7 +14386,7 @@ function hrT(key, vars) {
                 await writeHRAudit(id?'update_employee':'create_employee','employee',id,{name:name});
                 closeModal('hrEmployeeModal');
                 await loadCorporateHRData();
-            }catch(e){console.error(e);alert('تعذر حفظ الموظف: '+(e.message||e));}
+            }catch(e){console.error(e);alert(hrT('hrAlertSaveEmployeeFail',{msg:e.message||e}));}
         }
 
         async function deleteHREmployee(id){
@@ -14353,12 +14509,12 @@ function hrT(key, vars) {
         async function uploadHRCompanyDocument(){
             var file=document.getElementById('hrDocFile')&&document.getElementById('hrDocFile').files[0];
             var name=String((document.getElementById('hrDocName')||{}).value||'').trim();
-            if(!name||!file){alert('أدخل اسم الوثيقة واختر ملفًا.');return;}
-            if(!isSupportedHRDocument(file)){alert('نوع الملف غير مدعوم أو حجمه يتجاوز 15MB.');return;}
+            if(!name||!file){alert(hrT('hrAlertPleaseDocName'));return;}
+            if(!isSupportedHRDocument(file)){alert(hrT('hrAlertBadFile'));return;}
             try{
                 var company=await ensureCorporateHRCompany(); if(!company || !company.companyId) throw new Error('تعذر تحديد الشركة المرتبطة بحسابك.'); var progress=document.getElementById('hrDocUploadProgress');
-                if(progress)progress.textContent='جاري الرفع... 0%';
-                var result=await uploadToCloudinary(file,function(p){if(progress)progress.textContent='جاري الرفع... '+p+'%';});
+                if(progress)progress.textContent=hrT('hrModalDocUploadProgress',{pct:0});
+                var result=await uploadToCloudinary(file,function(p){if(progress)progress.textContent=hrT('hrModalDocUploadProgress',{pct:p});});
                 var payload={
                     companyId:company.companyId,name:name,documentType:(document.getElementById('hrDocType')||{}).value||'other',
                     expiryDate:String((document.getElementById('hrDocExpiry')||{}).value||'')||null,
@@ -14370,14 +14526,14 @@ function hrT(key, vars) {
                 closeModal('hrDocumentModal');
                 await ensureHRDocumentAlerts();
                 await loadCorporateHRData();
-            }catch(e){console.error(e);alert('تعذر رفع الوثيقة: '+(e.message||e));}
+            }catch(e){console.error(e);alert(hrT('hrAlertUploadFail',{msg:e.message||e}));}
         }
 
         function hrDaysText(days){
-            if(days<0)return 'منتهية منذ '+Math.abs(days)+' يوم';
-            if(days===0)return 'تنتهي اليوم';
-            if(days===1)return 'تنتهي غدًا';
-            return 'متبقي '+days+' يوم';
+            if(days<0)return hrT('hrDocsExpiredSince',{days:Math.abs(days)});
+            if(days===0)return hrT('hrDocsExpiresToday');
+            if(days===1)return hrT('hrDocsExpiresTomorrow');
+            return hrT('hrDocsDaysLeft',{days:days});
         }
 
         async function ensureHRDocumentAlerts(){
@@ -14394,7 +14550,7 @@ function hrT(key, vars) {
                 var ref=db.collection('notifications').doc(nid);
                 var snap=await ref.get();
                 if(!snap.exists){
-                    await ref.set({clientId:STATE.currentUser.uid,companyId:cid,title:left<0?'وثيقة شركة منتهية':'اقتراب انتهاء وثيقة شركة',message:(d.name||'وثيقة')+' — '+hrDaysText(left),type:'hr_document_expiry',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp(),documentId:d.id});
+                    await ref.set({clientId:STATE.currentUser.uid,companyId:cid,title:hrT(left<0?'hrDocAlertExpired':'hrDocAlertExpiring'),message:(d.name||hrT('hrModalDocTitle'))+' — '+hrDaysText(left),type:'hr_document_expiry',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp(),documentId:d.id});
                 }
             }
         }
@@ -14407,13 +14563,14 @@ function hrT(key, vars) {
         function renderHRCompanyDocuments(){
             var c=document.getElementById('hrCompanyDocuments');if(!c)return;
             var docs=STATE.hrDocuments||[];
-            if(!docs.length){c.innerHTML='<div class="hr-section-card"><div class="hr-empty"><strong>Vault فارغ</strong>ارفع السجل التجاري أو البطاقة الضريبية أو وثيقة التأمين أو أي مستند رسمي.</div></div>';return;}
+            if(!docs.length){c.innerHTML='<div class="hr-section-card"><div class="hr-empty"><strong>'+esc(hrT('hrDocsEmptyTitle'))+'</strong>'+esc(hrT('hrDocsEmptyText'))+'</div></div>';return;}
             c.innerHTML=docs.sort(function(a,b){return dateMillis(a.expiryDate)-dateMillis(b.expiryDate);}).map(function(d){
                 var left=daysUntil(d.expiryDate), cls=left<0?'expired':(left<=45?'warn':'ok');
-                return '<div class="hr-doc-card"><div class="hr-doc-top"><div class="hr-doc-icon">📄</div><div style="flex:1"><div class="hr-doc-name">'+esc(d.name||d.fileName||'وثيقة')+'</div><div class="hr-doc-meta">'+esc(d.fileName||'')+' · '+esc(d.documentType||'other')+'</div></div></div>'+
-                    '<div class="hr-doc-expiry '+cls+'">'+(d.expiryDate?hrDaysText(left):'بدون تاريخ انتهاء')+'</div>'+
-                    '<div class="hr-doc-meta">تاريخ الانتهاء: '+esc(hrDateOnly(d.expiryDate))+'</div>'+
-                    '<div class="hr-doc-actions"><button class="hr-mini-btn" onclick="openCompanyDoc('+JSON.stringify(d.id)+')">فتح المستند</button></div></div>';
+                var typeKey={commercial_register:'hrModalDocTypeCommercial',tax_card:'hrModalDocTypeTax',medical_policy:'hrModalDocTypeMedical',contract:'hrModalDocTypeContract',official:'hrModalDocTypeOfficial',other:'hrModalDocTypeOther'}[d.documentType]||'hrModalDocTypeOther';
+                return '<div class="hr-doc-card"><div class="hr-doc-top"><div class="hr-doc-icon">📄</div><div style="flex:1"><div class="hr-doc-name">'+esc(d.name||d.fileName||hrT('hrModalDocTitle'))+'</div><div class="hr-doc-meta">'+esc(d.fileName||'')+' · '+esc(hrT(typeKey))+'</div></div></div>'+
+                    '<div class="hr-doc-expiry '+cls+'">'+(d.expiryDate?hrDaysText(left):hrT('hrDocsNoExpiry'))+'</div>'+
+                    '<div class="hr-doc-meta">'+esc(hrT('hrDocsExpiryLabel'))+': '+esc(hrDateOnly(d.expiryDate))+' · '+esc(hrT(typeKey))+'</div>'+
+                    '<div class="hr-doc-actions"><button class="hr-mini-btn" onclick="openCompanyDoc('+JSON.stringify(d.id)+')">'+hrT('hrDocsBtnOpen')+'</button></div></div>';
             }).join('');
         }
 
@@ -14428,7 +14585,7 @@ function hrT(key, vars) {
             var isEmployee=type==='reimbursement';
             if(field)field.style.display=isEmployee?'block':'none';
             if(select && (!select.options.length || select.dataset.loaded!=='1')){
-                select.innerHTML='<option value="">اختر الموظف</option>'+(STATE.hrEmployees||[]).map(function(e){return '<option value="'+esc(e.id)+'">'+esc(e.name)+'</option>';}).join('');
+                select.innerHTML='<option value="">'+esc(hrT('hrModalReqEmployeeSelect'))+'</option>'+(STATE.hrEmployees||[]).map(function(e){return '<option value="'+esc(e.id)+'">'+esc(e.name)+'</option>';}).join('');
                 select.dataset.loaded='1';
             }
         }
@@ -14436,7 +14593,7 @@ function hrT(key, vars) {
         async function saveHRRequest(){
             var type=(document.getElementById('hrReqType')||{}).value||'issuance';
             var employeeId=(document.getElementById('hrReqEmployee')||{}).value||null;
-            if(type==='reimbursement'&&!employeeId){alert('اختر الموظف المرتبط بطلب التعويض.');return;}
+            if(type==='reimbursement'&&!employeeId){alert(hrT('hrAlertChooseEmployee'));return;}
             try{
                 var company=await ensureCorporateHRCompany(); if(!company || !company.companyId) throw new Error('تعذر تحديد الشركة المرتبطة بحسابك.'); var emp=employeeId?(STATE.hrEmployees||[]).find(function(e){return e.id===employeeId;}):null;
                 var customNumber=String((document.getElementById('hrReqNumber')||{}).value||'').trim();
@@ -14450,12 +14607,12 @@ function hrT(key, vars) {
                 };
                 var ref=await db.collection('corporateRequests').add(payload);
                 await writeHRAudit('create_request','request',ref.id,{type:type,employeeId:employeeId,requestNumber:requestNumber});
-                await notifyHR('طلب جديد',requestNumber+' تم تقديمه بحالة «مُقدَّم».','corporate_request_created',{requestId:ref.id});
+                await notifyHR(hrT('hrAlertNewRequest'),hrT('hrAlertRequestSubmitted',{num:requestNumber}),'corporate_request_created',{requestId:ref.id});
                 closeModal('hrRequestModal');await loadCorporateHRData();
-            }catch(e){console.error(e);alert('تعذر إنشاء الطلب: '+(e.message||e));}
+            }catch(e){console.error(e);alert(hrT('hrAlertRequestFail',{msg:e.message||e}));}
         }
 
-        function requestTypeLabel(t){return {issuance:'إصدار',renewal:'تجديد',reimbursement:'تعويض'}[t]||t||'طلب';}
+        function requestTypeLabel(t){var keys={issuance:'hrReqTypeIssuance',renewal:'hrReqTypeRenewal',reimbursement:'hrReqTypeReimbursement'};return hrT(keys[t]||'hrReqTypeLabel');}
 
         function renderHRRequestCard(r){
             var info=requestStatusInfo(r.status);
@@ -14469,7 +14626,7 @@ function hrT(key, vars) {
             var search=String((document.getElementById('hrRequestSearch')||{}).value||'').trim().toLowerCase();
             var status=String((document.getElementById('hrRequestStatusFilter')||{}).value||'');
             var list=(STATE.hrRequests||[]).filter(function(r){var hay=[r.requestNumber,r.employeeName,requestTypeLabel(r.type),r.notes].join(' ').toLowerCase();return (!search||hay.indexOf(search)>=0)&&(!status||r.status===status);});
-            if(!list.length){c.innerHTML='<div class="hr-section-card"><div class="hr-empty"><strong>لا توجد طلبات</strong>سيظهر هنا سجل الإصدار والتجديد والتعويض مع الـTimeline.</div></div>';return;}
+            if(!list.length){c.innerHTML='<div class="hr-section-card"><div class="hr-empty"><strong>'+esc(hrT('hrReqEmptyTitle'))+'</strong>'+esc(hrT('hrReqEmptyText'))+'</div></div>';return;}
             c.innerHTML=list.map(renderHRRequestCard).join('');
         }
 
@@ -14638,9 +14795,41 @@ function hrT(key, vars) {
         function renderHRBarList(containerId,list,limit){
             var c=document.getElementById(containerId);if(!c)return;
             list=(list||[]).slice(0,limit||6);
-            if(!list.length){c.innerHTML='<div class="hr-small-note">لا توجد بيانات كافية.</div>';return;}
+            if(!list.length){c.innerHTML='<div class="hr-small-note">'+esc(hrT('hrConsNoData'))+'</div>';return;}
             var max=Math.max.apply(null,list.map(function(x){return x.value;}))||1;
             c.innerHTML=list.map(function(x){return '<div class="hr-bar-row"><div class="hr-bar-label">'+esc(x.key)+'</div><div class="hr-bar-track"><div class="hr-bar-fill" style="width:'+Math.max(3,x.value/max*100)+'%"></div></div><div class="hr-bar-value">'+formatHRMoney(x.value)+'</div></div>';}).join('');
+        }
+
+        function getHRPremiumForPeriod(entered,basis,startValue,endValue){
+            var premium=Number(entered)||0;
+            if(startValue&&endValue&&String(endValue)<String(startValue))return 0;
+            if(premium<=0||basis!=='annual')return premium;
+            if(!startValue||!endValue)return 0;
+            var start=parseHRDate(startValue),end=parseHRDate(endValue);
+            if(!start||!end||end<start)return 0;
+            var cursor=new Date(start.getFullYear(),start.getMonth(),start.getDate()),last=new Date(end.getFullYear(),end.getMonth(),end.getDate()),fraction=0;
+            while(cursor<=last){
+                var year=cursor.getFullYear(),yearEnd=new Date(year,11,31),segmentEnd=yearEnd<last?yearEnd:last;
+                var segmentDays=Math.floor((segmentEnd-cursor)/86400000)+1,daysInYear=((year%4===0&&year%100!==0)||year%400===0)?366:365;
+                fraction+=segmentDays/daysInYear;
+                cursor=new Date(year+1,0,1);
+            }
+            return premium*fraction;
+        }
+
+        function refreshHRConsumptionMetrics(){
+            updateHRConsumptionQuality();
+            var c=STATE.hrConsumption;
+            if(c&&Array.isArray(c.analysisRows)){
+                var previous=c.report;
+                var report=buildHRMedicalReport(c.analysisRows);
+                var aiInputsUnchanged=previous&&['year','totalSpend','premium','lossRatio','coveredLives','periodStart','periodEnd','insuranceType'].every(function(key){return previous[key]===report[key];});
+                if(aiInputsUnchanged){report.aiAnalysis=previous.aiAnalysis||null;report.aiAnalysisLanguage=previous.aiAnalysisLanguage||null;report.aiGeneratedAt=previous.aiGeneratedAt||null;}
+                c.report=report;
+                renderHRMedicalReport(report,true);
+                window.clearTimeout(window.hrAIDebounceTimer);
+                window.hrAIDebounceTimer=window.setTimeout(function(){maybeGenerateHRGeminiReport(report);},900);
+            }else updateHRMedicalHeadline();
         }
 
         function updateHRMedicalHeadline(){
@@ -14648,8 +14837,11 @@ function hrT(key, vars) {
             var value=document.getElementById('hrLossRatioValue'), sub=document.getElementById('hrLossRatioSub');
             if(!value)return;
             var spend=report?report.totalSpend:0;
-            if(spend>0&&prem>0){value.textContent=((spend/prem)*100).toFixed(1)+'%';sub.textContent=formatHRMoney(spend)+' استهلاك مقابل '+formatHRMoney(prem)+' قسط';}
-            else {value.textContent='—';sub.textContent='أدخل القسط وشغّل التحليل للحصول على Loss Ratio.';}
+            var basis=String((document.getElementById('hrConsumptionPremiumType')||{}).value||'period'),start=String((document.getElementById('hrConsumptionStart')||{}).value||''),end=String((document.getElementById('hrConsumptionEnd')||{}).value||'');
+            var periodPremium=getHRPremiumForPeriod(prem,basis,start,end);
+            if(report&&report.premium>0)periodPremium=report.premium;
+            if(spend>0&&periodPremium>0){value.textContent=((spend/periodPremium)*100).toFixed(1)+'%';sub.textContent=formatHRMoney(spend)+' · '+hrT('hrConsPremiumBasis')+': '+formatHRMoney(periodPremium);}
+            else {value.textContent='—';sub.textContent=hrT('hrConsEnterPremiumHint');}
             renderCorporateHRDashboard();
         }
 
@@ -14661,10 +14853,10 @@ function hrT(key, vars) {
             var el=document.getElementById('hrConsumptionQuality');
             if(!el)return;
             var dot=el.querySelector('.hr-quality-dot');
-            var complete=!!(premium&&lives&&start&&end);
+            var validPeriod=!(start&&end&&end<start),complete=!!(premium&&lives&&start&&end&&validPeriod);
             if(dot){dot.style.background=complete?'var(--green)':'var(--gold)';dot.style.boxShadow=complete?'0 0 0 4px rgba(22,128,91,.12)':'0 0 0 4px rgba(242,189,99,.12)';}
             var msg=el.querySelector('span:last-child');
-            if(msg)msg.textContent=complete?hrT('hrConsQualityComplete'):hrT('hrConsQualityHint');
+            if(msg)msg.textContent=!validPeriod?hrT('hrConsInvalidPeriod'):(complete?hrT('hrConsQualityComplete'):hrT('hrConsQualityHint'));
         }
 
         function buildHRMedicalReport(rows){
@@ -14676,17 +14868,21 @@ function hrT(key, vars) {
             var profile=STATE.hrConsumption&&STATE.hrConsumption.profile||{type:'unknown',insurers:[],plans:[]};
             if(datedRows.length){
                 var start=document.getElementById('hrConsumptionStart'),end=document.getElementById('hrConsumptionEnd');
-                if(start)start.value=datedRows[0].toISOString().slice(0,10);
-                if(end)end.value=datedRows[datedRows.length-1].toISOString().slice(0,10);
+                if(start&&!start.value)start.value=datedRows[0].toISOString().slice(0,10);
+                if(end&&!end.value)end.value=datedRows[datedRows.length-1].toISOString().slice(0,10);
                 var yearInput=document.getElementById('hrConsumptionYear');if(yearInput)yearInput.value=inferredYear;
             }
+            var premiumType=String((document.getElementById('hrConsumptionPremiumType')||{}).value||'period');
+            var periodStart=String((document.getElementById('hrConsumptionStart')||{}).value||''),periodEnd=String((document.getElementById('hrConsumptionEnd')||{}).value||'');
+            var periodPremium=getHRPremiumForPeriod(premium,premiumType,periodStart,periodEnd);
             var report=Object.assign({
                 year:year,
-                premium:premium,
-                premiumType:String((document.getElementById('hrConsumptionPremiumType')||{}).value||'period'),
+                premium:periodPremium,
+                enteredPremium:premium,
+                premiumType:premiumType,
                 coveredLives:parseHRNumber((document.getElementById('hrConsumptionLives')||{}).value),
-                periodStart:String((document.getElementById('hrConsumptionStart')||{}).value||''),
-                periodEnd:String((document.getElementById('hrConsumptionEnd')||{}).value||''),
+                periodStart:periodStart,
+                periodEnd:periodEnd,
                 threshold:threshold,
                 sourceType:STATE.hrConsumption&&STATE.hrConsumption.sourceType||'unknown',
                 sourceName:STATE.hrConsumption&&STATE.hrConsumption.sourceName||'',
@@ -14694,11 +14890,11 @@ function hrT(key, vars) {
                 notes:String((document.getElementById('hrConsumptionNotes')||{}).value||'').trim(),
                 createdAt:new Date().toISOString()
             },agg);
-            report.lossRatio=premium>0?(agg.totalSpend/premium)*100:null;
+            report.lossRatio=periodPremium>0?(agg.totalSpend/periodPremium)*100:null;
             return report;
         }
 
-        function renderHRMedicalReport(report){
+        function renderHRMedicalReport(report,skipAI){
             if(!report)return;
             var card=document.getElementById('hrMedicalReportCard');if(card)card.style.display='block';
             var aiCard=document.getElementById('hrAIAnalysisCard');if(aiCard)aiCard.style.display='block';
@@ -14729,8 +14925,12 @@ function hrT(key, vars) {
             var prev=(STATE.hrMedicalReports||[]).find(function(x){return Number(x.year)===Number(report.year)-1;});
             if(yoy)yoy.innerHTML=prev?'<div class="hr-privacy">'+hrT('hrConsYoYCompare',{year:report.year,curr:formatHRMoney(report.totalSpend),prev:prev.year,prevAmt:formatHRMoney(prev.totalSpend),change:(prev.totalSpend?((report.totalSpend-prev.totalSpend)/prev.totalSpend*100):0).toFixed(1)})+'</div>':'<div class="hr-small-note">'+hrT('hrConsNoPrevYear',{year:Number(report.year)-1})+'</div>';
             updateHRMedicalHeadline();
-            generateHRLocalConsumptionReport(report);
-            maybeGenerateHRGeminiReport(report);
+            var hasCurrentAI=!!(report.aiAnalysis&&report.aiAnalysisLanguage===(STATE.language==='en'?'en':'ar'));
+            if(hasCurrentAI){
+                renderHRLocalAnalysisResult(report.aiAnalysis);
+                var aiStatus=document.getElementById('hrAIStatus');if(aiStatus)aiStatus.textContent=hrT('hrAIEnabled');
+            }else generateHRLocalConsumptionReport(report);
+            if(!skipAI&&!hasCurrentAI)maybeGenerateHRGeminiReport(report);
         }
 
         async function applyHRConsumptionMapping(){
@@ -14844,6 +15044,22 @@ function hrT(key, vars) {
             if(status&&enabled)status.textContent=hrT('hrAIEnabled');
         }
 
+        async function persistHRGeneratedReport(report,company){
+            var safeReport=JSON.parse(JSON.stringify(report));
+            safeReport.topConsumers=firebase.firestore.FieldValue.delete();
+            safeReport.companyId=company.companyId;
+            safeReport.createdAt=report.createdAt||new Date().toISOString();
+            safeReport.savedBy=STATE.currentUser.uid;
+            var key='analysis_'+company.companyId+'_'+report.year+'_'+simpleHash(report.sourceName+'|'+report.totalSpend+'|'+report.records);
+            await db.collection('corporateMedicalAnalyses').doc(key).set(safeReport,{merge:true});
+            report.id=key;
+            var history=(STATE.hrMedicalReports||[]).filter(function(item){return item.id!==key;});
+            history.unshift(Object.assign({id:key},safeReport));
+            STATE.hrMedicalReports=history;
+            renderHRMedicalHistory();
+            renderCorporateHRDashboard();
+        }
+
         async function enableHRAutomaticAI(){
             var button=document.getElementById('hrAIEnableBtn'),status=document.getElementById('hrAIStatus');
             if(button)button.disabled=true;
@@ -14870,16 +15086,29 @@ function hrT(key, vars) {
                 var company=await ensureCorporateHRCompany();
                 if(!company||company.aiAnalysisEnabled!==true){updateHRAIOptInUI(false);return;}
                 updateHRAIOptInUI(true);
+                var lang=STATE.language==='en'?'en':'ar';
+                if(report.aiAnalysis&&report.aiAnalysisLanguage===lang){renderHRLocalAnalysisResult(report.aiAnalysis);if(status)status.textContent=hrT('hrAIEnabled');return;}
                 var safe=buildHRAnonymizedAIInput(report);
                 if(Number(safe.report.uniqueEmployees)<5){if(status)status.textContent=hrT('hrAIMinimumData');return;}
-                var lang=STATE.language==='en'?'en':'ar', fingerprint=JSON.stringify({report:safe.report,language:lang});
+                var fingerprint=JSON.stringify({report:safe.report,language:lang});
                 if(STATE.hrGeminiRequestKey===fingerprint)return;
                 STATE.hrGeminiRequestKey=fingerprint;
                 if(status)status.textContent=hrT('hrAIGenerating');
                 var response=await securePathApiCall('/v1/hr/medical-analysis',{companyId:company.companyId,language:lang,report:safe.report});
                 if(!response||!response.analysis)throw new Error(hrT('hrAIGenerationFailed',{msg:''}));
+                if(STATE.hrConsumption&&STATE.hrConsumption.report!==report)return;
+                report.aiAnalysis=response.analysis;
+                report.aiAnalysisLanguage=lang;
+                report.aiGeneratedAt=new Date().toISOString();
+                if(STATE.hrConsumption&&STATE.hrConsumption.report===report)STATE.hrConsumption.report=report;
                 renderHRLocalAnalysisResult(response.analysis);
-                if(status)status.textContent=hrT('hrAIEnabled');
+                try{
+                    await persistHRGeneratedReport(report,company);
+                    if(status)status.textContent=hrT('hrAIAutoSaved');
+                }catch(saveError){
+                    console.warn('Automatic HR report persistence failed:',saveError);
+                    if(status)status.textContent=hrT('hrAIAutoSaveFailed');
+                }
             }catch(error){
                 STATE.hrGeminiRequestKey='';
                 var retryButton=document.getElementById('hrAIEnableBtn');
@@ -14929,6 +15158,12 @@ function hrT(key, vars) {
                     c.headers=matrix[hdr];c.matrix=matrix.slice(hdr+1);c.rowsObjects=c.matrix;c.detected=detectHRConsumptionColumns(c.headers);
                 }
                 c.profile=detectHRInsuranceProfile(file.name,c.headers,c.matrix);
+                if(c.profile.type==='unknown'&&STATE.hrCompany&&STATE.hrCompany.policyProfile&&/^(medical|motor|life)$/.test(STATE.hrCompany.policyProfile.type||'')){
+                    c.profile.type=STATE.hrCompany.policyProfile.type;
+                    c.profile.typeValues=[hrT('hrPolicyType'+c.profile.type.charAt(0).toUpperCase()+c.profile.type.slice(1))];
+                    if(!c.profile.insurers.length&&STATE.hrCompany.policyProfile.insurer)c.profile.insurers=[STATE.hrCompany.policyProfile.insurer];
+                    if(!c.profile.plans.length&&STATE.hrCompany.policyProfile.planName)c.profile.plans=[STATE.hrCompany.policyProfile.planName];
+                }
                 STATE.hrConsumption=c;
                 renderHRMappingUI();
                 var saved=loadSavedHRMapping();
@@ -14943,7 +15178,7 @@ function hrT(key, vars) {
                     var note=document.getElementById('hrMappingNote');
                     if(note)note.textContent=STATE.language==='en'?'The file was read locally, but the amount column was not identified. Match the amount column to continue.':'تمت قراءة الملف محليًا، لكن لم يتم التعرف على عمود المبلغ. طابق عمود المبلغ للمتابعة.';
                 }
-            }catch(e){console.error(e);alert('تعذر قراءة ملف الاستهلاك: '+(e.message||e));}
+            }catch(e){console.error(e);alert(hrT('hrAlertReadFileFail',{msg:e.message||e}));}
         }
 
         function resetHRConsumption(){
@@ -14965,7 +15200,7 @@ function hrT(key, vars) {
 
         async function saveHRMedicalAnalysis(){
             var report=STATE.hrConsumption&&STATE.hrConsumption.report;
-            if(!report){alert('شغّل التحليل أولًا.');return;}
+            if(!report){alert(hrT('hrAlertNeedAnalysis'));return;}
             try{
                 var company=await ensureCorporateHRCompany();
                 if(!company || !company.companyId) throw new Error('تعذر تحديد الشركة المرتبطة بحسابك.');
@@ -14978,13 +15213,13 @@ function hrT(key, vars) {
                 await db.collection('corporateMedicalAnalyses').doc(key).set(safeReport,{merge:true});
                 await writeHRAudit('save_medical_analysis','medical_analysis',key,{year:report.year,totalSpend:report.totalSpend,lossRatio:report.lossRatio});
                 await loadCorporateHRData();
-                alert('تم حفظ التقرير التجميعي بنجاح. لم يتم حفظ ملف الاستهلاك الخام.');
-            }catch(e){console.error(e);alert('تعذر حفظ التقرير: '+(e.message||e));}
+                alert(hrT('hrAlertAnalysisSaved'));
+            }catch(e){console.error(e);alert(hrT('hrAlertSaveAnalysisFail',{msg:e.message||e}));}
         }
 
         function exportHRMedicalExcel(){
             var report=STATE.hrConsumption&&STATE.hrConsumption.report;
-            if(!report||typeof XLSX==='undefined'){alert('أنشئ التقرير أولًا.');return;}
+            if(!report||typeof XLSX==='undefined'){alert(hrT('hrAlertNeedAnalysis'));return;}
             var wb=XLSX.utils.book_new();
             function add(name, rows){XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),name);}
             add('Summary',[['البند','القيمة'],['نوع التأمين',(report.insuranceTypeDetails||[]).join('، ')||report.insuranceType||'غير محدد'],['شركة التأمين',(report.insurers||[]).join('، ')],['الخطة/الفئة',(report.plans||[]).join('، ')],['السنة',report.year],['إجمالي الاستهلاك',report.totalSpend],['القسط',report.premium],['Loss Ratio',report.lossRatio===null?'':report.lossRatio/100],['عدد السجلات',report.records],['عدد الموظفين المستفيدين',report.uniqueEmployees],['عدد المؤمن عليهم',report.coveredLives||''],['متوسط قيمة السجل',report.averageClaim||''],['الاستهلاك لكل مؤمّن عليه',report.spendPerLife||''],['معدل الاستخدام',report.utilizationRate==null?'':report.utilizationRate/100]]);
@@ -14994,7 +15229,7 @@ function hrT(key, vars) {
 
         function pdfSection(title,html){return '<section style="margin:14px 0"><h2 style="font-size:15px;color:#0E2A5C;margin:0 0 7px">'+title+'</h2>'+html+'</section>';}
         function exportHRMedicalPDF(){
-            var r=STATE.hrConsumption&&STATE.hrConsumption.report;if(!r){alert('أنشئ التقرير أولًا.');return;}
+            var r=STATE.hrConsumption&&STATE.hrConsumption.report;if(!r){alert(hrT('hrAlertNeedAnalysis'));return;}
             var html='<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>iNex — Medical Analysis</title><style>body{font-family:Arial,Tahoma,sans-serif;padding:28px;color:#25324A}table{width:100%;border-collapse:collapse;margin:8px 0}td,th{border:1px solid #ddd;padding:7px;font-size:11px;text-align:right}th{background:#f4f6fa}h1{color:#0E2A5C;font-size:22px}small{color:#718096}</style></head><body>'+
                 '<h1>iNex — تقرير الاستهلاكات الطبية الجماعية</h1><small>'+esc(r.sourceName||'ملف الاستهلاك')+' · '+esc((r.insuranceTypeDetails||[]).join('، ')||r.insuranceType||'النوع غير محدد')+(r.insurers&&r.insurers.length?' · '+esc(r.insurers.join('، ')):'')+(r.plans&&r.plans.length?' · '+esc(r.plans.join('، ')):'')+' · سنة '+esc(r.year)+'</small>'+
                 pdfSection('المؤشرات الأساسية','<table><tr><th>إجمالي الاستهلاك</th><th>القسط</th><th>Loss Ratio</th><th>الموظفون المستفيدون</th></tr><tr><td>'+formatHRMoney(r.totalSpend)+'</td><td>'+formatHRMoney(r.premium)+'</td><td>'+(r.lossRatio===null?'—':r.lossRatio.toFixed(1)+'%')+'</td><td>'+r.uniqueEmployees+'</td></tr></table>')+
@@ -15004,7 +15239,7 @@ function hrT(key, vars) {
                 pdfSection('التصنيفات الطبية',miniTable(r.byService))+
                 pdfSection('الاتجاه الشهري',miniTable(r.byMonth))+
                 '<p style="font-size:10px;color:#718096">ملاحظة: التقرير التجميعي لا يتضمن تفاصيل طبية حساسة أكثر من اللازم، واستخراج PDF يعتمد على النص المستخرج من الملف الأصلي.</p></body></html>';
-            var w=window.open('','_blank');if(!w){alert('اسمح بالنوافذ المنبثقة لتصدير التقرير.');return;}w.document.write(html);w.document.close();setTimeout(function(){w.focus();w.print();},350);
+            var w=window.open('','_blank');if(!w){alert(hrT('hrAlertAllowPopups'));return;}w.document.write(html);w.document.close();setTimeout(function(){w.focus();w.print();},350);
         }
         function miniTable(list){return '<table><tr><th>التصنيف</th><th>الاستهلاك</th></tr>'+((list||[]).map(function(x){return '<tr><td>'+esc(x.key)+'</td><td>'+formatHRMoney(x.value)+'</td></tr>';}).join('')||'<tr><td colspan="2">لا توجد بيانات</td></tr>')+'</table>';}
 
@@ -15976,7 +16211,7 @@ function hrT(key, vars) {
     // ═══════════════════════════════════════════════════════════
     // CORPORATE HR HUB — i18n Helper
     // ═══════════════════════════════════════════════════════════
-    
+
     // ============================================================
     // Corporate HR Hub — dedicated language controls
     // ============================================================
@@ -16066,7 +16301,7 @@ function hrT(key, vars) {
         });
     }
 
-function updateHRTexts() {
+        function updateHRTexts() {
         translateHRStaticText();
         var hrLangBtn = document.getElementById('hrLanguageToggle');
         if (hrLangBtn) {
@@ -16300,11 +16535,7 @@ function updateHRTexts() {
             var premiumInput = document.getElementById('hrConsumptionPremium');
             if (premiumInput) premiumInput.setAttribute('placeholder', hrT('hrConsPremiumPlaceholder'));
 
-            // Consumption form labels
-            var consFields = consPane.querySelectorAll('.hr-form-grid .field label');
-            if (consFields[0]) consFields[0].textContent = hrT('hrConsYearLabel');
-            if (consFields[1]) consFields[1].textContent = hrT('hrConsThresholdLabel');
-            if (consFields[2]) consFields[2].textContent = hrT('hrConsNotesLabel');
+            // Form labels/options carry data-hr-t keys and are translated by the shared pass above.
 
             var consNotesInput = document.getElementById('hrConsumptionNotes');
             if (consNotesInput) consNotesInput.setAttribute('placeholder', hrT('hrConsNotesPlaceholder'));
@@ -16350,6 +16581,13 @@ function updateHRTexts() {
         }
 
         updateHRModalTexts();
+        if(isCorporateHRUser()){
+            renderCorporateHRDashboard();
+            renderHREmployees();
+            renderHRCompanyDocuments();
+            renderHRRequests();
+            if(STATE.hrConsumption&&STATE.hrConsumption.report)renderHRMedicalReport(STATE.hrConsumption.report);
+        }
     }
     function updateHRModalTexts() {
         var empModal = document.getElementById('hrEmployeeModal');
@@ -18319,7 +18557,7 @@ html.dark-mode .navbar .nav-item.on .nav-icon .app-icon,html.dark-mode .navbar .
             ic('جاهزية التجديد',m.renewalIndex+'%','تأثير الوثائق المنتهية والقريبة والحقول الناقصة على الجاهزية.',m.renewalIndex)+
             ic('اكتمال المستندات',m.docCompleteness+'%','وجود المستندات الأساسية المسجلة داخل Corporate Documents.',m.docCompleteness)+
             ic('جودة البيانات',m.quality+'%','اكتمال رقم الوثيقة، الشركة، نوع التغطية والتواريخ.',m.quality)+
-            ic('Loss Ratio',m.lossRatio===null?'—':m.lossRatio.toFixed(1)+'%','مقارنة الاستهلاك بالقسط المتاح في آخر تحليل.',m.lossRatio===null?60:clamp(100-m.lossRatio))+ 
+            ic('Loss Ratio',m.lossRatio===null?'—':m.lossRatio.toFixed(1)+'%','مقارنة الاستهلاك بالقسط المتاح في آخر تحليل.',m.lossRatio===null?60:clamp(100-m.lossRatio))+
             ic('مخاطر التجديد',String(m.expired+m.r30+m.r60+m.r90),'عدد الإشارات داخل نافذة 90 يومًا أو بعد الانتهاء.',clamp(100-((m.expired*30)+(m.r30*22)+(m.r60*13)+(m.r90*6))));
         var alerts=[];
         if(m.expired)alerts.push('<div class="hr-intel-alert danger"><strong>خطر مباشر:</strong> '+m.expired+' وثيقة منتهية.</div>');
