@@ -6677,16 +6677,51 @@ html.dark-mode .hr-control-value{color:var(--gold)}
     ></script>
 
 <style id="hrhub-local-view-toggle">
-/* HR Hub-only view switch: no app-wide viewport or navigation changes. */
-#corporateHRHub .hr-view-switch{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin:0 12px 10px;}
-#corporateHRHub .hr-view-switch button{border:1px solid var(--border,#dbe3ed);border-radius:999px;padding:8px 13px;background:var(--card,#fff);color:var(--text,#19304f);font:inherit;font-size:12px;font-weight:700;cursor:pointer;}
-#corporateHRHub .hr-view-switch button[aria-pressed="true"]{background:var(--navy,#0E2A5C);color:#fff;border-color:var(--navy,#0E2A5C);}
-#corporateHRHub.hrhub-mobile-view{width:100%;max-width:430px;margin-inline:auto;border-inline:1px solid var(--border,#dbe3ed);border-radius:22px;overflow:hidden;box-shadow:0 12px 32px rgba(14,42,92,.10);}
-#corporateHRHub.hrhub-mobile-view .hr-hero{margin:10px 10px 12px;}
-#corporateHRHub.hrhub-mobile-view .hr-dashboard-grid,#corporateHRHub.hrhub-mobile-view .hr-report-grid,#corporateHRHub.hrhub-mobile-view .hr-form-grid,#corporateHRHub.hrhub-mobile-view .hr-metric-main{grid-template-columns:minmax(0,1fr)!important;}
-#corporateHRHub.hrhub-mobile-view .hr-section-card{margin-inline:10px;}
-#corporateHRHub.hrhub-mobile-view .hr-table-wrap{max-width:100%;overflow-x:auto;}
-@media(max-width:520px){#corporateHRHub.hrhub-mobile-view{max-width:none;border-radius:0;border-inline:0;box-shadow:none}#corporateHRHub .hr-view-switch{position:sticky;top:0;z-index:20;background:var(--paper,#f7f9fc);padding:8px 0;}}
+/* HR Hub-only responsive layout. The app shell and all other screens remain unchanged. */
+#corporateHRHub{box-sizing:border-box;width:100%;max-width:100%;min-width:0;margin:0 auto;overflow-x:hidden}
+#corporateHRHub *,#corporateHRHub *::before,#corporateHRHub *::after{box-sizing:border-box}
+#corporateHRHub .hr-view-switch{display:flex;flex-wrap:wrap;gap:7px;align-items:center;justify-content:flex-end;margin:0 12px 12px;padding:8px 0}
+#corporateHRHub .hr-view-switch button{min-height:34px;border:1px solid var(--line,#dbe3ed);border-radius:999px;padding:7px 13px;background:var(--card,#fff);color:var(--slate,#19304f);font-family:inherit;font-size:12px;font-weight:700;line-height:1.2;cursor:pointer;white-space:nowrap;transition:background .18s ease,color .18s ease,border-color .18s ease}
+#corporateHRHub .hr-view-switch button[aria-pressed="true"]{background:var(--navy,#0E2A5C);color:#fff;border-color:var(--navy,#0E2A5C)}
+#corporateHRHub .hr-hero{width:auto;min-width:0}
+#corporateHRHub .hr-hero-main{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+#corporateHRHub .hr-hero-brand{flex:1 1 150px;min-width:0}
+#corporateHRHub .hr-hero-copy{min-width:0;overflow-wrap:anywhere}
+#corporateHRHub .hr-hero-copy h1{overflow-wrap:anywhere}
+#corporateHRHub .hr-hero-actions{display:flex;flex:0 1 auto;flex-wrap:wrap;align-items:center;gap:7px}
+#corporateHRHub .hr-kpis{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#corporateHRHub .hr-policy-grid,#corporateHRHub .hr-management-grid,#corporateHRHub .hr-control-grid,#corporateHRHub .hr-quick-grid,#corporateHRHub .hr-intelligence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#corporateHRHub .hr-tabs{grid-template-columns:repeat(6,minmax(0,1fr));}
+#corporateHRHub .hr-pane,#corporateHRHub .hr-section-card,#corporateHRHub .hr-table-wrap{min-width:0;max-width:100%}
+#corporateHRHub .hr-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+#corporateHRHub table{min-width:560px;max-width:none}
+#corporateHRHub.hrhub-web-view .hr-section-card{margin-inline:12px}
+#corporateHRHub.hrhub-mobile-view .hr-view-switch{justify-content:center}
+#corporateHRHub.hrhub-mobile-view .hr-hero{margin:0 0 12px;border-radius:16px}
+#corporateHRHub.hrhub-mobile-view .hr-hero-main{align-items:flex-start;gap:9px;padding:13px 12px 10px}
+#corporateHRHub.hrhub-mobile-view .hr-hero-brand{flex:1 1 100%;gap:9px}
+#corporateHRHub.hrhub-mobile-view .hr-hero-icon{flex:0 0 40px;width:40px;height:40px}
+#corporateHRHub.hrhub-mobile-view .hr-hero-copy h1{font-size:clamp(14px,4vw,18px);line-height:1.3}
+#corporateHRHub.hrhub-mobile-view .hr-hero-actions{width:100%;justify-content:flex-start}
+#corporateHRHub.hrhub-mobile-view .hr-hero-meta{display:flex;flex-wrap:wrap;gap:5px;padding:0 12px 12px}
+#corporateHRHub.hrhub-mobile-view .hr-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+#corporateHRHub.hrhub-mobile-view .hr-tabs{grid-template-columns:repeat(3,minmax(0,1fr));padding-inline:10px}
+#corporateHRHub.hrhub-mobile-view .hr-tab:first-child{grid-column:span 1}
+#corporateHRHub.hrhub-mobile-view .hr-tab:nth-child(2),#corporateHRHub.hrhub-mobile-view .hr-tab:nth-child(3),#corporateHRHub.hrhub-mobile-view .hr-tab:nth-child(4),#corporateHRHub.hrhub-mobile-view .hr-tab:nth-child(5){grid-column:span 1}
+#corporateHRHub.hrhub-mobile-view .hr-section-card{margin-inline:10px;padding:11px;border-radius:14px}
+#corporateHRHub.hrhub-mobile-view .hr-policy-grid,#corporateHRHub.hrhub-mobile-view .hr-management-grid,#corporateHRHub.hrhub-mobile-view .hr-control-grid,#corporateHRHub.hrhub-mobile-view .hr-quick-grid,#corporateHRHub.hrhub-mobile-view .hr-intelligence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#corporateHRHub.hrhub-mobile-view .hr-section-head{flex-wrap:wrap;gap:8px}
+#corporateHRHub.hrhub-mobile-view .hr-head-action{white-space:normal}
+@media(max-width:390px){
+ #corporateHRHub .hr-view-switch{margin-inline:8px}
+ #corporateHRHub.hrhub-mobile-view .hr-kpis,#corporateHRHub.hrhub-mobile-view .hr-policy-grid,#corporateHRHub.hrhub-mobile-view .hr-management-grid,#corporateHRHub.hrhub-mobile-view .hr-control-grid,#corporateHRHub.hrhub-mobile-view .hr-quick-grid,#corporateHRHub.hrhub-mobile-view .hr-intelligence-grid{grid-template-columns:minmax(0,1fr)}
+ #corporateHRHub.hrhub-mobile-view .hr-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #corporateHRHub.hrhub-mobile-view .hr-hero-brand{flex-basis:100%}
+}
+@media(min-width:700px){
+ #corporateHRHub.hrhub-web-view .hr-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+ #corporateHRHub.hrhub-web-view .hr-policy-grid,#corporateHRHub.hrhub-web-view .hr-management-grid,#corporateHRHub.hrhub-web-view .hr-control-grid,#corporateHRHub.hrhub-web-view .hr-quick-grid,#corporateHRHub.hrhub-web-view .hr-intelligence-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
@@ -15081,9 +15116,11 @@ function hrT(key, vars) {
             var root=document.getElementById('corporateHRHub');if(!root)return;
             var mobile=mode==='mobile';
             root.classList.toggle('hrhub-mobile-view',mobile);
+            root.classList.toggle('hrhub-web-view',!mobile);
+            root.setAttribute('data-hr-view-mode',mobile?'mobile':'web');
             var webBtn=document.getElementById('hrHubWebViewBtn'),mobileBtn=document.getElementById('hrHubMobileViewBtn');
-            if(webBtn)webBtn.setAttribute('aria-pressed',mobile?'false':'true');
-            if(mobileBtn)mobileBtn.setAttribute('aria-pressed',mobile?'true':'false');
+            if(webBtn){webBtn.setAttribute('aria-pressed',mobile?'false':'true');webBtn.classList.toggle('active',!mobile);}
+            if(mobileBtn){mobileBtn.setAttribute('aria-pressed',mobile?'true':'false');mobileBtn.classList.toggle('active',mobile);}
             try{sessionStorage.setItem('hrHubViewMode',mobile?'mobile':'web');}catch(e){}
         }
         function restoreHRHubViewMode(){
@@ -16282,6 +16319,8 @@ function hrT(key, vars) {
     function translateHRStaticText() {
         var root = document.getElementById('corporateHRHub');
         if (!root) return;
+        // Restore the HR Hub's own view preference whenever its labels are refreshed.
+        restoreHRHubViewMode();
 
         // Existing explicit translation markers.
         root.querySelectorAll('[data-hr-t]').forEach(function(el) {
