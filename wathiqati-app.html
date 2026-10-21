@@ -8501,7 +8501,7 @@ html.dark-mode .hr-control-value{color:var(--gold)}
     <script>
         // Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
+            navigator.serviceWorker.register('sw.js', {updateViaCache: 'none'})
                 .then(function(reg) { console.log('Service Worker registered:', reg); })
                 .catch(function(err) { console.warn('SW registration failed:', err); });
         }

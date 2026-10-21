@@ -1,6 +1,6 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'inex-v17-isolated-admin-auth';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v18-hr-age-fix';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
