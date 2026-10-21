@@ -5903,6 +5903,47 @@ html.dark-mode .hr-screen .hr-hero{
 }
 
 
+
+        /* ===== HR HUB VISUAL POLISH: styling only, no content or behavior changes ===== */
+        #corporateHRHub .hr-hero { padding:22px; border-radius:22px; margin:16px; }
+        #corporateHRHub .hr-hero-main { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+        #corporateHRHub .hr-hero-brand { display:flex; align-items:center; gap:14px; min-width:0; }
+        #corporateHRHub .hr-hero-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        #corporateHRHub .hr-kpis { gap:12px; margin:0 16px 14px; }
+        #corporateHRHub .hr-kpi { border-radius:16px; padding:15px; transition:transform .18s ease, box-shadow .18s ease; }
+        #corporateHRHub .hr-kpi:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+        #corporateHRHub .hr-tabs { gap:8px; padding:0 16px 14px; flex-wrap:wrap; }
+        #corporateHRHub .hr-tab { min-height:40px; padding:10px 15px; font-size:11px; }
+        #corporateHRHub .hr-pane { padding:0 16px 24px; }
+        #corporateHRHub .hr-section-card { padding:18px; border-radius:18px; margin-bottom:14px; }
+        #corporateHRHub .hr-section-head { align-items:flex-start; gap:14px; margin-bottom:15px; }
+        #corporateHRHub .hr-section-title { font-size:15px; line-height:1.5; }
+        #corporateHRHub .hr-section-sub { font-size:11px; line-height:1.75; max-width:760px; }
+        #corporateHRHub .hr-kicker { letter-spacing:.04em; margin-bottom:4px; }
+        #corporateHRHub .hr-table-wrap, #corporateHRHub .hr-audit-table-wrap { max-width:100%; }
+        #corporateHRHub button { transition:transform .16s ease, box-shadow .16s ease, background-color .16s ease; }
+        #corporateHRHub button:focus-visible { outline:3px solid rgba(65,145,255,.65); outline-offset:2px; }
+        html.view-mode-web #corporateHRHub .hr-kpis { grid-template-columns:repeat(4,minmax(0,1fr)); }
+        html.view-mode-web #corporateHRHub .hr-hero { padding:26px 28px; }
+        html.view-mode-web #corporateHRHub .hr-pane { padding-left:24px; padding-right:24px; }
+        html.view-mode-web #corporateHRHub .hr-section-card { padding:22px; }
+        html.view-mode-web #corporateHRHub .hr-policy-grid,
+        html.view-mode-web #corporateHRHub .hr-intelligence-grid,
+        html.view-mode-web #corporateHRHub .hr-portfolio-kpis { gap:14px; }
+        @media (max-width: 760px) {
+            #corporateHRHub .hr-hero { margin:10px; padding:16px; border-radius:18px; }
+            #corporateHRHub .hr-hero-main { align-items:flex-start; flex-direction:column; }
+            #corporateHRHub .hr-hero-actions { width:100%; justify-content:flex-start; }
+            #corporateHRHub .hr-kpis { margin:0 10px 12px; gap:8px; }
+            #corporateHRHub .hr-kpi { padding:12px; min-width:0; }
+            #corporateHRHub .hr-tabs { flex-wrap:nowrap; overflow-x:auto; padding:0 10px 12px; }
+            #corporateHRHub .hr-pane { padding:0 10px 18px; }
+            #corporateHRHub .hr-section-card { padding:13px; border-radius:15px; }
+            #corporateHRHub .hr-section-head { flex-direction:column; }
+            #corporateHRHub .hr-section-title { font-size:13px; }
+            #corporateHRHub .hr-section-sub { font-size:10px; }
+            html.view-mode-web #corporateHRHub .hr-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        }
         /* ===== GLOBAL WEB / MOBILE VIEW SWITCH (presentation only) ===== */
         .view-mode-switch {
             position: fixed; top: 12px; right: 14px; z-index: 10000;
