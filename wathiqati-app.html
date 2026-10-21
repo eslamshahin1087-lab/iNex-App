@@ -6675,6 +6675,19 @@ html.dark-mode .hr-control-value{color:var(--gold)}
       src="https://js-de.sentry-cdn.com/ea08d2d7fd21e377ae5a783f67fa0f6a.min.js"
       crossorigin="anonymous"
     ></script>
+
+<style id="hrhub-local-view-toggle">
+/* HR Hub-only view switch: no app-wide viewport or navigation changes. */
+#corporateHRHub .hr-view-switch{display:flex;gap:6px;align-items:center;justify-content:flex-end;margin:0 12px 10px;}
+#corporateHRHub .hr-view-switch button{border:1px solid var(--border,#dbe3ed);border-radius:999px;padding:8px 13px;background:var(--card,#fff);color:var(--text,#19304f);font:inherit;font-size:12px;font-weight:700;cursor:pointer;}
+#corporateHRHub .hr-view-switch button[aria-pressed="true"]{background:var(--navy,#0E2A5C);color:#fff;border-color:var(--navy,#0E2A5C);}
+#corporateHRHub.hrhub-mobile-view{width:100%;max-width:430px;margin-inline:auto;border-inline:1px solid var(--border,#dbe3ed);border-radius:22px;overflow:hidden;box-shadow:0 12px 32px rgba(14,42,92,.10);}
+#corporateHRHub.hrhub-mobile-view .hr-hero{margin:10px 10px 12px;}
+#corporateHRHub.hrhub-mobile-view .hr-dashboard-grid,#corporateHRHub.hrhub-mobile-view .hr-report-grid,#corporateHRHub.hrhub-mobile-view .hr-form-grid,#corporateHRHub.hrhub-mobile-view .hr-metric-main{grid-template-columns:minmax(0,1fr)!important;}
+#corporateHRHub.hrhub-mobile-view .hr-section-card{margin-inline:10px;}
+#corporateHRHub.hrhub-mobile-view .hr-table-wrap{max-width:100%;overflow-x:auto;}
+@media(max-width:520px){#corporateHRHub.hrhub-mobile-view{max-width:none;border-radius:0;border-inline:0;box-shadow:none}#corporateHRHub .hr-view-switch{position:sticky;top:0;z-index:20;background:var(--paper,#f7f9fc);padding:8px 0;}}
+</style>
 </head>
 <body>
 
@@ -7644,6 +7657,10 @@ html.dark-mode .hr-control-value{color:var(--gold)}
         <!-- CORPORATE HR HUB                                            -->
         <!-- ============================================================ -->
         <div class="screen hr-screen" id="corporateHRHub">
+            <div class="hr-view-switch" role="group" aria-label="HR Hub view mode">
+                <button type="button" id="hrHubWebViewBtn" aria-pressed="true" onclick="setHRHubViewMode('web')">Web View</button>
+                <button type="button" id="hrHubMobileViewBtn" aria-pressed="false" onclick="setHRHubViewMode('mobile')">Mobile View</button>
+            </div>
             <div class="hr-hero">
                 <div class="hr-hero-main">
                     <div class="hr-hero-brand">
@@ -15058,6 +15075,20 @@ function hrT(key, vars) {
             STATE.hrMedicalReports=history;
             renderHRMedicalHistory();
             renderCorporateHRDashboard();
+        }
+
+        function setHRHubViewMode(mode){
+            var root=document.getElementById('corporateHRHub');if(!root)return;
+            var mobile=mode==='mobile';
+            root.classList.toggle('hrhub-mobile-view',mobile);
+            var webBtn=document.getElementById('hrHubWebViewBtn'),mobileBtn=document.getElementById('hrHubMobileViewBtn');
+            if(webBtn)webBtn.setAttribute('aria-pressed',mobile?'false':'true');
+            if(mobileBtn)mobileBtn.setAttribute('aria-pressed',mobile?'true':'false');
+            try{sessionStorage.setItem('hrHubViewMode',mobile?'mobile':'web');}catch(e){}
+        }
+        function restoreHRHubViewMode(){
+            var mode='web';try{mode=sessionStorage.getItem('hrHubViewMode')||'web';}catch(e){}
+            setHRHubViewMode(mode==='mobile'?'mobile':'web');
         }
 
         async function enableHRAutomaticAI(){
