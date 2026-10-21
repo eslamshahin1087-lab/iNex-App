@@ -5902,7 +5902,86 @@ html.dark-mode .hr-screen .hr-hero{
   .hr-screen .hr-hero-action{padding:8px;font-size:7px}
 }
 
-</style>
+
+
+        /* ===== HR HUB VISUAL POLISH: styling only, no content or behavior changes ===== */
+        #corporateHRHub .hr-hero { padding:22px; border-radius:22px; margin:16px; }
+        #corporateHRHub .hr-hero-main { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+        #corporateHRHub .hr-hero-brand { display:flex; align-items:center; gap:14px; min-width:0; }
+        #corporateHRHub .hr-hero-actions { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+        #corporateHRHub .hr-kpis { gap:12px; margin:0 16px 14px; }
+        #corporateHRHub .hr-kpi { border-radius:16px; padding:15px; transition:transform .18s ease, box-shadow .18s ease; }
+        #corporateHRHub .hr-kpi:hover { transform:translateY(-2px); box-shadow:var(--shadow-lg); }
+        #corporateHRHub .hr-tabs { gap:8px; padding:0 16px 14px; flex-wrap:wrap; }
+        #corporateHRHub .hr-tab { min-height:40px; padding:10px 15px; font-size:11px; }
+        #corporateHRHub .hr-pane { padding:0 16px 24px; }
+        #corporateHRHub .hr-section-card { padding:18px; border-radius:18px; margin-bottom:14px; }
+        #corporateHRHub .hr-section-head { align-items:flex-start; gap:14px; margin-bottom:15px; }
+        #corporateHRHub .hr-section-title { font-size:15px; line-height:1.5; }
+        #corporateHRHub .hr-section-sub { font-size:11px; line-height:1.75; max-width:760px; }
+        #corporateHRHub .hr-kicker { letter-spacing:.04em; margin-bottom:4px; }
+        #corporateHRHub .hr-table-wrap, #corporateHRHub .hr-audit-table-wrap { max-width:100%; }
+        #corporateHRHub button { transition:transform .16s ease, box-shadow .16s ease, background-color .16s ease; }
+        #corporateHRHub button:focus-visible { outline:3px solid rgba(65,145,255,.65); outline-offset:2px; }
+        html.view-mode-web #corporateHRHub .hr-kpis { grid-template-columns:repeat(4,minmax(0,1fr)); }
+        html.view-mode-web #corporateHRHub .hr-hero { padding:26px 28px; }
+        html.view-mode-web #corporateHRHub .hr-pane { padding-left:24px; padding-right:24px; }
+        html.view-mode-web #corporateHRHub .hr-section-card { padding:22px; }
+        html.view-mode-web #corporateHRHub .hr-policy-grid,
+        html.view-mode-web #corporateHRHub .hr-intelligence-grid,
+        html.view-mode-web #corporateHRHub .hr-portfolio-kpis { gap:14px; }
+        @media (max-width: 760px) {
+            #corporateHRHub .hr-hero { margin:10px; padding:16px; border-radius:18px; }
+            #corporateHRHub .hr-hero-main { align-items:flex-start; flex-direction:column; }
+            #corporateHRHub .hr-hero-actions { width:100%; justify-content:flex-start; }
+            #corporateHRHub .hr-kpis { margin:0 10px 12px; gap:8px; }
+            #corporateHRHub .hr-kpi { padding:12px; min-width:0; }
+            #corporateHRHub .hr-tabs { flex-wrap:nowrap; overflow-x:auto; padding:0 10px 12px; }
+            #corporateHRHub .hr-pane { padding:0 10px 18px; }
+            #corporateHRHub .hr-section-card { padding:13px; border-radius:15px; }
+            #corporateHRHub .hr-section-head { flex-direction:column; }
+            #corporateHRHub .hr-section-title { font-size:13px; }
+            #corporateHRHub .hr-section-sub { font-size:10px; }
+            html.view-mode-web #corporateHRHub .hr-kpis { grid-template-columns:repeat(2,minmax(0,1fr)); }
+        }
+        /* ===== GLOBAL WEB / MOBILE VIEW SWITCH (presentation only) ===== */
+        .view-mode-switch {
+            position: fixed; top: 12px; right: 14px; z-index: 10000;
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 5px; border: 1px solid rgba(14,42,92,.16); border-radius: 14px;
+            background: rgba(255,255,255,.96); box-shadow: 0 8px 28px rgba(7,29,64,.16);
+            backdrop-filter: blur(12px); font-family: var(--font-ui);
+        }
+        .view-mode-switch button {
+            display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+            min-height: 36px; padding: 8px 12px; border: 0; border-radius: 10px;
+            background: transparent; color: #25324A; font: 700 12px/1.2 var(--font-ui);
+            cursor: pointer; transition: background .2s ease, color .2s ease;
+        }
+        .view-mode-switch button[aria-pressed="true"] {
+            background: #0E2A5C; color: #fff;
+        }
+        .view-mode-switch button:focus-visible { outline: 3px solid #72B7FF; outline-offset: 2px; }
+        html.view-mode-web body { display:block; min-height:100vh; padding:64px 20px 20px; background:#EAF0F7; }
+        html.dark-mode.view-mode-web body { background:#060A14; }
+        html.view-mode-web #appRoot {
+            width:min(1440px, 100%); max-width:1440px; height:calc(100vh - 84px);
+            min-height:640px; margin:0 auto; border-radius:22px; border-width:1px;
+            box-shadow:0 20px 60px rgba(7,29,64,.18);
+        }
+        html.view-mode-web #appRoot .notch { display:none; }
+        html.view-mode-web #appRoot .screen { scrollbar-width:thin; }
+        html.view-mode-web #appRoot .screen.active { min-height:0; }
+        html.view-mode-web #appRoot .hr-dashboard,
+        html.view-mode-web #appRoot .hr-hub-dashboard { max-width:100%; }
+        @media (max-width: 700px) {
+            .view-mode-switch { top: max(8px, env(safe-area-inset-top)); right: 8px; padding:4px; gap:2px; }
+            .view-mode-switch button { min-height:34px; padding:7px 9px; font-size:11px; }
+            html.view-mode-web body { padding:54px 0 0; }
+            html.view-mode-web #appRoot { width:100%; height:calc(100dvh - 54px); min-height:0; border-radius:0; border:0; }
+        }
+
+    </style>
 
 <style>
 /* ================================================================
@@ -6677,6 +6756,12 @@ html.dark-mode .hr-control-value{color:var(--gold)}
     ></script>
 </head>
 <body>
+
+
+    <div class="view-mode-switch" id="viewModeSwitch" role="group" aria-label="View mode">
+        <button type="button" id="viewModeWeb" aria-pressed="false" onclick="setAppViewMode('web')"><span aria-hidden="true">▣</span><span data-view-label="web">Web View</span></button>
+        <button type="button" id="viewModeMobile" aria-pressed="true" onclick="setAppViewMode('mobile')"><span aria-hidden="true">▯</span><span data-view-label="mobile">Mobile View</span></button>
+    </div>
 
     <div class="phone" id="appRoot">
 
@@ -16985,7 +17070,31 @@ function hrT(key, vars) {
             }
         }
 
+
+        // Global presentation mode: changes layout only; it does not change routes,
+        // application data, permissions, or feature behavior.
+        function setAppViewMode(mode) {
+            mode = mode === 'web' ? 'web' : 'mobile';
+            document.documentElement.classList.toggle('view-mode-web', mode === 'web');
+            document.documentElement.classList.toggle('view-mode-mobile', mode === 'mobile');
+            var webBtn = document.getElementById('viewModeWeb');
+            var mobileBtn = document.getElementById('viewModeMobile');
+            if (webBtn) webBtn.setAttribute('aria-pressed', String(mode === 'web'));
+            if (mobileBtn) mobileBtn.setAttribute('aria-pressed', String(mode === 'mobile'));
+            try { localStorage.setItem('iNex_view_mode', mode); } catch (e) {}
+        }
+        function initViewModeToggle() {
+            var mode = 'mobile';
+            try {
+                var saved = localStorage.getItem('iNex_view_mode');
+                if (saved === 'web' || saved === 'mobile') mode = saved;
+                else if (window.matchMedia && window.matchMedia('(min-width: 1100px)').matches) mode = 'web';
+            } catch (e) {}
+            setAppViewMode(mode);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            initViewModeToggle();
             loadThemePreference();
             captureReferralCode();
             try { STATE.language = normalizeLanguage((localStorage.getItem('SecurePath_language') || 'ar')); } catch (e) { STATE.language = 'ar'; }
