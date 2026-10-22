@@ -11,6 +11,6 @@
   "lang": "ar",
   "dir": "rtl",
   "icons": [
-    { "src": "inex-logo.png?v=20261022c", "sizes": "256x256", "type": "image/png", "purpose": "any" }
+    { "src": "inex-logo.png?v=20261022d", "sizes": "256x256", "type": "image/png", "purpose": "any" }
   ]
 }
