@@ -1,6 +1,6 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'inex-v19-logo-refresh';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v20-transparent-logo-bot-label';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
