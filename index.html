@@ -11,18 +11,18 @@
     <meta property="og:title" content="iNex | منصة التأمين والموارد البشرية الذكية">
     <meta property="og:description" content="منصة iNex الذكية للتأمين والموارد البشرية وإدارة العملاء.">
     <meta property="og:url" content="https://eslamshahin1087-lab.github.io/iNex-App/">
-    <meta property="og:image" content="https://eslamshahin1087-lab.github.io/iNex-App/inex-logo.png?v=20261022b">
+    <meta property="og:image" content="https://eslamshahin1087-lab.github.io/iNex-App/inex-logo.png?v=20261022c">
     <meta property="og:image:alt" content="شعار iNex">
     <meta property="og:image:width" content="256">
     <meta property="og:image:height" content="256">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="iNex | منصة التأمين والموارد البشرية الذكية">
     <meta name="twitter:description" content="منصة iNex الذكية للتأمين والموارد البشرية وإدارة العملاء.">
-    <meta name="twitter:image" content="https://eslamshahin1087-lab.github.io/iNex-App/inex-logo.png?v=20261022b">
+    <meta name="twitter:image" content="https://eslamshahin1087-lab.github.io/iNex-App/inex-logo.png?v=20261022c">
     
     <!-- Favicon & App Icons -->
-    <link rel="icon" type="image/png" sizes="256x256" href="inex-logo.png?v=20261022b">
-    <link rel="apple-touch-icon" href="inex-logo.png?v=20261022b">
+    <link rel="icon" type="image/png" sizes="256x256" href="inex-logo.png?v=20261022c">
+    <link rel="apple-touch-icon" href="inex-logo.png?v=20261022c">
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1848,7 +1848,7 @@
         <div class="nav-container">
             <a href="#" class="nav-logo">
                 <div class="icon">
-                    <img src="inex-logo.png?v=20261022b" alt="">
+                    <img src="inex-logo.png?v=20261022c" alt="">
                 </div>
                 <span>iNex</span>
             </a>
@@ -1900,7 +1900,7 @@
             </div>
             <div class="hero-assistant" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="11" rx="3"/><path d="M9 7V5h6v2M12 2v3M9 12h.01M15 12h.01M9 16c1.7 1.2 3.3 1.2 6 0"/></svg>
-                <span class="hero-assistant-label" id="heroAssistantLabel">SecureBot يشرح لك الخطوات</span>
+                <span class="hero-assistant-label" id="heroAssistantLabel">iNex-Bot يشرح لك الخطوات</span>
             </div>
             <div class="phone-mockup" id="heroPhone">
                 <div class="phone-screen">
@@ -2042,7 +2042,7 @@
     >
         <div class="securebot-bubble">
             <div class="securebot-bubble-head">
-                <strong id="secureBotTitle">SecureBot</strong>
+                <strong id="secureBotTitle">iNex-Bot</strong>
                 <span class="securebot-step" id="secureBotStep">1 / 5</span>
             </div>
             <div class="securebot-bubble-text" id="secureBotText">ابدأ الآن مجانًا وأنشئ حسابك في دقيقة واحدة.</div>
@@ -2116,7 +2116,7 @@
                 heroCardTopValue: 'مؤشر حماية نشط',
                 heroCardBottomLabel: 'مكافآت',
                 heroCardBottomValue: '+ نقاط يومية',
-                heroAssistantLabel: 'SecureBot يشرح لك الخطوات',
+                heroAssistantLabel: 'iNex-Bot يشرح لك الخطوات',
                 navFeatures: 'المميزات',
                 navHow: 'كيف يعمل',
                 navDownload: 'تحميل التطبيق',
@@ -2160,7 +2160,7 @@
                 heroCardTopValue: 'Protection score active',
                 heroCardBottomLabel: 'Rewards',
                 heroCardBottomValue: '+ daily points',
-                heroAssistantLabel: 'SecureBot guides you through the steps',
+                heroAssistantLabel: 'iNex-Bot guides you through the steps',
                 navFeatures: 'Features',
                 navHow: 'How it Works',
                 navDownload: 'Download',
@@ -2280,7 +2280,7 @@
             SECUREBOT_STEP = ((SECUREBOT_STEP % steps.length) + steps.length) % steps.length;
             textEl.textContent = steps[SECUREBOT_STEP];
             stepEl.textContent = (SECUREBOT_STEP + 1) + ' / ' + steps.length;
-            if (titleEl) titleEl.textContent = 'SecureBot';
+            if (titleEl) titleEl.textContent = 'iNex-Bot';
 
             dotsEl.innerHTML = steps.map(function(_, i) {
                 return '<i class="' + (i === SECUREBOT_STEP ? 'active' : '') + '"></i>';
@@ -2289,7 +2289,7 @@
             if (botEl) {
                 botEl.setAttribute(
                     'aria-label',
-                    'SecureBot — ' + steps[SECUREBOT_STEP]
+                    'iNex-Bot — ' + steps[SECUREBOT_STEP]
                 );
             }
         }
