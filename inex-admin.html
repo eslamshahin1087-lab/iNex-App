@@ -3883,36 +3883,51 @@
         .catch(e => toast('❌ فشل الحذف: ' + e.message, true));
     }
 
-    function handleCompanyLogoUpload(event) {
-      const file = event.target.files[0];
+    async function handleCompanyLogoUpload(event) {
+      const file = event.target.files && event.target.files[0];
       if (!file) return;
-      if (!file.type.startsWith('image/')) { toast('❌ يجب اختيار ملف صورة', true); return; }
-      if (file.size > 5 * 1024 * 1024) { toast('❌ حجم الملف أكبر من 5MB', true); return; }
+      if (!file.type || !file.type.startsWith('image/')) {
+        toast('❌ يجب اختيار ملف صورة صالح', true);
+        event.target.value = '';
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast('❌ حجم الشعار أكبر من 5MB', true);
+        event.target.value = '';
+        return;
+      }
+
       const status = document.getElementById('coLogoStatus');
       const loading = document.getElementById('coLoading');
-      status.textContent = 'جاري الرفع...';
+      const preview = document.getElementById('coLogoPreview');
+      const previewWrap = document.getElementById('coLogoPreviewWrap');
+      status.textContent = '⏳ جاري رفع الشعار بشكل آمن...';
       loading.style.display = 'block';
-      const fd = new FormData();
-      fd.append('file', file);
-      fd.append('upload_preset', ADMIN_CLOUDINARY_PRESET);
-      fetch(ADMIN_CLOUDINARY_URL, { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(data => {
-          if (data.secure_url) {
-            document.getElementById('coLogo').value = data.secure_url;
-            document.getElementById('coLogoPreview').src = data.secure_url;
-            document.getElementById('coLogoPreviewWrap').style.display = 'block';
-            status.textContent = '✅ تم الرفع بنجاح';
-          } else {
-            status.textContent = '❌ فشل الرفع';
-            toast('❌ فشل رفع الشعار', true);
-          }
-        })
-        .catch(e => {
-          status.textContent = '❌ خطأ: ' + e.message;
-          toast('❌ خطأ في الرفع', true);
-        })
-        .finally(() => { loading.style.display = 'none'; });
+
+      try {
+        // Use the same signed Cloudinary upload flow as admin document uploads.
+        // This avoids relying on an unsigned preset that may be disabled or misconfigured.
+        const result = await uploadAdminDocumentToCloudinary(file, () => {});
+        if (!result || !result.secure_url) throw new Error('لم تُرجع خدمة التخزين رابط الصورة');
+
+        document.getElementById('coLogo').value = result.secure_url;
+        preview.onload = () => {
+          previewWrap.style.display = 'block';
+          status.textContent = '✅ تم رفع الشعار بنجاح';
+        };
+        preview.onerror = () => {
+          previewWrap.style.display = 'none';
+          status.textContent = '❌ تم الرفع لكن تعذر عرض معاينة الصورة';
+          toast('تم رفع الملف لكن تعذر تحميل المعاينة', true);
+        };
+        preview.src = result.secure_url;
+      } catch (error) {
+        const message = error && error.message ? error.message : 'خطأ غير معروف';
+        status.textContent = '❌ فشل الرفع: ' + message;
+        toast('❌ فشل رفع الشعار: ' + message, true);
+      } finally {
+        loading.style.display = 'none';
+      }
     }
 
     async function createCompany(editId) {
