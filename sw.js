@@ -1,6 +1,6 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'inex-v18-hr-age-fix';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v19-logo-refresh';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
