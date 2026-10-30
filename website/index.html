@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1833">
+  <meta name="description" content="iNex — تجربة رقمية أوضح لإدارة وثائقك التأمينية والتواصل مع وسيطك.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="iNex">
+  <meta property="og:title" content="iNex | Insurance, made clearer">
+  <meta property="og:description" content="تابع وثائقك، راجع مستوى الحماية، واطلب عروض التأمين من مكان واحد.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/eslamshahin1087-lab/iNex-App/main/inex-logo.png">
+  <title>iNex — Insurance, made clearer</title>
+  <link rel="icon" href="https://raw.githubusercontent.com/eslamshahin1087-lab/iNex-App/main/inex-logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/site.css">
+  <script src="assets/site.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a class="brand" href="#home" aria-label="iNex home">
+        <img src="https://raw.githubusercontent.com/eslamshahin1087-lab/iNex-App/main/inex-logo.png" alt="iNex logo">
+        <span>iNex</span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="main-nav" id="mainNav">
+        <a href="#platform" data-i18n="navPlatform">المنصة</a>
+        <a href="#features" data-i18n="navFeatures">المميزات</a>
+        <a href="#journey" data-i18n="navJourney">كيف تعمل</a>
+        <a href="#about" data-i18n="navAbout">عن iNex</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="language-switch" id="languageSwitch" type="button" aria-label="Switch language">EN</button>
+        <a class="button button-small button-primary" href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" data-i18n="navCta">افتح التطبيق <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero section" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="heroEyebrow">منصة رقمية لإدارة رحلتك التأمينية</span></div>
+          <h1 data-i18n-html="heroTitle">تأمينك أوضح.<br><em>وقراراتك أذكى.</em></h1>
+          <p class="hero-lead" data-i18n="heroLead">اجمع وثائقك التأمينية في مكان واحد، تابع مواعيد التجديد، وافهم مستوى حمايتك — مع وسيلة أسهل للتواصل مع وسيطك.</p>
+          <div class="hero-actions">
+            <a class="button button-primary button-large" href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener"><span data-i18n="heroPrimary">ابدأ رحلتك</span><span aria-hidden="true">↗</span></a>
+            <a class="button button-ghost button-large" href="#platform"><span data-i18n="heroSecondary">اكتشف المنصة</span><span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="hero-note"><span class="check-mark">✓</span><span data-i18n="heroNote">تجربة رقمية واحدة لمتابعة احتياجاتك التأمينية</span></div>
+        </div>
+        <div class="hero-visual reveal" aria-label="iNex product interface illustration">
+          <div class="visual-orbit orbit-a"></div><div class="visual-orbit orbit-b"></div>
+          <div class="floating-tag tag-top"><span class="tag-icon">✦</span><span data-i18n="visualTagTop">رؤية أوضح لحمايتك</span></div>
+          <div class="app-window">
+            <div class="window-top"><div class="window-brand"><img src="https://raw.githubusercontent.com/eslamshahin1087-lab/iNex-App/main/inex-logo.png" alt=""><b>iNex</b></div><div class="window-dots"><i></i><i></i><i></i></div></div>
+            <div class="window-body">
+              <div class="mock-greeting"><small data-i18n="mockGreeting">مساحة التأمين الخاصة بك</small><strong data-i18n="mockTitle">مرحبًا بك في iNex</strong></div>
+              <div class="mock-score">
+                <div><small data-i18n="mockScoreLabel">تقييم الحماية</small><strong data-i18n="mockScoreValue">نظرة شاملة</strong><span data-i18n="mockScoreHint">افهم نقاط القوة وفرص التحسين</span></div>
+                <div class="score-ring"><span>iN</span></div>
+              </div>
+              <div class="mock-section-head"><b data-i18n="mockPolicies">متابعة الوثائق</b><span data-i18n="mockViewAll">عرض الكل</span></div>
+              <div class="mock-policy"><span class="policy-symbol">⌂</span><span><b data-i18n="mockPolicyOne">وثيقة تأمين</b><small data-i18n="mockPolicyOneSub">متابعة الحالة والتجديد</small></span><i class="status-pill" data-i18n="mockActive">سارية</i></div>
+              <div class="mock-policy"><span class="policy-symbol policy-symbol-gold">＋</span><span><b data-i18n="mockPolicyTwo">طلب عرض سعر</b><small data-i18n="mockPolicyTwoSub">قارن الخيارات المتاحة</small></span><span class="mock-arrow">↗</span></div>
+              <div class="mock-bottom"><span>⌂</span><span>▦</span><span class="mock-bottom-active">◈</span><span>☰</span></div>
+            </div>
+          </div>
+          <div class="floating-tag tag-bottom"><span class="tag-pulse"></span><span data-i18n="visualTagBottom">متابعة في مكان واحد</span></div>
+        </div>
+      </div>
+      <div class="container trust-row reveal">
+        <span data-i18n="trustIntro">صُممت لتسهيل:</span>
+        <div><b>01</b><span data-i18n="trustOne">متابعة الوثائق</span></div>
+        <div><b>02</b><span data-i18n="trustTwo">فهم التغطية</span></div>
+        <div><b>03</b><span data-i18n="trustThree">التواصل مع الوسيط</span></div>
+      </div>
+    </section>
+
+    <section class="section section-light" id="platform">
+      <div class="container">
+        <div class="section-heading reveal"><div class="eyebrow eyebrow-light"><span class="eyebrow-dot"></span><span data-i18n="platformEyebrow">منصة واحدة. رحلة أكثر تنظيمًا.</span></div><h2 data-i18n-html="platformTitle">كل ما يخص تأمينك،<br><em>أقرب وأسهل.</em></h2><p data-i18n="platformLead">تساعدك iNex على تنظيم معلوماتك التأمينية ومتابعتها، وتسهّل الوصول إلى وسيطك وطلب عروض الأسعار.</p></div>
+        <div class="feature-grid" id="features">
+          <article class="feature-card reveal"><div class="feature-icon icon-blue">▤</div><span class="feature-index">01</span><h3 data-i18n="feature1Title">وثائقك في مكان واحد</h3><p data-i18n="feature1Text">ارفع مستنداتك التأمينية وارجع إليها بسهولة، وتابع حالة الوثائق ومواعيد التجديد.</p><a href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" class="text-link" data-i18n="featureLink">استكشف التطبيق ↗</a></article>
+          <article class="feature-card reveal"><div class="feature-icon icon-gold">⌁</div><span class="feature-index">02</span><h3 data-i18n="feature2Title">تقييم مستوى الحماية</h3><p data-i18n="feature2Text">راجع جوانب القوة والفجوات المحتملة في تغطيتك التأمينية، واطلع على توصيات تساعدك على اتخاذ قرار واعٍ.</p><a href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" class="text-link" data-i18n="featureLink">استكشف التطبيق ↗</a></article>
+          <article class="feature-card reveal"><div class="feature-icon icon-cyan">⇄</div><span class="feature-index">03</span><h3 data-i18n="feature3Title">طلب ومقارنة العروض</h3><p data-i18n="feature3Text">أرسل طلب عرض سعر، واطلع على العروض المتاحة لمساعدتك في المقارنة قبل اتخاذ القرار.</p><a href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" class="text-link" data-i18n="featureLink">استكشف التطبيق ↗</a></article>
+          <article class="feature-card reveal"><div class="feature-icon icon-purple">✧</div><span class="feature-index">04</span><h3 data-i18n="feature4Title">نقاط ومكافآت</h3><p data-i18n="feature4Text">تابع نقاط InsuraPoints المكتسبة من الأنشطة المؤهلة، واستفد من آلية الاستبدال المتاحة داخل التطبيق.</p><a href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" class="text-link" data-i18n="featureLink">استكشف التطبيق ↗</a></article>
+          <article class="feature-card reveal"><div class="feature-icon icon-blue">♡</div><span class="feature-index">05</span><h3 data-i18n="feature5Title">تواصل ومساندة</h3><p data-i18n="feature5Text">اطلب استشارة، أرسل شكوى، أو تواصل مع وسيطك من خلال قنوات التواصل المتاحة.</p><a href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" class="text-link" data-i18n="featureLink">استكشف التطبيق ↗</a></article>
+          <article class="feature-card reveal"><div class="feature-icon icon-gold">◎</div><span class="feature-index">06</span><h3 data-i18n="feature6Title">وعي ومعلومات تأمينية</h3><p data-i18n="feature6Text">اطلع على محتوى توعوي يساعدك على فهم احتياجاتك ومتابعة رحلتك التأمينية.</p><a href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" class="text-link" data-i18n="featureLink">استكشف التطبيق ↗</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section journey-section" id="journey">
+      <div class="container journey-grid">
+        <div class="section-heading reveal"><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="journeyEyebrow">خطوات واضحة</span></div><h2 data-i18n-html="journeyTitle">رحلتك التأمينية<br><em>تبدأ من هنا.</em></h2><p data-i18n="journeyLead">ابدأ بحسابك، أضف وثائقك، ثم استخدم الأدوات المتاحة لمتابعة احتياجاتك والتواصل مع وسيطك.</p><a class="button button-primary button-large" href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener"><span data-i18n="journeyCta">انتقل إلى iNex</span><span aria-hidden="true">↗</span></a></div>
+        <div class="steps">
+          <article class="step-card reveal"><span class="step-number">01</span><div><h3 data-i18n="step1Title">أنشئ حسابك</h3><p data-i18n="step1Text">سجّل بياناتك وأكمل توثيق البريد الإلكتروني لبدء استخدام حسابك.</p></div></article>
+          <article class="step-card reveal"><span class="step-number">02</span><div><h3 data-i18n="step2Title">أضف وثائقك</h3><p data-i18n="step2Text">اجمع وثائقك التأمينية وتابع حالتها ومواعيد التجديد من مساحة واحدة.</p></div></article>
+          <article class="step-card reveal"><span class="step-number">03</span><div><h3 data-i18n="step3Title">تابع واتخذ قرارك</h3><p data-i18n="step3Text">استفد من التقييم وطلبات العروض وأدوات التواصل المتاحة داخل المنصة.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section about-section" id="about">
+      <div class="container about-card reveal">
+        <div class="about-mark"><img src="https://raw.githubusercontent.com/eslamshahin1087-lab/iNex-App/main/inex-logo.png" alt="iNex"></div>
+        <div><div class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="aboutEyebrow">عن iNex</span></div><h2 data-i18n="aboutTitle">التقنية لتجربة تأمينية أكثر وضوحًا.</h2><p data-i18n="aboutText">iNex منصة رقمية للتوعية التأمينية وتنظيم بيانات الوثائق وتسهيل التواصل وطلبات عروض الأسعار من خلال وسيط تأمين مستقل. المنصة ليست شركة تأمين ولا تصدر وثائق تأمين بنفسها.</p></div>
+      </div>
+    </section>
+
+    <section class="section final-cta">
+      <div class="container final-cta-inner reveal"><div><span class="cta-kicker" data-i18n="ctaKicker">خطوتك التالية تبدأ الآن</span><h2 data-i18n-html="ctaTitle">خلّي متابعة تأمينك<br><em>أكثر تنظيمًا.</em></h2><p data-i18n="ctaText">اكتشف تجربة iNex الرقمية وابدأ من حسابك.</p></div><a class="button button-dark button-large" href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener"><span data-i18n="ctaButton">افتح منصة iNex</span><span aria-hidden="true">↗</span></a></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-top"><a class="brand footer-brand" href="#home"><img src="https://raw.githubusercontent.com/eslamshahin1087-lab/iNex-App/main/inex-logo.png" alt=""><span>iNex</span></a><p data-i18n="footerTagline">Insurance, made clearer.</p><a href="https://eslamshahin1087-lab.github.io/iNex-App/wathiqati-app.html" target="_blank" rel="noopener" data-i18n="footerApp">الدخول إلى التطبيق ↗</a></div>
+    <div class="container footer-bottom"><span>© <span id="currentYear"></span> iNex. <span data-i18n="rights">جميع الحقوق محفوظة.</span></span><span data-i18n="footerDisclosure">منصة توعوية ورقمية للوساطة التأمينية — لا تمثل شركة تأمين ولا تصدر وثائق تأمين.</span></div>
+  </footer>
+</body>
+</html>
