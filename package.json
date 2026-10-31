@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "node --test tests/securepath-flows.test.cjs"
+    "test": "node --test tests/*.test.cjs"
   },
   "dependencies": {
     "firebase-admin": "^14.4.0"

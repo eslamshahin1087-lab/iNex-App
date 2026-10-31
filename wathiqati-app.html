@@ -8635,6 +8635,8 @@ html.dark-mode .hr-control-value{color:var(--gold)}
 
         var LOGIN_IN_PROGRESS = false;
         var SIGNUP_IN_PROGRESS = false;
+        // Honour explicit registration deep links from the public iNex website.
+        var OPEN_SIGNUP_FROM_LINK = new URLSearchParams(window.location.search).get('screen') === 'signup';
         var SESSION_RESTORE_IN_PROGRESS = false;
         var activeObjectUrls = [];
         var assessmentCache = {};
@@ -17158,6 +17160,15 @@ auth.onAuthStateChanged(function(user) {
     if (SIGNUP_IN_PROGRESS || LOGIN_IN_PROGRESS || SESSION_RESTORE_IN_PROGRESS) return;
 
     if (!user) {
+        if (OPEN_SIGNUP_FROM_LINK) {
+            // Direct registration entry for visitors arriving from the iNex website.
+            resetState();
+            updateAllTexts();
+            showScreen('signup');
+            captureOfferReferral();
+            showOfferReferralBanner('signup');
+            return;
+        }
         console.log('ℹ️ عرض شاشة الدخول');
         showLoginAfterAuthChange();
         return;
