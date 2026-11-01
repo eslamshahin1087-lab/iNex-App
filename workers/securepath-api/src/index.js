@@ -3,6 +3,7 @@
  * No Firebase Cloud Functions required.
  */
 import { handleDocumentVerifiedReward } from './document-rewards.js';
+import { assertINexCreateOnlyWrites, buildINexLeadSyncWrites } from './inex-lead-sync.js';
 
 const PROJECT_ID = 'path-1a672';
 const DB_ROOT = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
@@ -715,6 +716,9 @@ const WHEEL_PRIZES = [
         ];
 
 async function commitInsurNexWrites(env, writes) {
+  // The service account is project-scoped, so enforce a source-level allowlist:
+  // create-only writes to leads, leadActivities, tasks and notifications only.
+  assertINexCreateOnlyWrites(writes, INSURNEX_PROJECT_ID);
   const token = await getInsurNexGoogleAccessToken(env);
   const res = await fetch(INSURNEX_DB_ROOT + ':commit', {
     method: 'POST',
@@ -730,100 +734,102 @@ async function commitInsurNexWrites(env, writes) {
     const err = new Error('InsurNex Firestore write failed (' + res.status + ')');
     err.status = res.status;
     err.code = String(result?.error?.status || '');
+    err.providerMessage = String(result?.error?.message || '').slice(0, 180);
     throw err;
   }
   return result;
 }
 
-async function handleSecurePathRegistrationLead(env, uid) {
-  // Existing accounts are not transferred unless they recorded consent at signup.
+async function handleINexAppRegistrationLead(env, uid) {
+  if (!uid) {
+    const error = new Error('Authentication required');
+    error.status = 401;
+    throw error;
+  }
+
+  // Source identity is verified from the Firebase ID token before this handler runs.
+  // Contact data is always read server-side from the authenticated iNex client record.
   const client = await getDoc(env, 'clients', uid);
   if (!client) throw new Error('Client profile not found');
   if (client.crmLeadSyncConsent !== true) {
     return { ok: true, skipped: true, reason: 'consent_not_granted' };
   }
 
-  // Recipient identity and organization are configured as non-secret Worker variables.
-  // Their existence was verified in the InsurNex Firebase console before setup.
-  const receiverUid = textInput(env.INSURNEX_RECEIVER_UID, 128);
-  const organizationId = textInput(env.INSURNEX_ORGANIZATION_ID, 180);
-  const receiverName = textInput(env.INSURNEX_RECEIVER_NAME, 160, 'secure path leads');
-  if (!/^[A-Za-z0-9_-]{1,128}$/.test(receiverUid) ||
-      !/^org_[A-Za-z0-9_-]{1,180}$/.test(organizationId)) {
-    const e = new Error('InsurNex receiver UID or organization ID is not configured');
-    e.status = 503;
-    throw e;
+  // Older profiles with a consent flag but no captured notice evidence are not
+  // transferred. New signups record both the timestamp and notice version.
+  if (!client.crmLeadSyncConsentAt || !client.crmLeadSyncConsentNoticeVersion) {
+    return { ok: true, skipped: true, reason: 'consent_evidence_incomplete' };
   }
 
-  // Contact data is read from SecurePath Firestore, not accepted from the browser.
-  const fullName = textInput(client.fullName || client.name, 160);
-  const email = textInput(client.email || client.loginEmail, 254).toLowerCase();
-  const phone = textInput(client.phone, 40);
-  if (!fullName || !/^\S+@\S+\.\S+$/.test(email) || !phone) {
-    throw new Error('Client profile is missing required lead contact details');
+  const receiverUid = textInput(env.INSURNEX_RECEIVER_UID, 128);
+  const organizationId = textInput(env.INSURNEX_ORGANIZATION_ID, 180);
+  const receiverName = textInput(env.INSURNEX_RECEIVER_NAME, 160, 'iNex Leads');
+  if (!/^[A-Za-z0-9_-]{1,128}$/.test(receiverUid) ||
+      !/^org_[A-Za-z0-9_-]{1,180}$/.test(organizationId)) {
+    const error = new Error('InsurNex receiving workspace is not configured');
+    error.status = 503;
+    throw error;
   }
 
   if (!String(env.INSURNEX_SERVICE_ACCOUNT_JSON || '').trim()) {
-    const e = new Error('InsurNex service account secret is not configured');
-    e.status = 503;
-    throw e;
+    const error = new Error('InsurNex service account secret is not configured');
+    error.status = 503;
+    throw error;
   }
 
-  // Stable IDs plus create-only preconditions keep retries from duplicating leads.
+  // Keep the original v1 lead ID so earlier registrations remain deduplicated.
   const leadId = 'sp_' + await stableActionId(uid, 'insurnex-registration-lead', 'v1');
   const activityId = leadId + '_created';
+  const taskId = leadId + '_followup';
+  const notificationId = leadId + '_assigned';
   const now = new Date();
-  const notes = [
-    'Source: SecurePath',
-    'SecurePath account ID: ' + uid,
-    'Client type: ' + textInput(client.clientType, 40, 'individual')
-  ].join('\n');
-
-  const writes = [
-    makeCreateWrite('leads', leadId, {
-      organizationId,
-      name: fullName,
-      companyName: textInput(client.clientType, 40, 'individual') === 'corporate'
-        ? textInput(client.businessName, 180, '')
-        : '',
-      phone,
-      email,
-      source: 'website',
-      priority: 'medium',
-      stage: 'new',
-      insuranceType: 'Not specified',
-      preferredInsurerId: '',
-      preferredInsurerName: '',
-      estimatedValue: 0,
-      assignedTo: receiverUid,
-      assignedToName: receiverName,
-      notes,
-      lostReason: '',
-      createdBy: receiverUid,
-      sourceSystem: 'SecurePath',
-      sourceExternalId: uid,
-      lastActivityAt: now,
-      createdAt: now,
-      updatedAt: now
-    }, INSURNEX_PROJECT_ID),
-    makeCreateWrite('leadActivities', activityId, {
-      organizationId,
-      leadId,
-      type: 'created',
-      message: 'تم استلام Lead من SecurePath',
-      createdBy: receiverUid,
-      createdAt: now
-    }, INSURNEX_PROJECT_ID)
-  ];
+  const records = buildINexLeadSyncWrites({
+    sourceUid: uid,
+    client,
+    receiverUid,
+    receiverName,
+    organizationId,
+    leadId,
+    activityId,
+    taskId,
+    notificationId,
+    now,
+    dueDate: todayKey(),
+    projectId: INSURNEX_PROJECT_ID
+  });
 
   try {
-    await commitInsurNexWrites(env, writes);
-    return { ok: true, leadId, alreadyExists: false };
+    await commitInsurNexWrites(env, records.writes);
+    return {
+      ok: true,
+      leadId,
+      taskId,
+      notificationId,
+      alreadyExists: false,
+      followUpCreated: true
+    };
   } catch (error) {
-    // A repeated registration hits the create-only precondition; the first atomic
-    // commit created both records, so this is an idempotent success.
+    // Version 1 registrations may already have a lead + activity but no
+    // follow-up task/notification. The original pair is never overwritten.
     if (error?.code === 'ALREADY_EXISTS' || error?.code === 'FAILED_PRECONDITION') {
-      return { ok: true, leadId, alreadyExists: true };
+      let followUpCreated = false;
+      try {
+        await commitInsurNexWrites(env, records.followUpWrites);
+        followUpCreated = true;
+      } catch (followUpError) {
+        if (followUpError?.code !== 'ALREADY_EXISTS' &&
+            followUpError?.code !== 'FAILED_PRECONDITION') {
+          throw followUpError;
+        }
+      }
+      return {
+        ok: true,
+        leadId,
+        taskId,
+        notificationId,
+        alreadyExists: true,
+        followUpCreated
+      };
     }
     throw error;
   }
@@ -1392,7 +1398,7 @@ async function route(request, env) {
   if (path === '/v1/points') return json(await handlePoints(env, uid, data));
   if (path === '/v1/redeem') return json(await handleRedeem(env, uid, data));
   if (path === '/v1/cloudinary/sign') return json(await handleCloudinarySign(env, uid));
-  if (path === '/v1/client/registration-lead') return json(await handleSecurePathRegistrationLead(env, uid));
+  if (path === '/v1/client/registration-lead' || path === '/v1/inex/registration-lead') return json(await handleINexAppRegistrationLead(env, uid));
   if (path === '/v1/client/appointment') return json(await handleClientAction(env, uid, 'appointment', data));
   if (path === '/v1/client/complaint') return json(await handleClientAction(env, uid, 'complaint', data));
   if (path === '/v1/client/renewal') return json(await handleClientAction(env, uid, 'renewal', data));
