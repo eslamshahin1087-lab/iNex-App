@@ -79,6 +79,10 @@ jobs:
 
       - name: Verify SecurePath Worker syntax
         run: node --check workers/securepath-api/src/index.js
+      - name: Run Worker syntax and iNex lead lifecycle tests
+        run: |
+          npm run check --prefix workers/securepath-api
+          npm test --prefix workers/securepath-api
       - name: Verify iNex lead sync module and run Worker integration tests
         run: |
           npm run check --prefix workers/securepath-api
