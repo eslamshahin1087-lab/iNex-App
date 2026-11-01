@@ -812,14 +812,16 @@ async function handleINexAppRegistrationLead(env, uid) {
     // Version 1 registrations may already have a lead + activity but no
     // follow-up task/notification. The original pair is never overwritten.
     if (error?.code === 'ALREADY_EXISTS' || error?.code === 'FAILED_PRECONDITION') {
-      let followUpCreated = false;
-      try {
-        await commitInsurNexWrites(env, records.followUpWrites);
-        followUpCreated = true;
-      } catch (followUpError) {
-        if (followUpError?.code !== 'ALREADY_EXISTS' &&
-            followUpError?.code !== 'FAILED_PRECONDITION') {
-          throw followUpError;
+      // Create each follow-up independently: an atomic two-document retry would
+      // fail as a whole when only one of the records already exists.
+      for (const write of records.followUpWrites) {
+        try {
+          await commitInsurNexWrites(env, [write]);
+        } catch (followUpError) {
+          if (followUpError?.code !== 'ALREADY_EXISTS' &&
+              followUpError?.code !== 'FAILED_PRECONDITION') {
+            throw followUpError;
+          }
         }
       }
       return {
@@ -828,7 +830,7 @@ async function handleINexAppRegistrationLead(env, uid) {
         taskId,
         notificationId,
         alreadyExists: true,
-        followUpCreated
+        followUpCreated: true
       };
     }
     throw error;
