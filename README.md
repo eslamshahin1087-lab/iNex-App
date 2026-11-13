@@ -59,7 +59,7 @@ iNex/
 ├── firestore.rules / firestore.indexes.json
 ├── functions/                       # Cloud Functions (مسار ترقية مستقبلي لـ Blaze - غير مُفعّل حاليًا)
 ├── .well-known/                     # ملفات تحقق/ربط (Digital Asset Links لأندرويد، إلخ)
-└── icon-192.png / icon-512.png / icon-512-maskable.png / apple-touch-icon.png  # أيقونات قديمة غير مستخدمة حاليًا
+└── icon-192.png / icon-512.png / icon-512-maskable.png / apple-touch-icon.png  # أيقونات تثبيت PWA وiOS
 ```
 
 > ملاحظة: ملفات الـ APK (`SecurePath.apk` / `SecurePath-Production.apk`) غير متتبَّعة في المستودع - يتم توزيعها عبر GitHub Releases بدلاً من ذلك.

@@ -1,12 +1,16 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'inex-v22-transparent-brand-refresh';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v23-gold-shield-logo';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
   './js/securepath-backend.js',
   './js/securepath-flows.js',
   './inex-logo.png',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-512-maskable.png',
+  './apple-touch-icon.png',
   './manifest.json',
   './securepath-admin.html'
 ];
