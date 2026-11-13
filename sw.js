@@ -1,6 +1,6 @@
 // sw.js - نسخة محسنة احترافية
 
-const CACHE_NAME = 'inex-v23-gold-shield-logo';   // تغيير الإصدار عند التحديث
+const CACHE_NAME = 'inex-v24-blue-brand-palette';   // تغيير الإصدار عند التحديث
 const SHELL = [
   './index.html',
   './wathiqati-app.html',
