@@ -1,6 +1,6 @@
 # iNex
 
-![iNex logo](https://github.com/eslamshahin1087-lab/iNex/raw/main/inex-logo.png)
+![iNex logo](https://github.com/eslamshahin1087-lab/iNex-App/raw/main/inex-logo.png)
 
 **منصة iNex الرقمية للوساطة التأمينية — تدير علاقتك بوثائقك التأمينية وتربطك بوسيطك المرخّص في مكان واحد.**
 
